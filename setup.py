@@ -18,8 +18,10 @@ for root, dirnames, filenames in os.walk('src/geppetto_connector/static/geppetto
     for filename in fnmatch.filter(filenames, '*'):
         data_files.append(('share/jupyter/nbextensions' + root[3:], [os.path.join(root, filename)]))
         
-# print(data_files)
+data_files.append(('share/jupyter/nbextensions/geppetto_connector', ['src/geppetto_connector/static/geppetto_connector/index.js']))
+data_files.append(('share/jupyter/nbextensions/geppetto_connector', ['src/geppetto_connector/static/geppetto_connector/GeppettoWidgets.js']))
 
+# print(data_files)
 
 setuptools.setup(
     name="geppetto_connector",
