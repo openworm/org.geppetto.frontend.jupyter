@@ -17,7 +17,9 @@ def _jupyter_nbextension_paths():
         # the path is relative to the `my_fancy_module` directory
         src="static/geppetto_connector",
         # directory in the `nbextension/` namespace
-        dest="geppetto_connector")]
+        dest="geppetto_connector",
+        # _also_ in the `nbextension/` namespace
+        require="geppetto_connector/index")]
     
 class HelloWorldHandler(IPythonHandler):
     def get(self):
