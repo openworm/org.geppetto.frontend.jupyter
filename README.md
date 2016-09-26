@@ -19,3 +19,4 @@ pip install . --upgrade --no-deps --force-reinstall
 
 To connect go to the URL:
 http://localhost:8888/geppetto
+assuming the default Jupyter configuration, otherwise change port accordingly.
