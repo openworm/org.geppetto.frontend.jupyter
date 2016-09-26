@@ -18,4 +18,4 @@ pip install . --upgrade --no-deps --force-reinstall
 ```
 
 To connect go to the URL:
-http://localhost:8888/nbextensions/geppetto_connector/index.js
+http://localhost:8888/geppetto
