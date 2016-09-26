@@ -1,7 +1,3 @@
-[submodule "geppetto"]
-	path = src/geppetto_connector/static/geppetto
-	url = git@github.com:openworm/org.geppetto.frontend.git
-	branch = light_geppetto_jupyter
 [submodule "src/geppetto_connector/static/geppetto"]
 	path = src/geppetto_connector/static/geppetto
 	url = git@github.com:openworm/org.geppetto.frontend.git
