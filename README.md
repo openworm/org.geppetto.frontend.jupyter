@@ -9,8 +9,8 @@ How to install extension:
 ```
 git clone --recursive https://github.com/openworm/org.geppetto.frontend.jupyter.git
 sudo pip install .
-sudo jupyter nbextension install --py geppetto_connector
-sudo jupyter nbextension enable --py geppetto_connector
+sudo jupyter nbextension install --py geppettoJupyter
+sudo jupyter nbextension enable --py geppettoJupyter
 ```
 To overwrite the local install:
 
