@@ -24,5 +24,5 @@ assuming the default Jupyter configuration, otherwise change port accordingly.
 
 Note if you get a 404 and you have a custom configuration of Jupyter notebook you will have to add the following to your jupyter_notebook_config.py:
 ```
-c.NotebookApp.nbserver_extensions = {'geppetto_connector':True}
+c.NotebookApp.nbserver_extensions = {'geppettoJupyter':True}
 ```
