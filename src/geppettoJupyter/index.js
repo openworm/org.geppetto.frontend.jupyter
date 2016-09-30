@@ -20,6 +20,8 @@ define(['base/js/namespace', './GeppettoWidgets'], function (Jupyter, GeppettoWi
 	        return true;
 	    });
 		
+		//Jupyter.notebook.get_msg_cell = function(){console.log('taka')}
+		
 //		var oldClass = Jupyter.notebook; // Copy original before overwriting
 //		Jupyter.notebook = function () {
 //		    // Apply the original constructor on this object
