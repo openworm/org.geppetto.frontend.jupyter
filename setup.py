@@ -36,16 +36,19 @@ class CustomInstallCommand(install):
         install.finalize_options(self)
         
     def run(self):
+        print("kaky")
+        print(self.jupyter_notebook_path)
+        
+        if self.jupyter_notebook_path == None:
+            self.jupyter_notebook_path = "'http://localhost:8888/notebooks/Untitled.ipynb?kernel_name=python3'";
+        
         folderPath = 'src/geppettoJupyter/geppetto/src/main/webapp/extensions/geppetto-neuron'
-        componentsInitializationTemplate = 'ComponentsInitialization_template.js'
         componentsInitialization = 'ComponentsInitialization.js'
-        with open(os.path.join(folderPath, componentsInitialization),'w+') as file:
-            with open(os.path.join(folderPath, componentsInitializationTemplate), 'r') as templateFile:
-                data=templateFile.read().replace('var pythonNotebookPath = "http://localhost:8888/notebooks/Untitled.ipynb?kernel_name=python3";', 'var pythonNotebookPath = ' + self.jupyter_notebook_path + ';')
-                print(data)
-                file.write(data)
-        file.close()
-        templateFile.close()
+        for line in fileinput.input(os.path.join(folderPath, componentsInitialization), inplace=True):
+            if 'var pythonNotebookPath' in line:
+                print('var pythonNotebookPath = ' + self.jupyter_notebook_path + ';') 
+            else:
+                print(line)    
         
         install.run(self)
         #self.do_egg_install()
