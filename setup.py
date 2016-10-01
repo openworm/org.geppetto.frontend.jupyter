@@ -6,18 +6,18 @@ from setuptools.command.install import install
 
 #This block copies resources to the server (/usr/local/share/jupyter/nbextensions/)
 data_files = []
-for root, dirnames, filenames in os.walk('src/geppettoJupyter/geppetto/css/'):
+for root, dirnames, filenames in os.walk('src/geppettoJupyter/geppetto/src/main/webapp/css/'):
     for filename in fnmatch.filter(filenames, '*'):
-        data_files.append(('share/jupyter/nbextensions' + root[3:], [os.path.join(root, filename)]))
-for root, dirnames, filenames in os.walk('src/geppettoJupyter/geppetto/less/'):
+        data_files.append(('share/jupyter/nbextensions' + root[3:].replace("src/main/webapp/", ""), [os.path.join(root, filename)]))
+for root, dirnames, filenames in os.walk('src/geppettoJupyter/geppetto/src/main/webapp/less/'):
     for filename in fnmatch.filter(filenames, '*'):
-        data_files.append(('share/jupyter/nbextensions' + root[3:], [os.path.join(root, filename)]))
-for root, dirnames, filenames in os.walk('src/geppettoJupyter/geppetto/images/'):
+        data_files.append(('share/jupyter/nbextensions' + root[3:].replace("src/main/webapp/", ""), [os.path.join(root, filename)]))
+for root, dirnames, filenames in os.walk('src/geppettoJupyter/geppetto/src/main/webapp/images/'):
     for filename in fnmatch.filter(filenames, '*'):
-        data_files.append(('share/jupyter/nbextensions' + root[3:], [os.path.join(root, filename)]))
-for root, dirnames, filenames in os.walk('src/geppettoJupyter/geppetto/js/'):
+        data_files.append(('share/jupyter/nbextensions' + root[3:].replace("src/main/webapp/", ""), [os.path.join(root, filename)]))
+for root, dirnames, filenames in os.walk('src/geppettoJupyter/geppetto/src/main/webapp/js/'):
     for filename in fnmatch.filter(filenames, '*'):
-        data_files.append(('share/jupyter/nbextensions' + root[3:], [os.path.join(root, filename)]))
+        data_files.append(('share/jupyter/nbextensions' + root[3:].replace("src/main/webapp/", ""), [os.path.join(root, filename)]))
 
 data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/*.js')))
 data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/*.css')))
