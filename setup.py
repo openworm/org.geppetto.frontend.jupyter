@@ -55,6 +55,7 @@ class CustomInstallCommand(install):
         install.finalize_options(self)
         
     def run(self):
+        print("Setting configuration script ...")
         if self.jupyter_notebook_path == None:
             self.jupyter_notebook_path = "'http://localhost:8888/notebooks/Untitled.ipynb?kernel_name=python3'";
         
@@ -90,6 +91,6 @@ setuptools.setup(
     include_package_data=True,
     install_requires = [
         'ipywidgets>=5.1.5',
-        'jupyter>=4.1.0'
+        'jupyter>=1.0.0'
     ],
 )
