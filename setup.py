@@ -83,7 +83,7 @@ setuptools.setup(
     url="https://github.com/openworm/org.geppetto.frontend.jupyter",
     author="The Geppetto Development Team",
     description="Geppetto extension for Jupyter notebook",
-    License= "MIT",
+    license= "MIT",
     long_description=open('README.md').read(),
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
