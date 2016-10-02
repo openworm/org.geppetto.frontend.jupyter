@@ -31,3 +31,7 @@ div.cell.selected {
 .close {
   color:white;
 }
+
+#header {
+	display: none;
+}
