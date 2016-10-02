@@ -23,7 +23,7 @@ def _jupyter_nbextension_paths():
 
 class GeppettoHandler(IPythonHandler):
     def get(self):
-        template = os.path.join(os.path.dirname(__file__), 'geppetto/templates/dist/geppetto.vm')
+        template = os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/templates/dist/geppetto.vm')
         print(template)
         self.write(open(template).read())
 
@@ -49,7 +49,7 @@ def load_jupyter_server_extension(nbapp):
     route_pattern = url_path_join(web_app.settings['base_url'], '/geppetto')
     web_app.add_handlers(host_pattern, [(route_pattern, GeppettoHandler)])
 
-    websocket_pattern = url_path_join(web_app.settings['base_url'], '/GeppettoServlet')
+    websocket_pattern = url_path_join(web_app.settings['base_url'], '/org.geppetto.frontend/GeppettoServlet')
     web_app.add_handlers(host_pattern, [(websocket_pattern, WebSocketHandler)])
 
-    web_app.add_handlers(host_pattern, [(r"/geppetto/(.*)", tornado.web.StaticFileHandler, {'path': os.path.join(os.path.dirname(__file__), 'geppetto/')})])
+    web_app.add_handlers(host_pattern, [(r"/geppetto/(.*)", tornado.web.StaticFileHandler, {'path': os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/')})])

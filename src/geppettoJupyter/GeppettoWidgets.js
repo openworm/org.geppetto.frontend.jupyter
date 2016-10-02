@@ -1,6 +1,6 @@
 define('geppettoWidgets', ["jupyter-js-widgets"], function(widgets) {
 
-var geppettoJupyterWidgets = window.parent.require('components/GeppettoJupyterWidgets')
+var geppettoJupyterWidgets = window.parent.require('components/jupyter/GeppettoJupyter')
 
     return {
         PanelView: geppettoJupyterWidgets.PanelView,
