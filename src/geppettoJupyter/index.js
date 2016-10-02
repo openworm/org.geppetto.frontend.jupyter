@@ -11,14 +11,20 @@ define(['base/js/namespace', './GeppettoWidgets'], function (Jupyter, GeppettoWi
 				href: require.toUrl('/nbextensions/geppettoJupyter/geppettoJupyter.css')
 			})
 			.appendTo('head');
-		
-		Jupyter.keyboard_manager.command_shortcuts.add_shortcut('ctrl-`', function (event) {
-	        if (IPython.notebook.mode == 'command') {
-	            $('#header').toggle();
-	            return false;
-	        }
-	        return true;
-	    });
+
+
+			$('#header').hide();
+
+			IPython.keyboard_manager.command_shortcuts.add_shortcut('ctrl-`', function (event) {
+				if (IPython.notebook.mode == 'command') {
+					$('#header').toggle();
+					return false;
+				}
+				return true;
+			});
+
+
+
 		
 		//Jupyter.notebook.get_msg_cell = function(){console.log('taka')}
 		
