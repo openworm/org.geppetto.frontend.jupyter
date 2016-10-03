@@ -23,7 +23,7 @@ define(['base/js/namespace', './GeppettoWidgets'], function (Jupyter, GeppettoWi
 				return true;
 			});
 
-
+			Jupyter.notebook.get_cells()[0].execute();
 
 		
 		//Jupyter.notebook.get_msg_cell = function(){console.log('taka')}
@@ -38,17 +38,17 @@ define(['base/js/namespace', './GeppettoWidgets'], function (Jupyter, GeppettoWi
 //		};
 //		Jupyter.notebook.prototype = oldClass.prototype; // Same prototype
 		
-		function override(object, methodName, callback) {
-		  object[methodName] = callback(object[methodName])
-		};
-		
-		override(Jupyter.notebook, 'prototype.get_msg_cell', function(original) {
-			  return function(msg_id) {
-			    var returnValue = original.apply(this, arguments)
-			    console.log('Maricona ta')
-			    return returnValue
-			  }
-			})
+//		function override(object, methodName, callback) {
+//		  object[methodName] = callback(object[methodName])
+//		};
+//		
+//		override(Jupyter.notebook, 'prototype.get_msg_cell', function(original) {
+//			  return function(msg_id) {
+//			    var returnValue = original.apply(this, arguments)
+//			    console.log('Maricona ta')
+//			    return returnValue
+//			  }
+//			})
 	}
 	
 	// Export the required load_ipython_extention
