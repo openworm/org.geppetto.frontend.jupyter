@@ -35,17 +35,17 @@ class CustomInstallCommand(install):
                 print('var pythonNotebookPath = ' + self.jupyter_notebook_path + ';') 
             else:
                 print(line)    
+        install.do_egg_install(self)
         
 #         install.run(self)
-        install.do_egg_install(self)
         
 #raise AttributeError(data_files) For debug purposes
 
 setuptools.setup(
     name="geppettoJupyter",
-    cmdclass={
-        'install': CustomInstallCommand,
-    },
+#     cmdclass={
+#         'install': CustomInstallCommand,
+#     },
     version="0.0.1",
     url="https://github.com/openworm/org.geppetto.frontend.jupyter",
     author="The Geppetto Development Team",
