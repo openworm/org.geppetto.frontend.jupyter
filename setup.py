@@ -36,7 +36,8 @@ class CustomInstallCommand(install):
             else:
                 print(line)    
         
-        install.run(self)
+#         install.run(self)
+        install.do_egg_install(self)
         
 #raise AttributeError(data_files) For debug purposes
 
