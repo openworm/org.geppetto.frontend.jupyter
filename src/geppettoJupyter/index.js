@@ -1,7 +1,11 @@
-define(['base/js/namespace', './GeppettoWidgets'], function (Jupyter, GeppettoWidgets) {
-//	require('./GeppettoWidgets')	
+define(['base/js/namespace', './GeppettoWidgets', 'base/js/events', 'nbextensions/jupyter-js-widgets/extension'], function (Jupyter, GeppettoWidgets, events, JupyterWidgets) {
+
+	//'base/js/events',
 	
 	function load_ipython_extension(){
+		document.addEventListener("DOMContentLoaded", function(event) {
+			console.log('kake')
+		})
 		// Load css first
 		var $stylesheet = $('<link/>')
 			.attr({
@@ -13,42 +17,21 @@ define(['base/js/namespace', './GeppettoWidgets'], function (Jupyter, GeppettoWi
 			.appendTo('head');
 
 
-			$('#header').hide();
+		$('#header').hide();
 
-			IPython.keyboard_manager.command_shortcuts.add_shortcut('ctrl-`', function (event) {
-				if (IPython.notebook.mode == 'command') {
-					$('#header').toggle();
-					return false;
-				}
-				return true;
-			});
+		IPython.keyboard_manager.command_shortcuts.add_shortcut('ctrl-`', function (event) {
+			if (IPython.notebook.mode == 'command') {
+				$('#header').toggle();
+				return false;
+			}
+			return true;
+		});
 
-			Jupyter.notebook.get_cells()[0].execute();
-
-		
-		//Jupyter.notebook.get_msg_cell = function(){console.log('taka')}
-		
-//		var oldClass = Jupyter.notebook; // Copy original before overwriting
-//		Jupyter.notebook = function () {
-//		    // Apply the original constructor on this object
-//		    oldClass.apply(this, arguments);
-//
-//		    // Now overwrite the target function after construction
-//		    this.get_msg_cell = function () { alert("Overwritten"); };
-//		};
-//		Jupyter.notebook.prototype = oldClass.prototype; // Same prototype
-		
-//		function override(object, methodName, callback) {
-//		  object[methodName] = callback(object[methodName])
-//		};
-//		
-//		override(Jupyter.notebook, 'prototype.get_msg_cell', function(original) {
-//			  return function(msg_id) {
-//			    var returnValue = original.apply(this, arguments)
-//			    console.log('Maricona ta')
-//			    return returnValue
-//			  }
-//			})
+		setTimeout(function(){if (!Jupyter.notebook) {
+	      events.on('notebook_loaded.Notebook', function(){Jupyter.notebook.get_cells()[0].execute();});
+	    } else {
+	    	Jupyter.notebook.get_cells()[0].execute();
+	    }}, 1000);
 	}
 	
 	// Export the required load_ipython_extention
@@ -56,18 +39,3 @@ define(['base/js/namespace', './GeppettoWidgets'], function (Jupyter, GeppettoWi
 	    load_ipython_extension: load_ipython_extension
 	};
 });
-
-//Notebook.prototype.get_msg_cell = function (msg_id) {
-//    var msgCell = codecell.CodeCell.msg_cells[msg_id] || null;
-//    if (msgCell == null){
-//        msgCell = IPython.notebook.get_cell(IPython.notebook.ncells()-1)
-//    }
-//    return msgCell;
-//};
-//
-//Notebook.prototype.get_msg_cell = function (msg_id) {
-//    return codecell.CodeCell.msg_cells[msg_id] || null;
-//};
-//
-//Jupyter.notebook
-
