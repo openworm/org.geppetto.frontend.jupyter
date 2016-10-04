@@ -6,7 +6,7 @@ define(["notebook/js/notebook"], function (notebook) {
 	  notebook.Notebook.prototype.get_msg_cell = function (msg_id) {
 		  var output = original_get_msg_cell.apply(this, [msg_id]);
 		  if (output == null){
-			  output = notebookPrototype.get_cell(notebookPrototype.ncells()-1)
+			  output = this.get_cell(this.ncells()-1)
 		  }
 		  return output;
 	  };
