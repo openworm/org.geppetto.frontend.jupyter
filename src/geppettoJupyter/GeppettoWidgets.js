@@ -6,6 +6,7 @@ var geppettoJupyterWidgets = window.parent.require('components/jupyter/GeppettoJ
         PanelView: geppettoJupyterWidgets.PanelView,
         PanelModel: geppettoJupyterWidgets.PanelModel,
         ComponentView: geppettoJupyterWidgets.ComponentView,
-        ComponentModel: geppettoJupyterWidgets.ComponentModel
+        ComponentModel: geppettoJupyterWidgets.ComponentModel,
+        ModelSync: geppettoJupyterWidgets.ModelSync
     };
 })

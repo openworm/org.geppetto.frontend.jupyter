@@ -7,9 +7,6 @@ from .GeppettoCore import ComponentWidget, PanelWidget
 from neuron import h
 h.load_file("stdrun.hoc")
 
-
-
-
 lastId = 0 
 def newId():
     global lastId
@@ -22,7 +19,7 @@ def addButton(name, actions = None, value = None, extraData = None):
     if value is not None:
         valueUnits = h.units(value)
         if valueUnits != '':
-            name += " (" + h.units(value) + ")"
+            name += " (" + valueUnits + ")"
             
     button = ComponentWidget(component_name='RAISEDBUTTON', widget_id=newId(), widget_name=name, extraData = extraData)
     if actions is not None:

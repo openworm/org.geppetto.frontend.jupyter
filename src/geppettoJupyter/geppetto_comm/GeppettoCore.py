@@ -8,62 +8,74 @@ h.load_file("stdrun.hoc")
 #UTILS
 sync_values = defaultdict(list)
 
-# # EXPERIMENT
-# class Experiment():
-#     name = Unicode('').tag(sync=True)
-#     id = Unicode('').tag(sync=True)
-#     lastModified = Unicode('').tag(sync=True)
-#     state = Unicode('').tag(sync=True)
+# EXPERIMENT
+class ExperimentSync(widgets.Widget):
+    # _model_name = Unicode('ExperimentSync').tag(sync=True)
+    # _model_module = Unicode('geppettoWidgets').tag(sync=True)
 
+    name = Unicode('').tag(sync=False)
+    id = Unicode('').tag(sync=False)
+    lastModified = Unicode('').tag(sync=False)
+    state = Unicode('').tag(sync=False)
 
+    def __init__(self, **kwargs):
+        super(ExperimentSync, self).__init__(**kwargs)
+
+# PROJECT
+class ProjectSync(widgets.Widget):
+    _model_name = Unicode('ProjectSync').tag(sync=True)
+    _model_module = Unicode('geppettoWidgets').tag(sync=True)
+
+    name = Unicode('').tag(sync=True)
+    id = Unicode('').tag(sync=True)
+    serialisedProject = Unicode('').tag(sync=True)
+
+    experiments = List(Instance(ExperimentSync)).tag(sync=False)
+
+    def __init__(self, **kwargs):
+        super(ProjectSync, self).__init__(**kwargs)
+
+    def addExperiment(self, experiment):
+        self.experiments = [i for i in self.experiments] + [experiment]
+
+    def to_JSON(self):
+        print("ProjectSync serialising")
+        self.serialisedModel = 'TAKA'
+
+# STATE VARIABLE
+class StateVariableSync(widgets.Widget):
+    # _model_name = Unicode('StateVariableSync').tag(sync=True)
+    # _model_module = Unicode('geppettoWidgets').tag(sync=True)
+
+    name = Unicode('').tag(sync=False)
+    id = Unicode('').tag(sync=False)
+    units = Unicode('').tag(sync=False)
+    timeSeries = List(Float).tag(sync=False)
+
+    def __init__(self, **kwargs):
+        super(StateVariableSync, self).__init__(**kwargs)
+   
+
+# MODEL
+class ModelSync(widgets.Widget):
+    _model_name = Unicode('ModelSync').tag(sync=True)
+    _model_module = Unicode('geppettoWidgets').tag(sync=True)
+
+    name = Unicode('').tag(sync=True)
+    id = Unicode('').tag(sync=True)
+    serialisedModel = Unicode('').tag(sync=True)
+
+    stateVariables = List(Instance(StateVariableSync)).tag(sync=False)
+
+    def __init__(self, **kwargs):
+        super(ModelSync, self).__init__(**kwargs)
+        
+    def addStateVariable(self, stateVariable):
+        self.stateVariables = [i for i in self.stateVariables] + [stateVariable]
     
-
-# # PROJECT
-# class Project(widgets.Widget):
-#     _view_name = Unicode('ProjectView').tag(sync=True)
-#     _view_module = Unicode('geppettoWidgets').tag(sync=True)
-#     _model_name = Unicode('ProjectModel').tag(sync=True)
-#     _model_module = Unicode('geppettoWidgets').tag(sync=True)
-
-#     name = Unicode('').tag(sync=True)
-#     id = Unicode('').tag(sync=True)
-#     serialisedProject = Unicode('').tag(sync=True)
-
-#     experiments = List(Experiment).tag(sync=False)
-
-#     def __init__(self, **kwargs):
-
-#     def addExperiment(self, experiment):
-
-#     def to_JSON(self):
-
-# # STATE VARIABLE
-# class StateVariable():
-#     name = Unicode('').tag(sync=True)
-#     id = Unicode('').tag(sync=True)
-#     units = Unicode('').tag(sync=True)
-#     timeSeries = List(Float()).tag(sync=True)
-
-    
-
-# # MODEL
-# class Model(widgets.Widget):
-#     _view_name = Unicode('ModelView').tag(sync=True)
-#     _view_module = Unicode('geppettoWidgets').tag(sync=True)
-#     _model_name = Unicode('ModelModel').tag(sync=True)
-#     _model_module = Unicode('geppettoWidgets').tag(sync=True)
-
-#     name = Unicode('').tag(sync=True)
-#     id = Unicode('').tag(sync=True)
-#     serialisedModel = Unicode('').tag(sync=True)
-
-#     stateVariables = List(StateVariable()).tag(sync=False)
-
-#     def __init__(self, **kwargs):
-
-#     def addStateVariable(self, ):
-    
-#     def to_JSON(self):
+    def to_JSON(self):
+        print("ModelSync serialising")
+        self.serialisedModel = 'TAKA'
 
 
 
