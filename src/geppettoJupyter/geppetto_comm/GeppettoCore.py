@@ -5,8 +5,10 @@ from collections import defaultdict
 from neuron import h
 h.load_file("stdrun.hoc")
 
-#UTILS
+# Current variables
 sync_values = defaultdict(list)
+current_project = None
+current_experiment = None
 
 # EXPERIMENT
 class ExperimentSync(widgets.Widget):

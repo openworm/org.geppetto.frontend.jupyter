@@ -2,19 +2,21 @@ import ipywidgets as widgets
 from traitlets import (Unicode, Instance, List, Dict, Bool, Float)
 from collections import defaultdict
 
-from .GeppettoCore import ComponentWidget, PanelWidget
+from .GeppettoCore import ComponentWidget, PanelWidget, ProjectSync, ExperimentSync
+
+from . import GeppettoCore
 
 from neuron import h
 h.load_file("stdrun.hoc")
 
 lastId = 0 
-def newId():
+def newId(prefix ='id'):
     global lastId
     lastId+=1;
-    return "id" + str(lastId)
+    return prefix + str(lastId)
     
     
-#API    
+#GUI API    
 def addButton(name, actions = None, value = None, extraData = None):
     if value is not None:
         valueUnits = h.units(value)
@@ -53,15 +55,30 @@ def addTextFieldAndButton(name, value = None, create_checkbox = False, actions =
     panel.setDirection('row')
     return panel
         
-def addPanel(name, items = None, widget_id=None, positionX=-1, positionY=-1):
-    if items is None: items = []
+def addPanel(name, items = [], widget_id=None, positionX=-1, positionY=-1):
     if widget_id is None: widget_id = newId()
     for item in items:
         item.embedded = True
-    panelWidget = PanelWidget(widget_id = widget_id, widget_name=name, items=items, positionX=positionX, positionY=positionY)
-    return panelWidget
+    return PanelWidget(widget_id = widget_id, widget_name=name, items=items, positionX=positionX, positionY=positionY)
 
 def addCheckbox(name, sync_value = 'false'):
     return ComponentWidget(component_name='CHECKBOX', widget_id=newId(), widget_name=name, sync_value = sync_value)
 
+#MODEL API
+def createProject(id = None, name = 'Untitled Project', experiments = []):
+    #TODO Make a dict with next id per project and component
+    if id is None: id = newId('project')
+    if experiments == []:
+        print(GeppettoCore.current_experiment)
+        print(GeppettoCore.current_project)
+        GeppettoCore.current_experiment = createExperiment()
+        experiments.append(GeppettoCore.current_experiment)
+    GeppettoCore.current_project = ProjectSync(id = id, name = name, experiments = experiments)
+    print(GeppettoCore.current_experiment)
+    print(GeppettoCore.current_project)
+    return GeppettoCore.current_project
 
+def createExperiment(id = None, name = 'Untitled Experiment', state = 'Design'):
+    #TODO Make a dict with next id per project and component
+    if id is None: id = newId('experiment')
+    return ExperimentSync(id = id, name = name, state = state)
