@@ -1,8 +1,9 @@
 import ipywidgets as widgets
 from traitlets import (Unicode, Instance, List, Dict, Bool, Float)
 from collections import defaultdict
+from IPython.display import Javascript, display_javascript
 
-from .GeppettoCore import ComponentWidget, PanelWidget, ProjectSync, ExperimentSync
+from .GeppettoCore import ComponentWidget, PanelWidget, ProjectSync, ExperimentSync, ModelSync, StateVariableSync
 
 from . import GeppettoCore
 
@@ -69,16 +70,35 @@ def createProject(id = None, name = 'Untitled Project', experiments = []):
     #TODO Make a dict with next id per project and component
     if id is None: id = newId('project')
     if experiments == []:
-        print(GeppettoCore.current_experiment)
-        print(GeppettoCore.current_project)
-        GeppettoCore.current_experiment = createExperiment()
-        experiments.append(GeppettoCore.current_experiment)
+        experiment = createExperiment()
+        GeppettoCore.current_experiment = experiment
+        experiments.append(experiment)
+    GeppettoCore.current_model = createModel(id = id, name = name)    
     GeppettoCore.current_project = ProjectSync(id = id, name = name, experiments = experiments)
-    print(GeppettoCore.current_experiment)
-    print(GeppettoCore.current_project)
-    return GeppettoCore.current_project
 
 def createExperiment(id = None, name = 'Untitled Experiment', state = 'Design'):
     #TODO Make a dict with next id per project and component
     if id is None: id = newId('experiment')
     return ExperimentSync(id = id, name = name, state = state)
+
+def createModel(id = None, name = 'Untitled Model', stateVariables = []):
+    #TODO Make a dict with next id per project and component
+    if id is None: id = newId('model')
+    return ModelSync(id = id, name = name, stateVariables = stateVariables)
+
+def createStateVariable(id = None, name = 'Untitled State Variable', units = 'Unknown', timeSeries = [], neuron_variable = None):
+    #TODO Make a dict with next id per project and component
+    if id is None: id = newId('stateVariable')
+    stateVariableSync = StateVariableSync(id = id, name = name, units = units, timeSeries = timeSeries, neuron_variable = neuron_variable)
+    GeppettoCore.current_model.addStateVariable(stateVariableSync)
+
+#PLOT API
+def plotVariable(name = None, variables = []):
+    jsCommand = "window.parent.G.addWidget(0)"
+    if name != None:
+        jsCommand += ".setName('%s')" % name
+    for variable in variables:
+        jsCommand += ".plotData(window.parent.%s)" % variable   
+    jso = Javascript(jsCommand)
+    display_javascript(jso)
+

@@ -7,8 +7,10 @@ h.load_file("stdrun.hoc")
 
 # Current variables
 sync_values = defaultdict(list)
+record_variables = defaultdict(list)
 current_project = None
 current_experiment = None
+current_model = None
 
 # EXPERIMENT
 class ExperimentSync(widgets.Widget):
@@ -36,27 +38,33 @@ class ProjectSync(widgets.Widget):
 
     def __init__(self, **kwargs):
         super(ProjectSync, self).__init__(**kwargs)
+        self.to_JSON()
 
     def addExperiment(self, experiment):
         self.experiments = [i for i in self.experiments] + [experiment]
 
     def to_JSON(self):
         print("ProjectSync serialising")
-        self.serialisedModel = 'TAKA'
+        self.serialisedProject = 'TAKA'
 
 # STATE VARIABLE
 class StateVariableSync(widgets.Widget):
-    # _model_name = Unicode('StateVariableSync').tag(sync=True)
-    # _model_module = Unicode('geppettoWidgets').tag(sync=True)
+    _model_name = Unicode('StateVariableSync').tag(sync=True)
+    _model_module = Unicode('geppettoWidgets').tag(sync=True)
 
-    name = Unicode('').tag(sync=False)
-    id = Unicode('').tag(sync=False)
-    units = Unicode('').tag(sync=False)
-    timeSeries = List(Float).tag(sync=False)
+    name = Unicode('').tag(sync=True)
+    id = Unicode('').tag(sync=True)
+    units = Unicode('').tag(sync=True)
+    timeSeries = List(Float).tag(sync=True)
+
+    neuron_variable = None
 
     def __init__(self, **kwargs):
         super(StateVariableSync, self).__init__(**kwargs)
-   
+
+        # Add it to the syncvalues
+        if 'neuron_variable' in kwargs and kwargs["neuron_variable"] is not None:
+            record_variables[kwargs["neuron_variable"]] = self
 
 # MODEL
 class ModelSync(widgets.Widget):
@@ -67,12 +75,15 @@ class ModelSync(widgets.Widget):
     id = Unicode('').tag(sync=True)
     serialisedModel = Unicode('').tag(sync=True)
 
-    stateVariables = List(Instance(StateVariableSync)).tag(sync=False)
+    stateVariables = List(Instance(StateVariableSync)).tag(sync=True, **widgets.widget_serialization)
 
     def __init__(self, **kwargs):
         super(ModelSync, self).__init__(**kwargs)
-        
+        print("init model")
+
     def addStateVariable(self, stateVariable):
+        print("states variablessss")
+        print(self.stateVariables)
         self.stateVariables = [i for i in self.stateVariables] + [stateVariable]
     
     def to_JSON(self):

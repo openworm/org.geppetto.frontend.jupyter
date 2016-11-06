@@ -1,4 +1,4 @@
-define('geppettoWidgets', ["jupyter-js-widgets"], function(widgets) {
+define('geppettoWidgets', function() {
 
 var geppettoJupyterWidgets = window.parent.require('components/jupyter/GeppettoJupyter')
 
@@ -7,6 +7,7 @@ var geppettoJupyterWidgets = window.parent.require('components/jupyter/GeppettoJ
         PanelModel: geppettoJupyterWidgets.PanelModel,
         ComponentView: geppettoJupyterWidgets.ComponentView,
         ComponentModel: geppettoJupyterWidgets.ComponentModel,
+        StateVariableSync: geppettoJupyterWidgets.StateVariableSync,
         ModelSync: geppettoJupyterWidgets.ModelSync,
         ProjectSync: geppettoJupyterWidgets.ProjectSync
     };
