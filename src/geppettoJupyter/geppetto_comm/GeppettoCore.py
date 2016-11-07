@@ -30,30 +30,23 @@ class ProjectSync(widgets.Widget):
     _model_name = Unicode('ProjectSync').tag(sync=True)
     _model_module = Unicode('geppettoWidgets').tag(sync=True)
 
-    name = Unicode('').tag(sync=True)
     id = Unicode('').tag(sync=True)
-    serialisedProject = Unicode('').tag(sync=True)
-
+    name = Unicode('').tag(sync=True)
     experiments = List(Instance(ExperimentSync)).tag(sync=False)
 
     def __init__(self, **kwargs):
         super(ProjectSync, self).__init__(**kwargs)
-        self.to_JSON()
 
     def addExperiment(self, experiment):
         self.experiments = [i for i in self.experiments] + [experiment]
-
-    def to_JSON(self):
-        print("ProjectSync serialising")
-        self.serialisedProject = 'TAKA'
 
 # STATE VARIABLE
 class StateVariableSync(widgets.Widget):
     _model_name = Unicode('StateVariableSync').tag(sync=True)
     _model_module = Unicode('geppettoWidgets').tag(sync=True)
 
-    name = Unicode('').tag(sync=True)
     id = Unicode('').tag(sync=True)
+    name = Unicode('').tag(sync=True)
     units = Unicode('').tag(sync=True)
     timeSeries = List(Float).tag(sync=True)
 
@@ -71,26 +64,15 @@ class ModelSync(widgets.Widget):
     _model_name = Unicode('ModelSync').tag(sync=True)
     _model_module = Unicode('geppettoWidgets').tag(sync=True)
 
-    name = Unicode('').tag(sync=True)
     id = Unicode('').tag(sync=True)
-    serialisedModel = Unicode('').tag(sync=True)
-
+    name = Unicode('').tag(sync=True)
     stateVariables = List(Instance(StateVariableSync)).tag(sync=True, **widgets.widget_serialization)
 
     def __init__(self, **kwargs):
         super(ModelSync, self).__init__(**kwargs)
-        print("init model")
 
     def addStateVariable(self, stateVariable):
-        print("states variablessss")
-        print(self.stateVariables)
         self.stateVariables = [i for i in self.stateVariables] + [stateVariable]
-    
-    def to_JSON(self):
-        print("ModelSync serialising")
-        self.serialisedModel = 'TAKA'
-
-
 
 # COMPONENT
 class ComponentWidget(widgets.Widget):
