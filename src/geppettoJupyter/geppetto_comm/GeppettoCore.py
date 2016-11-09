@@ -14,13 +14,13 @@ current_model = None
 
 # EXPERIMENT
 class ExperimentSync(widgets.Widget):
-    # _model_name = Unicode('ExperimentSync').tag(sync=True)
-    # _model_module = Unicode('geppettoWidgets').tag(sync=True)
+    _model_name = Unicode('ExperimentSync').tag(sync=True)
+    _model_module = Unicode('geppettoWidgets').tag(sync=True)
 
-    name = Unicode('').tag(sync=False)
-    id = Unicode('').tag(sync=False)
-    lastModified = Unicode('').tag(sync=False)
-    state = Unicode('').tag(sync=False)
+    name = Unicode('').tag(sync=True)
+    id = Unicode('').tag(sync=True)
+    lastModified = Unicode('').tag(sync=True)
+    state = Unicode('').tag(sync=True)
 
     def __init__(self, **kwargs):
         super(ExperimentSync, self).__init__(**kwargs)
@@ -32,7 +32,7 @@ class ProjectSync(widgets.Widget):
 
     id = Unicode('').tag(sync=True)
     name = Unicode('').tag(sync=True)
-    experiments = List(Instance(ExperimentSync)).tag(sync=False)
+    experiments = List(Instance(ExperimentSync)).tag(sync=True, **widgets.widget_serialization)
 
     def __init__(self, **kwargs):
         super(ProjectSync, self).__init__(**kwargs)
