@@ -1,9 +1,9 @@
+import os
+import json
 from notebook.utils import url_path_join
 from notebook.base.handlers import IPythonHandler
-import os
 import tornado.websocket
 import tornado.web
-import json
 
 def _jupyter_server_extension_paths():
     return [{
@@ -14,7 +14,7 @@ def _jupyter_server_extension_paths():
 def _jupyter_nbextension_paths():
     return [dict(
         section="notebook",
-        # the path is relative to the `my_fancy_module` directory
+        # the path is relative to the `geppettoJupyter` directory
         src="",
         # directory in the `nbextension/` namespace
         dest="geppettoJupyter",
@@ -24,13 +24,15 @@ def _jupyter_nbextension_paths():
 class GeppettoHandler(IPythonHandler):
     def get(self):
         template = os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/templates/dist/geppetto.vm')
-        print(template)
         self.write(open(template).read())
 
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
-        self.write_message({"type":"client_id","data":"{\"clientID\":\"Connection161\"}"})
+        # 1 -> Send the connection
+        self.write_message({"type":"client_id","data":"{\"clientID\":\"Connection1\"}"})
+        # 2 -> Check user privileges
+        self.write_message({"type":"user_privileges","data":"{\"user_privileges\": \"{\\\"userName\\\":\\\"SUNY User\\\",\\\"loggedIn\\\":true,\\\"hasPersistence\\\":false,\\\"privileges\\\":[\\\"READ_PROJECT\\\",\\\"DOWNLOAD\\\",\\\"DROPBOX_INTEGRATION\\\", \\\"RUN_EXPERIMENT\\\", \\\"WRITE_PROJECT\\\"]}\"}"})
 
     def on_message(self, message):
         jsonMessage = json.loads(message)
