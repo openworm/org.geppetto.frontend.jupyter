@@ -23,15 +23,22 @@ define(['base/js/namespace', './GeppettoWidgets', 'base/js/events'], function (J
 			return true;
 		});
 
+		// Restart kernel to delete any previous variable
+		IPython.notebook.kernel.restart();
+
+		// Execute all cells
+    	$(IPython.events).on('kernel_ready.Kernel',
+                  function(){IPython.notebook.execute_all_cells();});
+
 		// Execute first cell.
 		// Due to a bug on jupyter, we have to wait for a second so that everything is loaded properly
-		setTimeout(function () {
-			if (!Jupyter.notebook) {
-				events.on('notebook_loaded.Notebook', function () { Jupyter.notebook.get_cells()[0].execute(); });
-			} else {
-				Jupyter.notebook.get_cells()[0].execute();
-			}
-		}, 1000);
+		// setTimeout(function () {
+		// 	if (!Jupyter.notebook) {
+		// 		events.on('notebook_loaded.Notebook', function () { Jupyter.notebook.get_cells()[0].execute(); });
+		// 	} else {
+		// 		Jupyter.notebook.get_cells()[0].execute();
+		// 	}
+		// }, 1000);
 	}
 
 	// Export the required load_ipython_extention
