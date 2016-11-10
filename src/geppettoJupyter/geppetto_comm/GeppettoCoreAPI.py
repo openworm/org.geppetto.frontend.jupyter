@@ -10,11 +10,18 @@ from . import GeppettoCore
 from neuron import h
 h.load_file("stdrun.hoc")
 
-lastId = 0 
+lastId = {
+    'project': 0,
+    'experiment': 0,
+    'model': 0,
+    'stateVariable': 0,
+    'component': 0,
+    'id': 0
+} 
 def newId(prefix ='id'):
     global lastId
-    lastId+=1;
-    return prefix + str(lastId)
+    lastId[prefix]+=1;
+    return str(lastId[prefix])
     
     
 #GUI API    
