@@ -3,7 +3,7 @@ from traitlets import (Unicode, Instance, List, Dict, Bool, Float)
 from collections import defaultdict
 from IPython.display import Javascript, display_javascript
 
-from .GeppettoCore import ComponentWidget, PanelWidget, ProjectSync, ExperimentSync, ModelSync, StateVariableSync
+from .GeppettoCore import ComponentWidget, PanelWidget, ProjectSync, ExperimentSync, ModelSync, StateVariableSync, PlotWidgetSync
 
 from . import GeppettoCore
 
@@ -80,7 +80,7 @@ def createProject(id = None, name = 'Untitled Project', experiments = []):
         experiment = createExperiment()
         GeppettoCore.current_experiment = experiment
         experiments.append(experiment)
-    GeppettoCore.current_model = createModel(id = id, name = name)    
+    GeppettoCore.current_model = createModel(id = name.replace(" ", ""), name = name)    
     GeppettoCore.current_project = ProjectSync(id = id, name = name, experiments = experiments)
 
 def createExperiment(id = None, name = 'Untitled Experiment', state = 'Design'):
@@ -101,11 +101,4 @@ def createStateVariable(id = None, name = 'Untitled State Variable', units = 'Un
 
 #PLOT API
 def plotVariable(name = None, variables = []):
-    jsCommand = "window.parent.G.addWidget(0)"
-    if name != None:
-        jsCommand += ".setName('%s')" % name
-    for variable in variables:
-        jsCommand += ".plotData(window.parent.%s)" % variable   
-    jso = Javascript(jsCommand)
-    display_javascript(jso)
-
+    PlotWidgetSync(widget_id = 0, name = name, data = variables)
