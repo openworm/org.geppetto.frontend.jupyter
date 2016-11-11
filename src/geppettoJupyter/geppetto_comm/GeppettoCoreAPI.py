@@ -20,9 +20,8 @@ lastId = {
 } 
 def newId(prefix ='id'):
     global lastId
-    lastId[prefix]+=1;
+    lastId[prefix]+=1
     return str(lastId[prefix])
-    
     
 #GUI API    
 def addButton(name, actions = None, value = None, extraData = None):
