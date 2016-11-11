@@ -10,6 +10,8 @@ var geppettoJupyterWidgets = window.parent.require('components/jupyter/GeppettoJ
         StateVariableSync: geppettoJupyterWidgets.StateVariableSync,
         ModelSync: geppettoJupyterWidgets.ModelSync,
         ExperimentSync: geppettoJupyterWidgets.ExperimentSync,
-        ProjectSync: geppettoJupyterWidgets.ProjectSync
+        ProjectSync: geppettoJupyterWidgets.ProjectSync,
+        WidgetSync: geppettoJupyterWidgets.WidgetSync,
+        PlotWidgetSync: geppettoJupyterWidgets.PlotWidgetSync
     };
 })
