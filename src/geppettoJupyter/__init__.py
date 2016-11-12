@@ -30,9 +30,9 @@ class GeppettoHandler(IPythonHandler):
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         # 1 -> Send the connection
-        self.write_message({"type":"client_id","data":"{\"clientID\":\"Connection1\"}"})
+        self.write_message({"type":"client_id", "data":"{\"clientID\":\"Connection1\"}"})
         # 2 -> Check user privileges
-        self.write_message({"type":"user_privileges","data":"{\"user_privileges\": \"{\\\"userName\\\":\\\"SUNY User\\\",\\\"loggedIn\\\":true,\\\"hasPersistence\\\":false,\\\"privileges\\\":[\\\"READ_PROJECT\\\",\\\"DOWNLOAD\\\",\\\"DROPBOX_INTEGRATION\\\", \\\"RUN_EXPERIMENT\\\", \\\"WRITE_PROJECT\\\"]}\"}"})
+        self.write_message({"type":"user_privileges", "data":"{\"user_privileges\": \"{\\\"userName\\\":\\\"Python User\\\",\\\"loggedIn\\\":true,\\\"hasPersistence\\\":false,\\\"privileges\\\":[\\\"READ_PROJECT\\\",\\\"DOWNLOAD\\\",\\\"DROPBOX_INTEGRATION\\\", \\\"RUN_EXPERIMENT\\\", \\\"WRITE_PROJECT\\\"]}\"}"})
 
     def on_message(self, message):
         jsonMessage = json.loads(message)

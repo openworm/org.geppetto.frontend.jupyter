@@ -27,8 +27,7 @@ define(['base/js/namespace', './GeppettoWidgets', 'base/js/events'], function (J
 		IPython.notebook.kernel.restart();
 
 		// Execute all cells
-    	$(IPython.events).on('kernel_ready.Kernel',
-                  function(){IPython.notebook.execute_all_cells();});
+    	$(IPython.events).on('kernel_ready.Kernel', function(){IPython.notebook.execute_all_cells();});
 
 		// Execute first cell.
 		// Due to a bug on jupyter, we have to wait for a second so that everything is loaded properly
