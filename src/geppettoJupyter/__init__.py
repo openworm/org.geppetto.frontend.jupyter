@@ -38,7 +38,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         jsonMessage = json.loads(message)
         if (jsonMessage['type'] == 'geppetto_version'):
             #Where do we get the geppetto version from?
-            self.write_message({"requestID":jsonMessage['requestID'],"type":"geppetto_version","data":"{\"geppetto_version\":\"0.3.1\"}"});
+            self.write_message({"requestID":jsonMessage['requestID'],"type":"geppetto_version","data":"{\"geppetto_version\":\"0.3.2\"}"});
 
     def on_close(self):
         pass
