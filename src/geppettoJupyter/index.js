@@ -1,6 +1,6 @@
 define(['base/js/namespace', './GeppettoWidgets', 'base/js/events'], function (Jupyter, GeppettoWidgets, events) {
 
-	function load_ipython_extension() {
+	function customise() {
 		// Load css first
 		var $stylesheet = $('<link/>')
 			.attr({
@@ -23,11 +23,37 @@ define(['base/js/namespace', './GeppettoWidgets', 'base/js/events'], function (J
 			return true;
 		});
 
-		// Restart kernel to delete any previous variable
-		IPython.notebook.kernel.restart();
 
-		// Execute all cells
-    	$(IPython.events).on('kernel_ready.Kernel', function(){IPython.notebook.execute_all_cells();});
+
+
+			// Restart kernel to delete any previous variable
+			// console.log("GPT: Restart the server");
+			IPython.notebook.kernel.restart(function(){
+				console.log("GPT: Kernel is ready");
+				IPython.notebook.execute_all_cells();
+			});
+
+			// // Execute all cells
+			// $(IPython.events).on('kernel_ready.Kernel', function(){
+			// 	console.log("GPT: Kernel is ready");
+			// 	IPython.notebook.execute_all_cells();
+			// });
+
+
+
+
+
+
+
+			// console.log("GPT: Restart the server");
+			// IPython.notebook.restart_kernel().then(function() {
+			// 	console.log("GPT: Kernel is ready. Executing all the cells");
+            // 	IPython.notebook.execute_all_cells();
+            //      });
+ 
+
+		
+		
 
 		// Execute first cell.
 		// Due to a bug on jupyter, we have to wait for a second so that everything is loaded properly
@@ -39,6 +65,14 @@ define(['base/js/namespace', './GeppettoWidgets', 'base/js/events'], function (J
 		// 	}
 		// }, 1000);
 	}
+
+	 var load_ipython_extension = function () {
+        
+        if (IPython.notebook) {
+            customise();
+        }
+        $([IPython.events]).on("notebook_loaded.Notebook", customise);
+    };
 
 	// Export the required load_ipython_extention
 	return {
