@@ -73,7 +73,6 @@ def addCheckbox(name, sync_value = 'false'):
 
 #MODEL API
 def createProject(id = None, name = 'Untitled Project', experiments = []):
-    #TODO Make a dict with next id per project and component
     if id is None: id = newId('project')
     if experiments == []:
         experiment = createExperiment()
@@ -83,20 +82,23 @@ def createProject(id = None, name = 'Untitled Project', experiments = []):
     GeppettoCore.current_project = ProjectSync(id = id, name = name, experiments = experiments)
 
 def createExperiment(id = None, name = 'Untitled Experiment', state = 'Design'):
-    #TODO Make a dict with next id per project and component
     if id is None: id = newId('experiment')
     return ExperimentSync(id = id, name = name, state = state)
 
 def createModel(id = None, name = 'Untitled Model', stateVariables = []):
-    #TODO Make a dict with next id per project and component
     if id is None: id = newId('model')
     return ModelSync(id = id, name = name, stateVariables = stateVariables)
 
 def createStateVariable(id = None, name = 'Untitled State Variable', units = 'Unknown', timeSeries = [], neuron_variable = None):
-    #TODO Make a dict with next id per project and component
-    if id is None: id = newId('stateVariable')
-    stateVariableSync = StateVariableSync(id = id, name = name, units = units, timeSeries = timeSeries, neuron_variable = neuron_variable)
-    GeppettoCore.current_model.addStateVariable(stateVariableSync)
+    if id is None:
+        id = newId('stateVariable')
+    else:
+        # Check this variable is not already in the model
+        for stateVariable in GeppettoCore.current_model.stateVariables:
+            if stateVariable.id == id:
+                return
+
+    GeppettoCore.current_model.addStateVariable(StateVariableSync(id = id, name = name, units = units, timeSeries = timeSeries, neuron_variable = neuron_variable))
 
 #PLOT API
 def plotVariable(name = None, variables = []):
