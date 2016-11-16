@@ -123,13 +123,13 @@ class ComponentWidget(widgets.Widget):
 
         self.on_msg(self._handle_button_msg)
 
-    def clickedCheckboxValue(self, targetComponent, triggeredComponent, args):
+    def clickedCheckboxValue(targetComponent, triggeredComponent, args):
         if args[1]['data'] != None and float(args[1]['data']) != float(triggeredComponent.extraData['originalValue']):
             targetComponent.sync_value =  'true'
         else:        
             targetComponent.sync_value =  'false'
             
-    def resetValueToOriginal(self, targetComponent, triggeredComponent, args):
+    def resetValueToOriginal(targetComponent, triggeredComponent, args):
         triggeredComponent.sync_value = 'false'
         exec("h." + targetComponent.value + "=" + str(targetComponent.extraData['originalValue']))
         #targetComponent.sync_value = str(targetComponent.extraData['originalValue'])
