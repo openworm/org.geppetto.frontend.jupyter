@@ -1,4 +1,4 @@
 [submodule "src/geppettoJupyter/geppetto"]
 	path = src/geppettoJupyter/geppetto
 	url = https://github.com/openworm/org.geppetto.frontend.git
-	branch = development
+	branch = master
