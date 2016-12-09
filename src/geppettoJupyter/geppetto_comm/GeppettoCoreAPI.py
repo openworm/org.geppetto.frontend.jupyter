@@ -100,6 +100,11 @@ def createStateVariable(id = None, name = 'Untitled State Variable', units = 'Un
 
     GeppettoCore.current_model.addStateVariable(StateVariableSync(id = id, name = name, units = units, timeSeries = timeSeries, neuron_variable = neuron_variable))
 
+def createGeometryVariables(geometries = []):
+    GeppettoCore.current_model.addGeometries(geometries)
+
+
+
 #PLOT API
 def plotVariable(name = None, variables = []):
     PlotWidgetSync(widget_id = 0, name = name, data = variables)

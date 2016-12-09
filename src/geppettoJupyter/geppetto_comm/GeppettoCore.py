@@ -77,6 +77,24 @@ class StateVariableSync(widgets.Widget):
         if 'neuron_variable' in kwargs and kwargs["neuron_variable"] is not None:
             record_variables[kwargs["neuron_variable"]] = self
 
+class GeometrySync(widgets.Widget):
+    _model_name = Unicode('GeometrySync').tag(sync=True)
+    _model_module = Unicode('geppettoWidgets').tag(sync=True)
+
+    name = Unicode('').tag(sync=True)
+
+    bottomRadius = Float(-1).tag(sync=True)
+    topRadius = Float(-1).tag(sync=True)
+    positionX = Float(-1).tag(sync=True)
+    positionY = Float(-1).tag(sync=True)
+    positionZ = Float(-1).tag(sync=True)
+    distalX = Float(-1).tag(sync=True)
+    distalY = Float(-1).tag(sync=True)
+    distalZ = Float(-1).tag(sync=True)
+
+    def __init__(self, **kwargs):
+        super(GeometrySync, self).__init__(**kwargs)
+
 # MODEL
 class ModelSync(widgets.Widget):
     _model_name = Unicode('ModelSync').tag(sync=True)
@@ -85,12 +103,17 @@ class ModelSync(widgets.Widget):
     id = Unicode('').tag(sync=True)
     name = Unicode('').tag(sync=True)
     stateVariables = List(Instance(StateVariableSync)).tag(sync=True, **widgets.widget_serialization)
+    geometries = List(Instance(GeometrySync)).tag(sync=True, **widgets.widget_serialization)
 
     def __init__(self, **kwargs):
         super(ModelSync, self).__init__(**kwargs)
 
     def addStateVariable(self, stateVariable):
         self.stateVariables = [i for i in self.stateVariables] + [stateVariable]
+
+    def addGeometries(self, geometries):
+        #First resolve the sections
+        self.geometries = [i for i in self.geometries] + geometries
 
 # COMPONENT
 class ComponentWidget(widgets.Widget):
