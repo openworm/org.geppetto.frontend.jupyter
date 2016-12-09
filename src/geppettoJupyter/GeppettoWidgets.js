@@ -1,15 +1,20 @@
-define('geppettoWidgets', function() {
+define('geppettoWidgets', function () {
 
-var geppettoJupyterWidgets = window.parent.require('components/jupyter/GeppettoJupyter')
+    var geppettoJupyterModelSync = window.parent.require('components/geppetto-jupyter/GeppettoJupyterModelSync');
+    var geppettoJupyterGUISync = window.parent.require('components/geppetto-jupyter/GeppettoJupyterGUISync');
+    var geppettoJupyterWidgetSync = window.parent.require('components/geppetto-jupyter/GeppettoJupyterWidgetSync');
 
     return {
-        PanelModel: geppettoJupyterWidgets.PanelModel,
-        ComponentModel: geppettoJupyterWidgets.ComponentModel,
-        StateVariableSync: geppettoJupyterWidgets.StateVariableSync,
-        ModelSync: geppettoJupyterWidgets.ModelSync,
-        ExperimentSync: geppettoJupyterWidgets.ExperimentSync,
-        ProjectSync: geppettoJupyterWidgets.ProjectSync,
-        WidgetSync: geppettoJupyterWidgets.WidgetSync,
-        PlotWidgetSync: geppettoJupyterWidgets.PlotWidgetSync
+        PanelModel: geppettoJupyterGUISync.PanelModel,
+        ComponentModel: geppettoJupyterGUISync.ComponentModel,
+
+        StateVariableSync: geppettoJupyterModelSync.StateVariableSync,
+        GeometrySync: geppettoJupyterModelSync.GeometrySync,
+        ModelSync: geppettoJupyterModelSync.ModelSync,
+        ExperimentSync: geppettoJupyterModelSync.ExperimentSync,
+        ProjectSync: geppettoJupyterModelSync.ProjectSync,
+
+        WidgetSync: geppettoJupyterWidgetSync.WidgetSync,
+        PlotWidgetSync: geppettoJupyterWidgetSync.PlotWidgetSync
     };
-})
+});
