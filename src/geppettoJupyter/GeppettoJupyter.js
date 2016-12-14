@@ -1,12 +1,12 @@
-define('geppettoWidgets', function () {
+define('geppettoJupyter', function () {
 
     var geppettoJupyterModelSync = window.parent.require('components/geppetto-jupyter/GeppettoJupyterModelSync');
     var geppettoJupyterGUISync = window.parent.require('components/geppetto-jupyter/GeppettoJupyterGUISync');
     var geppettoJupyterWidgetSync = window.parent.require('components/geppetto-jupyter/GeppettoJupyterWidgetSync');
 
     return {
-        PanelModel: geppettoJupyterGUISync.PanelModel,
-        ComponentModel: geppettoJupyterGUISync.ComponentModel,
+        PanelSync: geppettoJupyterGUISync.PanelSync,
+        ComponentSync: geppettoJupyterGUISync.ComponentSync,
 
         StateVariableSync: geppettoJupyterModelSync.StateVariableSync,
         GeometrySync: geppettoJupyterModelSync.GeometrySync,
