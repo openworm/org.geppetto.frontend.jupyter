@@ -3,7 +3,7 @@ from traitlets import (Unicode, Instance, List, Dict, Bool, Float)
 from collections import defaultdict
 from IPython.display import Javascript, display_javascript
 
-from .GeppettoCore import ComponentWidget, PanelWidget, ProjectSync, ExperimentSync, ModelSync, StateVariableSync, PlotWidgetSync
+from .GeppettoCore import ComponentWidget, PanelWidget, ProjectSync, ExperimentSync, ModelSync, StateVariableSync, PlotWidgetSync, PopupWidgetSync
 
 from . import GeppettoCore
 
@@ -103,3 +103,8 @@ def createStateVariable(id = None, name = 'Untitled State Variable', units = 'Un
 #PLOT API
 def plotVariable(name = None, variables = []):
     PlotWidgetSync(widget_id = 0, name = name, data = variables)
+
+#POPUP API
+#def popupVariable(name = None, variables = []):
+def popupVariable(name = None, variables = ''):
+    PopupWidgetSync(widget_id = 0, name = name, data = variables)
