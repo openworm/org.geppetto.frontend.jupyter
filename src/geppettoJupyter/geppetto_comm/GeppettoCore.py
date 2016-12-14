@@ -12,6 +12,8 @@ current_project = None
 current_experiment = None
 current_model = None
 
+#self.log.warn("taka")
+
 # WIDGET
 class WidgetSync(widgets.Widget):
     name = Unicode('').tag(sync=True)
@@ -81,6 +83,7 @@ class GeometrySync(widgets.Widget):
     _model_name = Unicode('GeometrySync').tag(sync=True)
     _model_module = Unicode('geppettoWidgets').tag(sync=True)
 
+    id = Unicode('').tag(sync=True)
     name = Unicode('').tag(sync=True)
 
     bottomRadius = Float(-1).tag(sync=True)
