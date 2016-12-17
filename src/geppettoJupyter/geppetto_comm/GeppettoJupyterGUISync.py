@@ -1,6 +1,6 @@
+from collections import defaultdict
 import ipywidgets as widgets
 from traitlets import (Unicode, Instance, List, Dict, Bool, Float)
-from collections import defaultdict
 
 from geppettoJupyter.geppetto_comm import GeppettoJupyterModelSync
 
@@ -10,7 +10,6 @@ h.load_file("stdrun.hoc")
 # Current variables
 sync_values = defaultdict(list)
 
-# COMPONENT
 class ComponentSync(widgets.Widget):
     _model_name = Unicode('ComponentSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
@@ -43,20 +42,21 @@ class ComponentSync(widgets.Widget):
 
     def clickedCheckboxValue(targetComponent, triggeredComponent, args):
         if args[1]['data'] != None and float(args[1]['data']) != float(triggeredComponent.extraData['originalValue']):
-            targetComponent.sync_value =  'true'
-        else:        
-            targetComponent.sync_value =  'false'
-            
+            targetComponent.sync_value = 'true'
+        else:
+            targetComponent.sync_value = 'false'
+
     def resetValueToOriginal(targetComponent, triggeredComponent, args):
         triggeredComponent.sync_value = 'false'
-        exec("h." + targetComponent.value + "=" + str(targetComponent.extraData['originalValue']))
+        exec("h." + targetComponent.value + "=" +
+             str(targetComponent.extraData['originalValue']))
         #targetComponent.sync_value = str(targetComponent.extraData['originalValue'])
-        
+
     def fireChangeCallbacks(self, *args, **kwargs):
         self.fireCallbacks(self.changeCallbacks, args)
 
     def fireClickCallbacks(self, *args, **kwargs):
-        self.fireCallbacks(self.clickCallbacks, args)    
+        self.fireCallbacks(self.clickCallbacks, args)
 
     def fireBlurCallbacks(self, *args, **kwargs):
         self.fireCallbacks(self.blurCallbacks, args)
@@ -66,26 +66,27 @@ class ComponentSync(widgets.Widget):
     def fireCallbacks(self, cbs, args):
         if isinstance(cbs, list):
             for callback in cbs:
-                self.log.warn("aki")
-                self.log.warn(callback)
                 exec(callback)
         else:
-            self.log.warn("aki2")
-            self.log.warn(cbs)
-            self.log.warn(args)
+            #try:
             cbs(self, args)
+            #except Exception as e:
+                #raise
 
     def on_click(self, callbacks, remove=False):
-        self.clickCallbacks = callbacks    
-        self._click_handlers.register_callback(self.fireClickCallbacks, remove=remove)
+        self.clickCallbacks = callbacks
+        self._click_handlers.register_callback(
+            self.fireClickCallbacks, remove=remove)
 
     def on_change(self, callbacks, remove=False):
-        self.changeCallbacks = callbacks    
-        self._change_handlers.register_callback(self.fireChangeCallbacks, remove=remove)
+        self.changeCallbacks = callbacks
+        self._change_handlers.register_callback(
+            self.fireChangeCallbacks, remove=remove)
 
     def on_blur(self, callbacks, remove=False):
-        self.blurCallbacks = callbacks    
-        self._blur_handlers.register_callback(self.fireBlurCallbacks, remove=remove)    
+        self.blurCallbacks = callbacks
+        self._blur_handlers.register_callback(
+            self.fireBlurCallbacks, remove=remove)
 
     def _handle_button_msg(self, _, content, buffers):
         if content.get('event', '') == 'click':
@@ -96,6 +97,8 @@ class ComponentSync(widgets.Widget):
             self._blur_handlers(self, content)
 
 # PANEL
+
+
 class PanelSync(widgets.Widget):
     _model_name = Unicode('PanelSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
@@ -103,7 +106,8 @@ class PanelSync(widgets.Widget):
     widget_id = Unicode('').tag(sync=True)
     widget_name = Unicode('').tag(sync=True)
 
-    items = List(Instance(widgets.Widget)).tag(sync=True, **widgets.widget_serialization)
+    items = List(Instance(widgets.Widget)).tag(
+        sync=True, **widgets.widget_serialization)
     parentStyle = Dict({'flexDirection': 'column'}).tag(sync=True)
     embedded = Bool(False).tag(sync=True)
     positionX = Float(-1).tag(sync=True)
@@ -126,7 +130,11 @@ class PanelSync(widgets.Widget):
         self.items = [i for i in self.items] + [child]
 
     def setDirection(self, direction):
-        self.parentStyle ={'flexDirection': direction}
+        self.parentStyle = {'flexDirection': direction}
+
+    def registerToEvent(self, events, callback):
+        GeppettoJupyterModelSync.events_controller.registerToEvent(
+            events, callback)
 
     def display(self):
         self.send({"type": "display"})

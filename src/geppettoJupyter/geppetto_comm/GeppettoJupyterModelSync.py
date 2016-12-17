@@ -1,6 +1,6 @@
-import ipywidgets as widgets
-from traitlets import (Unicode, Instance, List, Dict, Bool, Float, Integer)
 from collections import defaultdict
+import ipywidgets as widgets
+from traitlets import (Unicode, Instance, List, Float)
 
 # Current variables
 record_variables = defaultdict(list)
@@ -8,9 +8,41 @@ current_project = None
 current_experiment = None
 current_model = None
 
-#self.log.warn("taka")
+class EventsSync(widgets.Widget):
+    _model_name = Unicode('EventsSync').tag(sync=True)
+    _model_module = Unicode('geppettoJupyter').tag(sync=True)
+    _events = {
+        'Select': 'experiment:selection_changed'
+    }
+    _eventsCallbacks = {}
 
-# EXPERIMENT
+    def __init__(self, **kwargs):
+        super(EventsSync, self).__init__(**kwargs)
+
+        self.on_msg(self._handle_event)
+
+    def _handle_event(self, _, content, buffers):
+        if content.get('event', '') == self._events['Select']:
+            self.log.warn("Event triggered")
+            self.log.warn(self._events['Select'])
+            for callback in self._eventsCallbacks[self._events['Select']]:
+                self.log.warn("Executing method")
+                self.log.warn(callback)
+                try:
+                    callback()
+                except Exception as e:
+                    self.log.warn("Unexpected error:")
+                    self.log.warn(str(e))
+                    raise
+
+    def registerToEvent(self, events, callback):
+        #FIXME we should allow to add callback not only init
+        for event in events:
+            self._eventsCallbacks[event] = [callback]
+
+events_controller = EventsSync()
+
+
 class ExperimentSync(widgets.Widget):
     _model_name = Unicode('ExperimentSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
@@ -23,14 +55,15 @@ class ExperimentSync(widgets.Widget):
     def __init__(self, **kwargs):
         super(ExperimentSync, self).__init__(**kwargs)
 
-# PROJECT
+
 class ProjectSync(widgets.Widget):
     _model_name = Unicode('ProjectSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
 
     id = Unicode('').tag(sync=True)
     name = Unicode('').tag(sync=True)
-    experiments = List(Instance(ExperimentSync)).tag(sync=True, **widgets.widget_serialization)
+    experiments = List(Instance(ExperimentSync)).tag(
+        sync=True, **widgets.widget_serialization)
 
     def __init__(self, **kwargs):
         super(ProjectSync, self).__init__(**kwargs)
@@ -38,7 +71,7 @@ class ProjectSync(widgets.Widget):
     def addExperiment(self, experiment):
         self.experiments = [i for i in self.experiments] + [experiment]
 
-# STATE VARIABLE
+
 class StateVariableSync(widgets.Widget):
     _model_name = Unicode('StateVariableSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
@@ -56,6 +89,7 @@ class StateVariableSync(widgets.Widget):
         # Add it to the syncvalues
         if 'neuron_variable' in kwargs and kwargs["neuron_variable"] is not None:
             record_variables[kwargs["neuron_variable"]] = self
+
 
 class GeometrySync(widgets.Widget):
     _model_name = Unicode('GeometrySync').tag(sync=True)
@@ -76,22 +110,24 @@ class GeometrySync(widgets.Widget):
     def __init__(self, **kwargs):
         super(GeometrySync, self).__init__(**kwargs)
 
-# MODEL
+
 class ModelSync(widgets.Widget):
     _model_name = Unicode('ModelSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
 
     id = Unicode('').tag(sync=True)
     name = Unicode('').tag(sync=True)
-    stateVariables = List(Instance(StateVariableSync)).tag(sync=True, **widgets.widget_serialization)
-    geometries = List(Instance(GeometrySync)).tag(sync=True, **widgets.widget_serialization)
+    stateVariables = List(Instance(StateVariableSync)).tag(
+        sync=True, **widgets.widget_serialization)
+    geometries = List(Instance(GeometrySync)).tag(
+        sync=True, **widgets.widget_serialization)
 
     def __init__(self, **kwargs):
         super(ModelSync, self).__init__(**kwargs)
 
     def addStateVariable(self, stateVariable):
-        self.stateVariables = [i for i in self.stateVariables] + [stateVariable]
+        self.stateVariables = [
+            i for i in self.stateVariables] + [stateVariable]
 
     def addGeometries(self, geometries):
-        #First resolve the sections
         self.geometries = [i for i in self.geometries] + geometries

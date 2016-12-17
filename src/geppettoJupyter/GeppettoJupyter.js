@@ -13,6 +13,7 @@ define('geppettoJupyter', function () {
         ModelSync: geppettoJupyterModelSync.ModelSync,
         ExperimentSync: geppettoJupyterModelSync.ExperimentSync,
         ProjectSync: geppettoJupyterModelSync.ProjectSync,
+        EventsSync: geppettoJupyterModelSync.EventsSync,
 
         WidgetSync: geppettoJupyterWidgetSync.WidgetSync,
         PlotWidgetSync: geppettoJupyterWidgetSync.PlotWidgetSync
