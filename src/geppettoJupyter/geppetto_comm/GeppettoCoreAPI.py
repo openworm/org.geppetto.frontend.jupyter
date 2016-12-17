@@ -5,7 +5,7 @@ from IPython.display import Javascript, display_javascript
 
 from .GeppettoJupyterGUISync import ComponentSync, PanelSync
 from .GeppettoJupyterModelSync import ProjectSync, ExperimentSync, ModelSync, StateVariableSync
-from .GeppettoJupyterWidgetSync import PlotWidgetSync
+from .GeppettoJupyterWidgetSync import PlotWidgetSync, PopupWidgetSync
 from . import GeppettoJupyterModelSync
 
 from neuron import h
@@ -109,3 +109,8 @@ def createGeometryVariables(geometries = []):
 #PLOT API
 def plotVariable(name = None, variables = []):
     PlotWidgetSync(widget_id = 0, name = name, data = variables)
+
+#POPUP API
+#def popupVariable(name = None, variables = []):
+def popupVariable(name = None, variables = ''):
+    PopupWidgetSync(widget_id = 0, name = name, data = variables)
