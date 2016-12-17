@@ -30,6 +30,13 @@ class PlotWidgetSync(WidgetSync):
     def __init__(self, **kwargs):
         super(PlotWidgetSync, self).__init__(**kwargs)
 
+class PopupWidgetSync(WidgetSync):
+    _model_name = Unicode('PopupWidgetSync').tag(sync=True)
+    _model_module = Unicode('geppettoWidgets').tag(sync=True)
+
+    def __init__(self, **kwargs):
+	super(PopupWidgetSync, self).__init__(**kwargs)
+
 # EXPERIMENT
 class ExperimentSync(widgets.Widget):
     _model_name = Unicode('ExperimentSync').tag(sync=True)
