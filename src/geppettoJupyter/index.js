@@ -1,4 +1,4 @@
-define(['base/js/namespace', './GeppettoWidgets', 'base/js/events'], function (Jupyter, GeppettoWidgets, events) {
+define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (Jupyter, GeppettoJupyter, events) {
 
 	function load_extension() {
 		// Load css first
@@ -23,12 +23,7 @@ define(['base/js/namespace', './GeppettoWidgets', 'base/js/events'], function (J
 			return true;
 		});
 
-		// Restart kernel to delete any previous variable
-		//IPython.notebook.kernel.restart(function(){
-			// Once restarted, execute all the cells
-		//	IPython.notebook.execute_all_cells();
-		//});
-
+		// Restart kernel to delete any previous variable and start with a fresh instance
 		IPython.notebook.restart_run_all({confirm: false})
 	}
 
