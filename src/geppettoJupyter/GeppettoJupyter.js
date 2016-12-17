@@ -17,6 +17,6 @@ define('geppettoJupyter', function () {
 
         WidgetSync: geppettoJupyterWidgetSync.WidgetSync,
         PlotWidgetSync: geppettoJupyterWidgetSync.PlotWidgetSync,
-        PopupWidgetSync: geppettoJupyterWidgets.PopupWidgetSync
+        PopupWidgetSync: geppettoJupyterWidgetSync.PopupWidgetSync
     };
 });
