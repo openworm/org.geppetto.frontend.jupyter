@@ -3,9 +3,10 @@ from traitlets import (Unicode, Instance, List, Dict, Bool, Float)
 from collections import defaultdict
 from IPython.display import Javascript, display_javascript
 
-from .GeppettoCore import ComponentWidget, PanelWidget, ProjectSync, ExperimentSync, ModelSync, StateVariableSync, PlotWidgetSync
-
-from . import GeppettoCore
+from .GeppettoJupyterGUISync import ComponentSync, PanelSync
+from .GeppettoJupyterModelSync import ProjectSync, ExperimentSync, ModelSync, StateVariableSync
+from .GeppettoJupyterWidgetSync import PlotWidgetSync, PopupWidgetSync
+from . import GeppettoJupyterModelSync
 
 from neuron import h
 h.load_file("stdrun.hoc")
@@ -30,7 +31,7 @@ def addButton(name, actions = None, value = None, extraData = None):
         if valueUnits != '':
             name += " (" + valueUnits + ")"
             
-    button = ComponentWidget(component_name='RAISEDBUTTON', widget_id=newId(), widget_name=name, extraData = extraData)
+    button = ComponentSync(component_name='RAISEDBUTTON', widget_id=newId(), widget_name=name, extraData = extraData)
     if actions is not None:
         button.on_click(actions)
     
@@ -46,7 +47,7 @@ def addTextField(name, value = None):
         parameters['value'] = value
     else:
         parameters['value'] = ''
-    return ComponentWidget(**parameters)     
+    return ComponentSync(**parameters)     
 
 def addTextFieldAndButton(name, value = None, create_checkbox = False, actions = None):
     items = []
@@ -66,20 +67,20 @@ def addPanel(name, items = [], widget_id=None, positionX=-1, positionY=-1):
     if widget_id is None: widget_id = newId()
     for item in items:
         item.embedded = True
-    return PanelWidget(widget_id = widget_id, widget_name=name, items=items, positionX=positionX, positionY=positionY)
+    return PanelSync(widget_id = widget_id, widget_name=name, items=items, positionX=positionX, positionY=positionY)
 
 def addCheckbox(name, sync_value = 'false'):
-    return ComponentWidget(component_name='CHECKBOX', widget_id=newId(), widget_name=name, sync_value = sync_value)
+    return ComponentSync(component_name='CHECKBOX', widget_id=newId(), widget_name=name, sync_value = sync_value)
 
 #MODEL API
 def createProject(id = None, name = 'Untitled Project', experiments = []):
     if id is None: id = newId('project')
     if experiments == []:
         experiment = createExperiment()
-        GeppettoCore.current_experiment = experiment
+        GeppettoJupyterModelSync.current_experiment = experiment
         experiments.append(experiment)
-    GeppettoCore.current_model = createModel(id = name.replace(" ", ""), name = name)    
-    GeppettoCore.current_project = ProjectSync(id = id, name = name, experiments = experiments)
+    GeppettoJupyterModelSync.current_model = createModel(id = name.replace(" ", ""), name = name)    
+    GeppettoJupyterModelSync.current_project = ProjectSync(id = id, name = name, experiments = experiments)
 
 def createExperiment(id = None, name = 'Untitled Experiment', state = 'Design'):
     if id is None: id = newId('experiment')
@@ -94,12 +95,21 @@ def createStateVariable(id = None, name = 'Untitled State Variable', units = 'Un
         id = newId('stateVariable')
     else:
         # Check this variable is not already in the model
-        for stateVariable in GeppettoCore.current_model.stateVariables:
+        for stateVariable in GeppettoJupyterModelSync.current_model.stateVariables:
             if stateVariable.id == id:
                 return
 
-    GeppettoCore.current_model.addStateVariable(StateVariableSync(id = id, name = name, units = units, timeSeries = timeSeries, neuron_variable = neuron_variable))
+    GeppettoJupyterModelSync.current_model.addStateVariable(StateVariableSync(id = id, name = name, units = units, timeSeries = timeSeries, neuron_variable = neuron_variable))
+
+def createGeometryVariables(geometries = []):
+    GeppettoJupyterModelSync.current_model.addGeometries(geometries)
+
+
 
 #PLOT API
 def plotVariable(name = None, variables = []):
     PlotWidgetSync(widget_id = 0, name = name, data = variables)
+
+#POPUP API
+def popupVariable(name = None, variables = ''):
+    PopupWidgetSync(widget_id = 1, name = name, data = variables)
