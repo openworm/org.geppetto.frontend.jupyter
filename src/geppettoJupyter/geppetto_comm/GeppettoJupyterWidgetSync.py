@@ -1,5 +1,6 @@
 import ipywidgets as widgets
 from traitlets import (Unicode, List, Float, Integer)
+from geppettoJupyter.geppetto_comm import GeppettoJupyterModelSync
 
 # WIDGET
 class WidgetSync(widgets.Widget):
@@ -11,6 +12,10 @@ class WidgetSync(widgets.Widget):
 
     def __init__(self, **kwargs):
         super(WidgetSync, self).__init__(**kwargs)
+
+    def registerToEvent(self, events, callback):
+        GeppettoJupyterModelSync.events_controller.registerToEvent(
+            events, callback)
 
 class PlotWidgetSync(WidgetSync):
     _model_name = Unicode('PlotWidgetSync').tag(sync=True)
@@ -25,3 +30,4 @@ class PopupWidgetSync(WidgetSync):
 
     def __init__(self, **kwargs):
         super(PopupWidgetSync, self).__init__(**kwargs)
+        
