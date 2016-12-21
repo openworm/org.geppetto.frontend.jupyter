@@ -25,11 +25,12 @@ class EventsSync(widgets.Widget):
         if content.get('event', '') == self._events['Select']:
             self.log.warn("Event triggered")
             self.log.warn(self._events['Select'])
+            self.log.warn(self._eventsCallbacks)
             for callback in self._eventsCallbacks[self._events['Select']]:
                 self.log.warn("Executing method")
                 self.log.warn(callback)
                 try:
-                    callback()
+                    callback(content.get('data', ''))
                 except Exception as e:
                     self.log.warn("Unexpected error:")
                     self.log.warn(str(e))
