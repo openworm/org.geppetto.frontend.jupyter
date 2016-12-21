@@ -108,8 +108,8 @@ def createGeometryVariables(geometries = []):
 
 #PLOT API
 def plotVariable(name = None, variables = []):
-    PlotWidgetSync(widget_id = 0, name = name, data = variables)
+    return PlotWidgetSync(widget_id = 0, name = name, data = variables)
 
 #POPUP API
 def popupVariable(name = None, variables = ''):
-    PopupWidgetSync(widget_id = 1, name = name, data = variables)
+    return PopupWidgetSync(widget_id = 1, name = name, data = variables)
