@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 import ipywidgets as widgets
 from traitlets import (Unicode, Instance, List, Dict, Bool, Float)
@@ -9,6 +10,7 @@ h.load_file("stdrun.hoc")
 
 # Current variables
 sync_values = defaultdict(list)
+
 
 class ComponentSync(widgets.Widget):
     _model_name = Unicode('ComponentSync').tag(sync=True)
@@ -68,10 +70,12 @@ class ComponentSync(widgets.Widget):
             for callback in cbs:
                 exec(callback)
         else:
-            #try:
-            cbs(self, args)
-            #except Exception as e:
-                #raise
+            try:
+                cbs(self, args)
+            except Exception as e:
+                logging.error("Unexpected error:")
+                logging.error(str(e))
+                raise
 
     def on_click(self, callbacks, remove=False):
         self.clickCallbacks = callbacks

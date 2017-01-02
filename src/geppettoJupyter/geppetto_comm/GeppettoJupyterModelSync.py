@@ -2,11 +2,16 @@ from collections import defaultdict
 import ipywidgets as widgets
 from traitlets import (Unicode, Instance, List, Float)
 
+from IPython.core.debugger import Tracer
+#import pdb
+
 # Current variables
 record_variables = defaultdict(list)
 current_project = None
 current_experiment = None
 current_model = None
+current_python_model = None
+events_controller = None
 
 class EventsSync(widgets.Widget):
     _model_name = Unicode('EventsSync').tag(sync=True)
@@ -27,21 +32,27 @@ class EventsSync(widgets.Widget):
             self.log.warn(self._events['Select'])
             self.log.warn(self._eventsCallbacks)
             for callback in self._eventsCallbacks[self._events['Select']]:
-                self.log.warn("Executing method")
-                self.log.warn(callback)
                 try:
-                    callback(content.get('data', ''))
+                    self.log.warn("Executing method")
+                    self.log.warn(callback)
+                    self.log.warn(content.get('data', ''))
+                    self.log.warn(content.get('groupNameIdentifier', ''))
+                    # Tracer()()
+                    callback(content.get('data', ''), content.get('groupNameIdentifier', ''))
                 except Exception as e:
-                    self.log.warn("Unexpected error:")
+                    self.log.warn("Unexpected error executing callback on event triggered:")
                     self.log.warn(str(e))
                     raise
 
     def registerToEvent(self, events, callback):
         #FIXME we should allow to add callback not only init
         for event in events:
-            self._eventsCallbacks[event] = [callback]
+            if event not in self._eventsCallbacks:
+                self._eventsCallbacks[event] = []
+            self._eventsCallbacks[event].append(callback)
+            self.log.warn("Registring event " + str(event) + " with callback " + str(callback))
 
-events_controller = EventsSync()
+
 
 
 class ExperimentSync(widgets.Widget):
@@ -82,14 +93,14 @@ class StateVariableSync(widgets.Widget):
     units = Unicode('').tag(sync=True)
     timeSeries = List(Float).tag(sync=True)
 
-    neuron_variable = None
+    python_variable = None
 
     def __init__(self, **kwargs):
         super(StateVariableSync, self).__init__(**kwargs)
 
         # Add it to the syncvalues
-        if 'neuron_variable' in kwargs and kwargs["neuron_variable"] is not None:
-            record_variables[kwargs["neuron_variable"]] = self
+        if 'python_variable' in kwargs and kwargs["python_variable"] is not None:
+            record_variables[kwargs["python_variable"]] = self
 
 
 class GeometrySync(widgets.Widget):
@@ -107,6 +118,8 @@ class GeometrySync(widgets.Widget):
     distalX = Float(-1).tag(sync=True)
     distalY = Float(-1).tag(sync=True)
     distalZ = Float(-1).tag(sync=True)
+
+    python_variable = None
 
     def __init__(self, **kwargs):
         super(GeometrySync, self).__init__(**kwargs)
