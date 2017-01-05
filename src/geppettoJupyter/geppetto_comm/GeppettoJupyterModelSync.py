@@ -145,3 +145,6 @@ class ModelSync(widgets.Widget):
 
     def addGeometries(self, geometries):
         self.geometries = [i for i in self.geometries] + geometries
+
+    def sync(self):
+        self.send({"type": "load"})
