@@ -1,4 +1,3 @@
-import logging
 from collections import defaultdict
 import ipywidgets as widgets
 from traitlets import (Unicode, Instance, List, Dict, Bool, Float)
@@ -73,8 +72,7 @@ class ComponentSync(widgets.Widget):
             try:
                 cbs(self, args)
             except Exception as e:
-                logging.error("Unexpected error:")
-                logging.error(str(e))
+                self.log.exception("Unexpected error executing callback for component:")
                 raise
 
     def on_click(self, callbacks, remove=False):
