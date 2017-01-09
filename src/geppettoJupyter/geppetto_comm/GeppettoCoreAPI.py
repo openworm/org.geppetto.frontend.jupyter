@@ -3,7 +3,6 @@ from traitlets import (Unicode, Instance, List, Dict, Bool, Float)
 from collections import defaultdict
 from IPython.display import Javascript, display_javascript
 
-from .GeppettoJupyterGUISync import ComponentSync, PanelSync
 from .GeppettoJupyterModelSync import ProjectSync, ExperimentSync, ModelSync, StateVariableSync, GeometrySync
 from .GeppettoJupyterWidgetSync import PlotWidgetSync, PopupWidgetSync
 from . import GeppettoJupyterModelSync
@@ -36,9 +35,8 @@ def createExperiment(id = None, name = 'Untitled Experiment', state = 'Design'):
     if id is None: id = newId('experiment')
     return ExperimentSync(id = id, name = name, state = state)
 
-def createGeometry(id = None, name = 'Untitled Geometry', bottomRadius = 0, positionX = 0, positionY = 0, positionZ = 0, topRadius = 0, distalX = 0, distalY = 0, distalZ = 0, python_variable = None):
-    if id is None: id = newId('geometry')
-    return GeometrySync(id = id, name = name,  bottomRadius = bottomRadius, positionX = positionX, positionY = positionY , positionZ = positionZ, topRadius = topRadius, distalX = distalX, distalY = distalY, distalZ = distalZ, python_variable = python_variable)
+def createGeometry(sec_name = 'Untitled Geometry', index = 0, position = [], distal = [], python_variable = None):
+    return GeometrySync(id = sec_name + "_" + str(index), name = sec_name + " " + str(index),  bottomRadius = position[3], positionX = position[0], positionY = position[1] , positionZ = position[2], topRadius = distal[3], distalX = distal[0], distalY = distal[1], distalZ = distal[2], python_variable = python_variable)
 
 def createModel(id = None, name = 'Untitled Model', stateVariables = []):
     if id is None: id = newId('model')
