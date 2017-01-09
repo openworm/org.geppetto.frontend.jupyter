@@ -1,11 +1,12 @@
+"""
+GeppettoJupyterGUISync.py
+Component (textfield, button, checkbox, etc...) and Panel Sync 
+"""
 from collections import defaultdict
 import ipywidgets as widgets
 from traitlets import (Unicode, Instance, List, Dict, Bool, Float)
 
 from geppettoJupyter.geppetto_comm import GeppettoJupyterModelSync
-
-from neuron import h
-h.load_file("stdrun.hoc")
 
 # Current variables
 sync_values = defaultdict(list)
@@ -41,18 +42,6 @@ class ComponentSync(widgets.Widget):
 
         self.on_msg(self._handle_button_msg)
 
-    def clickedCheckboxValue(targetComponent, triggeredComponent, args):
-        if args[1]['data'] != None and float(args[1]['data']) != float(triggeredComponent.extraData['originalValue']):
-            targetComponent.sync_value = 'true'
-        else:
-            targetComponent.sync_value = 'false'
-
-    def resetValueToOriginal(targetComponent, triggeredComponent, args):
-        triggeredComponent.sync_value = 'false'
-        exec("h." + targetComponent.value + "=" +
-             str(targetComponent.extraData['originalValue']))
-        #targetComponent.sync_value = str(targetComponent.extraData['originalValue'])
-
     def fireChangeCallbacks(self, *args, **kwargs):
         self.fireCallbacks(self.changeCallbacks, args)
 
@@ -61,19 +50,15 @@ class ComponentSync(widgets.Widget):
 
     def fireBlurCallbacks(self, *args, **kwargs):
         self.fireCallbacks(self.blurCallbacks, args)
-        if self.value != None and args[1]['data'] != None:
-            exec("h." + self.value + "=" + str(args[1]['data']))
+        # if self.value != None and args[1]['data'] != None:
+        #     exec("h." + self.value + "=" + str(args[1]['data']))
 
     def fireCallbacks(self, cbs, args):
-        if isinstance(cbs, list):
-            for callback in cbs:
-                exec(callback)
-        else:
-            try:
-                cbs(self, args)
-            except Exception as e:
-                self.log.exception("Unexpected error executing callback for component:")
-                raise
+        try:
+            cbs(self, args)
+        except Exception as exception:
+            self.log.exception("Unexpected error executing callback for component:")
+            raise
 
     def on_click(self, callbacks, remove=False):
         self.clickCallbacks = callbacks
@@ -99,8 +84,6 @@ class ComponentSync(widgets.Widget):
             self._blur_handlers(self, content)
 
 # PANEL
-
-
 class PanelSync(widgets.Widget):
     _model_name = Unicode('PanelSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
