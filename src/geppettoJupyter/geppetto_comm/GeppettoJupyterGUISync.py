@@ -11,7 +11,6 @@ from geppettoJupyter.geppetto_comm import GeppettoJupyterModelSync
 # Current variables
 sync_values = defaultdict(list)
 
-
 class ComponentSync(widgets.Widget):
     _model_name = Unicode('ComponentSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
@@ -50,8 +49,6 @@ class ComponentSync(widgets.Widget):
 
     def fireBlurCallbacks(self, *args, **kwargs):
         self.fireCallbacks(self.blurCallbacks, args)
-        # if self.value != None and args[1]['data'] != None:
-        #     exec("h." + self.value + "=" + str(args[1]['data']))
 
     def fireCallbacks(self, cbs, args):
         try:
