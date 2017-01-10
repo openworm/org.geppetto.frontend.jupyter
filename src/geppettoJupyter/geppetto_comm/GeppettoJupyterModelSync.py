@@ -96,20 +96,6 @@ class StateVariableSync(widgets.Widget):
 
 
 class GeometrySync():
-    # _model_name = Unicode('GeometrySync').tag(sync=True)
-    # _model_module = Unicode('geppettoJupyter').tag(sync=True)
-
-    # id = Unicode('').tag(sync=True)
-    # name = Unicode('').tag(sync=True)
-
-    # bottomRadius = Float(-1).tag(sync=True)
-    # topRadius = Float(-1).tag(sync=True)
-    # positionX = Float(-1).tag(sync=True)
-    # positionY = Float(-1).tag(sync=True)
-    # positionZ = Float(-1).tag(sync=True)
-    # distalX = Float(-1).tag(sync=True)
-    # distalY = Float(-1).tag(sync=True)
-    # distalZ = Float(-1).tag(sync=True)
     id = ''
     name = ''
 
