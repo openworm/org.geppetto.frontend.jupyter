@@ -18,8 +18,6 @@ class ComponentSync(widgets.Widget):
     widget_name = Unicode('').tag(sync=True)
     embedded = Bool(True).tag(sync=True)
 
-    component_name = Unicode('').tag(sync=True)
-
     sync_value = Unicode().tag(sync=True)
     value = None
     extraData = None
@@ -48,7 +46,7 @@ class ComponentSync(widgets.Widget):
             self._blur_handlers(self, content)
 
     def __str__(self):
-        return "Component Sync => " + "Widget Id: " + self.widget_id + ", Widget Name: " + self.widget_name + ", Embedded: " + str(self.embedded) + ", Component Name: " + self.component_name + ", Sync Value: " + self.sync_value + ", Value: " + str(self.value) + ", Extra Data: " + self.extraData
+        return "Component Sync => " + "Widget Id: " + self.widget_id + ", Widget Name: " + self.widget_name + ", Embedded: " + str(self.embedded) + ", Sync Value: " + self.sync_value + ", Value: " + str(self.value) + ", Extra Data: " + self.extraData
 
 
 class TextFieldSync(ComponentSync):
@@ -94,31 +92,18 @@ class LabelSync(ComponentSync):
     def __init__(self, **kwargs):
         super(LabelSync, self).__init__(**kwargs)
 
-class PanelSync(widgets.Widget):
+class PanelSync(ComponentSync):
     _model_name = Unicode('PanelSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
-
-    widget_id = Unicode('').tag(sync=True)
-    widget_name = Unicode('').tag(sync=True)
 
     items = List(Instance(widgets.Widget)).tag(
         sync=True, **widgets.widget_serialization)
     parentStyle = Dict({'flexDirection': 'column'}).tag(sync=True)
-    embedded = Bool(False).tag(sync=True)
     positionX = Float(-1).tag(sync=True)
     positionY = Float(-1).tag(sync=True)
 
     def __init__(self, **kwargs):
         super(PanelSync, self).__init__(**kwargs)
-        self._click_handlers = widgets.CallbackDispatcher()
-        self.on_msg(self._handle_income_msg)
-
-    def on_click(self, callback, remove=False):
-        self._click_handlers.register_callback(callback, remove=remove)
-
-    def _handle_income_msg(self, _, content, buffers):
-        if content.get('event', '') == 'click':
-            self._click_handlers(self)
 
     def addChild(self, child):
         child.embedded = True
