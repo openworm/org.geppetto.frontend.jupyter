@@ -29,8 +29,6 @@ class ComponentSync(widgets.Widget):
     def __init__(self, **kwargs):
         super(ComponentSync, self).__init__(**kwargs)
 
-        logging.debug('initialising component')
-
         if 'value' in kwargs and kwargs["value"] is not None and kwargs["value"] != '':
             sync_values[kwargs["value"]] = self
 
