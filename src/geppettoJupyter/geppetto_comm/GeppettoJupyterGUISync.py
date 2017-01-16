@@ -2,6 +2,7 @@
 GeppettoJupyterGUISync.py
 Component (textfield, button, checkbox, etc...) and Panel Sync 
 """
+import logging
 from collections import defaultdict
 import ipywidgets as widgets
 from traitlets import (Unicode, Instance, List, Dict, Bool, Float)
@@ -25,14 +26,10 @@ class ComponentSync(widgets.Widget):
     value = None
     extraData = None
 
-    clickCallbacks = []
-    changeCallbacks = []
-    blurCallbacks = []
-
     def __init__(self, **kwargs):
         super(ComponentSync, self).__init__(**kwargs)
 
-        if 'value' in kwargs and kwargs["value"] is not None:
+        if 'value' in kwargs and kwargs["value"] is not None and kwargs["value"] != '':
             sync_values[kwargs["value"]] = self
 
         self._click_handlers = widgets.CallbackDispatcher()
@@ -41,44 +38,31 @@ class ComponentSync(widgets.Widget):
 
         self.on_msg(self._handle_button_msg)
 
-    def fireChangeCallbacks(self, *args, **kwargs):
-        self.fireCallbacks(self.changeCallbacks, args)
+    def on_click(self, callback, remove=False):
+        self._click_handlers.register_callback(callback, remove=remove)
 
-    def fireClickCallbacks(self, *args, **kwargs):
-        self.fireCallbacks(self.clickCallbacks, args)
+    def on_change(self, callback, remove=False):
+        self._change_handlers.register_callback(callback, remove=remove)
 
-    def fireBlurCallbacks(self, *args, **kwargs):
-        self.fireCallbacks(self.blurCallbacks, args)
-
-    def fireCallbacks(self, cbs, args):
-        try:
-            cbs(self, args)
-        except Exception as exception:
-            self.log.exception("Unexpected error executing callback for component:")
-            raise
-
-    def on_click(self, callbacks, remove=False):
-        self.clickCallbacks = callbacks
-        self._click_handlers.register_callback(
-            self.fireClickCallbacks, remove=remove)
-
-    def on_change(self, callbacks, remove=False):
-        self.changeCallbacks = callbacks
-        self._change_handlers.register_callback(
-            self.fireChangeCallbacks, remove=remove)
-
-    def on_blur(self, callbacks, remove=False):
-        self.blurCallbacks = callbacks
-        self._blur_handlers.register_callback(
-            self.fireBlurCallbacks, remove=remove)
+    def on_blur(self, callback, remove=False):
+        self._blur_handlers.register_callback(callback, remove=remove)
 
     def _handle_button_msg(self, _, content, buffers):
-        if content.get('event', '') == 'click':
-            self._click_handlers(self, content)
-        elif content.get('event', '') == 'change':
-            self._change_handlers(self, content)
-        elif content.get('event', '') == 'blur':
-            self._blur_handlers(self, content)
+        try:
+            if content.get('event', '') == 'click':
+                self._click_handlers(self, content)
+            elif content.get('event', '') == 'change':
+                self._change_handlers(self, content)
+            elif content.get('event', '') == 'blur':
+                self._blur_handlers(self, content)
+
+        except Exception as exception:
+            logging.exception(
+                "Unexpected error executing callback for component:")
+            raise
+
+    def __str__(self):
+        return "Component Sync => " + "Widget Id: " + self.widget_id + ", Widget Name: " + self.widget_name + ", Embedded: " + str(self.embedded) + ", Component Name: " + self.component_name + ", Sync Value: " + self.sync_value + ", Value: " + str(self.value) + ", Extra Data: " + self.extraData
 
 # PANEL
 class PanelSync(widgets.Widget):

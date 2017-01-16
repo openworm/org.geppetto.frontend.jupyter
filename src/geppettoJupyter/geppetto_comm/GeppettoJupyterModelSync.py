@@ -138,6 +138,8 @@ class GeometrySync():
                 'distalY': self.distalY,
                 'distalZ': self.distalZ
                }
+    def __str__(self):
+        return "Geometry Sync => " + "Id: " + self.id + ", Name: " + self.name + ", Bottom Radius: " + str(self.bottomRadius) + ", Position X: " + str(self.positionX) + ", Position Y: " + str(self.positionY) + ", Position Z: " + str(self.positionZ) + ", Top Radius: " + str(self.topRadius) + ", Distal X: " + str(self.distalX) + ", Distal Y: " + str(self.distalY) + ", Distal Z: " + str(self.distalZ)
 
 
 class ModelSync(widgets.Widget):
