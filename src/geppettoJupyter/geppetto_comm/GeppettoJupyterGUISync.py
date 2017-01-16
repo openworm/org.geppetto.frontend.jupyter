@@ -12,10 +12,8 @@ from geppettoJupyter.geppetto_comm import GeppettoJupyterModelSync
 # Current variables
 sync_values = defaultdict(list)
 
-class ComponentSync(widgets.Widget):
-    _model_name = Unicode('ComponentSync').tag(sync=True)
-    _model_module = Unicode('geppettoJupyter').tag(sync=True)
 
+class ComponentSync(widgets.Widget):
     widget_id = Unicode('').tag(sync=True)
     widget_name = Unicode('').tag(sync=True)
     embedded = Bool(True).tag(sync=True)
@@ -32,14 +30,10 @@ class ComponentSync(widgets.Widget):
         if 'value' in kwargs and kwargs["value"] is not None and kwargs["value"] != '':
             sync_values[kwargs["value"]] = self
 
-        self._click_handlers = widgets.CallbackDispatcher()
         self._change_handlers = widgets.CallbackDispatcher()
         self._blur_handlers = widgets.CallbackDispatcher()
 
-        self.on_msg(self._handle_button_msg)
-
-    def on_click(self, callback, remove=False):
-        self._click_handlers.register_callback(callback, remove=remove)
+        self.on_msg(self._handle_component_msg)
 
     def on_change(self, callback, remove=False):
         self._change_handlers.register_callback(callback, remove=remove)
@@ -47,24 +41,59 @@ class ComponentSync(widgets.Widget):
     def on_blur(self, callback, remove=False):
         self._blur_handlers.register_callback(callback, remove=remove)
 
-    def _handle_button_msg(self, _, content, buffers):
-        try:
-            if content.get('event', '') == 'click':
-                self._click_handlers(self, content)
-            elif content.get('event', '') == 'change':
-                self._change_handlers(self, content)
-            elif content.get('event', '') == 'blur':
-                self._blur_handlers(self, content)
-
-        except Exception as exception:
-            logging.exception(
-                "Unexpected error executing callback for component:")
-            raise
+    def _handle_component_msg(self, _, content, buffers):
+        if content.get('event', '') == 'change':
+            self._change_handlers(self, content)
+        elif content.get('event', '') == 'blur':
+            self._blur_handlers(self, content)
 
     def __str__(self):
         return "Component Sync => " + "Widget Id: " + self.widget_id + ", Widget Name: " + self.widget_name + ", Embedded: " + str(self.embedded) + ", Component Name: " + self.component_name + ", Sync Value: " + self.sync_value + ", Value: " + str(self.value) + ", Extra Data: " + self.extraData
 
-# PANEL
+
+class TextFieldSync(ComponentSync):
+    _model_name = Unicode('TextFieldSync').tag(sync=True)
+    _model_module = Unicode('geppettoJupyter').tag(sync=True)
+
+    read_only = Bool(False).tag(sync=True)
+
+    def __init__(self, **kwargs):
+        super(TextFieldSync, self).__init__(**kwargs)
+
+
+class CheckboxSync(ComponentSync):
+    _model_name = Unicode('CheckboxSync').tag(sync=True)
+    _model_module = Unicode('geppettoJupyter').tag(sync=True)
+
+    def __init__(self, **kwargs):
+        super(CheckboxSync, self).__init__(**kwargs)
+
+
+class ButtonSync(ComponentSync):
+    _model_name = Unicode('ButtonSync').tag(sync=True)
+    _model_module = Unicode('geppettoJupyter').tag(sync=True)
+
+    def __init__(self, **kwargs):
+        super(ButtonSync, self).__init__(**kwargs)
+        self._click_handlers = widgets.CallbackDispatcher()
+        self.on_msg(self._handle_button_msg)
+
+    def on_click(self, callback, remove=False):
+        self._click_handlers.register_callback(callback, remove=remove)
+
+    def _handle_button_msg(self, _, content, buffers):
+        super(ButtonSync, self)._handle_component_msg(_, content, buffers)
+        if content.get('event', '') == 'click':
+            self._click_handlers(self, content)
+
+
+class LabelSync(ComponentSync):
+    _model_name = Unicode('LabelSync').tag(sync=True)
+    _model_module = Unicode('geppettoJupyter').tag(sync=True)
+
+    def __init__(self, **kwargs):
+        super(LabelSync, self).__init__(**kwargs)
+
 class PanelSync(widgets.Widget):
     _model_name = Unicode('PanelSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
