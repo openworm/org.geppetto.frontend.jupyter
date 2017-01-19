@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 import ipywidgets as widgets
 from traitlets import (Unicode, Instance, List, Float, Dict)
@@ -28,13 +29,14 @@ class EventsSync(widgets.Widget):
 
     def _handle_event(self, _, content, buffers):
         if content.get('event', '') == self._events['Select']:
-            self.log.debug("Event triggered")
+            logging.debug("Event triggered")
             for callback in self._eventsCallbacks[self._events['Select']]:
                 try:
                     callback(content.get('data', ''),
-                             content.get('groupNameIdentifier', ''))
+                             content.get('geometryIdentifier', ''),
+                             content.get('point', ''))
                 except Exception as e:
-                    self.log.exception( "Unexpected error executing callback on event triggered:")
+                    logging.exception( "Unexpected error executing callback on event triggered:")
                     raise
 
     def registerToEvent(self, events, callback):
@@ -43,7 +45,7 @@ class EventsSync(widgets.Widget):
             if event not in self._eventsCallbacks:
                 self._eventsCallbacks[event] = []
             self._eventsCallbacks[event].append(callback)
-            self.log.debug("Registring event " + str(event) +
+            logging.debug("Registring event " + str(event) +
                           " with callback " + str(callback))
 
 
