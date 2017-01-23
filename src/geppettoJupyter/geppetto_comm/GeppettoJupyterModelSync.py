@@ -113,7 +113,6 @@ class GeometrySync():
     python_variable = None
 
     def __init__(self, **kwargs):
-        # super(GeometrySync, self).__init__(**kwargs)
         self.id = kwargs.get('id')
         self.name = kwargs.get('name')
 
@@ -169,3 +168,6 @@ class ModelSync(widgets.Widget):
 
     def sync(self):
         self.send({"type": "load"})
+
+    def draw(self,x,y,z,radius):
+        self.send({"type": "draw_sphere", "content": {"x":x,"y":y,"z":z,"radius":radius}})
