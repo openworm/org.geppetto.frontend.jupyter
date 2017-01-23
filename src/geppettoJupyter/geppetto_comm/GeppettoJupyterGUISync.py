@@ -92,6 +92,21 @@ class LabelSync(ComponentSync):
     def __init__(self, **kwargs):
         super(LabelSync, self).__init__(**kwargs)
 
+class DropDownSync(ComponentSync):
+    _model_name = Unicode('DropDownSync').tag(sync=True)
+    _model_module = Unicode('geppettoJupyter').tag(sync=True)
+
+    items = List(Dict).tag(sync=True)
+
+    def __init__(self, **kwargs):
+        super(DropDownSync, self).__init__(**kwargs)
+
+    def addChild(self, child):
+        self.items = [i for i in self.items] + [child]
+
+    # def display(self):
+    #     self.send({"type": "display"})
+
 class PanelSync(ComponentSync):
     _model_name = Unicode('PanelSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
