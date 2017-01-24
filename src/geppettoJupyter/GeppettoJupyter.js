@@ -13,7 +13,6 @@ define('geppettoJupyter', function () {
         DropDownSync: geppettoJupyterGUISync.DropDownSync,
 
         StateVariableSync: geppettoJupyterModelSync.StateVariableSync,
-        GeometrySync: geppettoJupyterModelSync.GeometrySync,
         ModelSync: geppettoJupyterModelSync.ModelSync,
         ExperimentSync: geppettoJupyterModelSync.ExperimentSync,
         ProjectSync: geppettoJupyterModelSync.ProjectSync,
