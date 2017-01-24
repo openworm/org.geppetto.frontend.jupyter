@@ -31,9 +31,9 @@ def createProject(id = None, name = 'Untitled Project', experiments = []):
     GeppettoJupyterModelSync.current_model = createModel(id = name.replace(" ", ""), name = name)    
     GeppettoJupyterModelSync.current_project = ProjectSync(id = id, name = name, experiments = experiments)
 
-def createExperiment(id = None, name = 'Untitled Experiment', state = 'Design'):
+def createExperiment(id = None, name = 'Untitled Experiment', status = 'DESIGN'):
     if id is None: id = newId('experiment')
-    return ExperimentSync(id = id, name = name, state = state)
+    return ExperimentSync(id = id, name = name, status = status)
 
 def createGeometry(sec_name = 'Untitled Geometry', index = 0, position = [], distal = [], python_variable = None):
     return GeometrySync(id = sec_name + "_" + str(index), name = sec_name + " " + str(index),  bottomRadius = position[3], positionX = position[0], positionY = position[1] , positionZ = position[2], topRadius = distal[3], distalX = distal[0], distalY = distal[1], distalZ = distal[2], python_variable = python_variable)
@@ -47,8 +47,10 @@ def createStateVariable(id = None, name = 'Untitled State Variable', units = 'Un
     # Check this variable is not already in the model
     for stateVariable in GeppettoJupyterModelSync.current_model.stateVariables:
         if stateVariable.id == id:
-            return
-    GeppettoJupyterModelSync.current_model.addStateVariable(StateVariableSync(id = id, name = name, units = units, timeSeries = timeSeries, python_variable = python_variable))
+            return stateVariable
+    state_variable = StateVariableSync(id = id, name = name, units = units, timeSeries = timeSeries, python_variable = python_variable)
+    GeppettoJupyterModelSync.current_model.addStateVariable(state_variable)
+    return state_variable
 
 #PLOT API
 def plotVariable(name = None, variables = []):

@@ -92,6 +92,18 @@ class LabelSync(ComponentSync):
     def __init__(self, **kwargs):
         super(LabelSync, self).__init__(**kwargs)
 
+class DropDownSync(ComponentSync):
+    _model_name = Unicode('DropDownSync').tag(sync=True)
+    _model_module = Unicode('geppettoJupyter').tag(sync=True)
+
+    items = List(Dict).tag(sync=True)
+
+    def __init__(self, **kwargs):
+        super(DropDownSync, self).__init__(**kwargs)
+
+    def add_child(self, child):
+        self.items = [i for i in self.items] + [child]
+
 class PanelSync(ComponentSync):
     _model_name = Unicode('PanelSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
@@ -105,15 +117,15 @@ class PanelSync(ComponentSync):
     def __init__(self, **kwargs):
         super(PanelSync, self).__init__(**kwargs)
 
-    def addChild(self, child):
+    def add_child(self, child):
         child.embedded = True
         self.items = [i for i in self.items] + [child]
 
     def setDirection(self, direction):
         self.parentStyle = {'flexDirection': direction}
 
-    def registerToEvent(self, events, callback):
-        GeppettoJupyterModelSync.events_controller.registerToEvent(
+    def register_to_event(self, events, callback):
+        GeppettoJupyterModelSync.events_controller.register_to_event(
             events, callback)
 
     def display(self):

@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 import ipywidgets as widgets
 from traitlets import (Unicode, Instance, List, Float, Dict)
@@ -28,22 +29,23 @@ class EventsSync(widgets.Widget):
 
     def _handle_event(self, _, content, buffers):
         if content.get('event', '') == self._events['Select']:
-            self.log.debug("Event triggered")
+            logging.debug("Event triggered")
             for callback in self._eventsCallbacks[self._events['Select']]:
                 try:
                     callback(content.get('data', ''),
-                             content.get('groupNameIdentifier', ''))
+                             content.get('geometryIdentifier', ''),
+                             content.get('point', ''))
                 except Exception as e:
-                    self.log.exception( "Unexpected error executing callback on event triggered:")
+                    logging.exception( "Unexpected error executing callback on event triggered:")
                     raise
 
-    def registerToEvent(self, events, callback):
+    def register_to_event(self, events, callback):
         # FIXME we should allow to add callback not only init
         for event in events:
             if event not in self._eventsCallbacks:
                 self._eventsCallbacks[event] = []
             self._eventsCallbacks[event].append(callback)
-            self.log.debug("Registring event " + str(event) +
+            logging.debug("Registring event " + str(event) +
                           " with callback " + str(callback))
 
 
@@ -54,7 +56,7 @@ class ExperimentSync(widgets.Widget):
     name = Unicode('').tag(sync=True)
     id = Unicode('').tag(sync=True)
     lastModified = Unicode('').tag(sync=True)
-    state = Unicode('').tag(sync=True)
+    status = Unicode('').tag(sync=True)
 
     def __init__(self, **kwargs):
         super(ExperimentSync, self).__init__(**kwargs)
@@ -111,7 +113,6 @@ class GeometrySync():
     python_variable = None
 
     def __init__(self, **kwargs):
-        # super(GeometrySync, self).__init__(**kwargs)
         self.id = kwargs.get('id')
         self.name = kwargs.get('name')
 
@@ -167,3 +168,6 @@ class ModelSync(widgets.Widget):
 
     def sync(self):
         self.send({"type": "load"})
+
+    def draw(self,x,y,z,radius):
+        self.send({"type": "draw_sphere", "content": {"x":x,"y":y,"z":z,"radius":radius}})
