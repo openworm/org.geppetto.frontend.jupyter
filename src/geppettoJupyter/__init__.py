@@ -26,7 +26,10 @@ class GeppettoHandler(IPythonHandler):
         template = os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/templates/dist/geppetto.vm')
         self.write(open(template).read())
 
-
+class GeppettoProjectsHandler(IPythonHandler):
+    def get(self):
+        self.write({})
+        
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         # 1 -> Send the connection
@@ -50,6 +53,9 @@ def load_jupyter_server_extension(nbapp):
     host_pattern = '.*$'
     route_pattern = url_path_join(web_app.settings['base_url'], '/geppetto')
     web_app.add_handlers(host_pattern, [(route_pattern, GeppettoHandler)])
+
+    route_pattern_geppetto_projects = url_path_join(web_app.settings['base_url'], '/geppettoprojects')
+    web_app.add_handlers(host_pattern, [(route_pattern_geppetto_projects, GeppettoProjectsHandler)])
 
     websocket_pattern = url_path_join(web_app.settings['base_url'], '/org.geppetto.frontend/GeppettoServlet')
     web_app.add_handlers(host_pattern, [(websocket_pattern, WebSocketHandler)])
