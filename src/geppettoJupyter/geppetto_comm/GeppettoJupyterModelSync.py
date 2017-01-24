@@ -39,7 +39,7 @@ class EventsSync(widgets.Widget):
                     logging.exception( "Unexpected error executing callback on event triggered:")
                     raise
 
-    def registerToEvent(self, events, callback):
+    def register_to_event(self, events, callback):
         # FIXME we should allow to add callback not only init
         for event in events:
             if event not in self._eventsCallbacks:

@@ -124,8 +124,8 @@ class PanelSync(ComponentSync):
     def setDirection(self, direction):
         self.parentStyle = {'flexDirection': direction}
 
-    def registerToEvent(self, events, callback):
-        GeppettoJupyterModelSync.events_controller.registerToEvent(
+    def register_to_event(self, events, callback):
+        GeppettoJupyterModelSync.events_controller.register_to_event(
             events, callback)
 
     def display(self):

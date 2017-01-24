@@ -16,8 +16,8 @@ class WidgetSync(widgets.Widget):
     def add_data(self, item):
         self.data = [i for i in self.data] + [item]
 
-    def registerToEvent(self, events, callback):
-        GeppettoJupyterModelSync.events_controller.registerToEvent(
+    def register_to_event(self, events, callback):
+        GeppettoJupyterModelSync.events_controller.register_to_event(
             events, callback)
 
 class PlotWidgetSync(WidgetSync):
