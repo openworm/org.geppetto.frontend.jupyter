@@ -13,6 +13,9 @@ class WidgetSync(widgets.Widget):
     def __init__(self, **kwargs):
         super(WidgetSync, self).__init__(**kwargs)
 
+    def add_data(self, item):
+        self.data = [i for i in self.data] + [item]
+
     def registerToEvent(self, events, callback):
         GeppettoJupyterModelSync.events_controller.registerToEvent(
             events, callback)
