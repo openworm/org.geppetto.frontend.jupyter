@@ -47,8 +47,10 @@ def createStateVariable(id = None, name = 'Untitled State Variable', units = 'Un
     # Check this variable is not already in the model
     for stateVariable in GeppettoJupyterModelSync.current_model.stateVariables:
         if stateVariable.id == id:
-            return
-    GeppettoJupyterModelSync.current_model.addStateVariable(StateVariableSync(id = id, name = name, units = units, timeSeries = timeSeries, python_variable = python_variable))
+            return stateVariable
+    state_variable = StateVariableSync(id = id, name = name, units = units, timeSeries = timeSeries, python_variable = python_variable)
+    GeppettoJupyterModelSync.current_model.addStateVariable(state_variable)
+    return state_variable
 
 #PLOT API
 def plotVariable(name = None, variables = []):
