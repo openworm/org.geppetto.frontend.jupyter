@@ -31,9 +31,9 @@ def createProject(id = None, name = 'Untitled Project', experiments = []):
     GeppettoJupyterModelSync.current_model = createModel(id = name.replace(" ", ""), name = name)    
     GeppettoJupyterModelSync.current_project = ProjectSync(id = id, name = name, experiments = experiments)
 
-def createExperiment(id = None, name = 'Untitled Experiment', state = 'Design'):
+def createExperiment(id = None, name = 'Untitled Experiment', status = 'DESIGN'):
     if id is None: id = newId('experiment')
-    return ExperimentSync(id = id, name = name, state = state)
+    return ExperimentSync(id = id, name = name, status = status)
 
 def createGeometry(sec_name = 'Untitled Geometry', index = 0, position = [], distal = [], python_variable = None):
     return GeometrySync(id = sec_name + "_" + str(index), name = sec_name + " " + str(index),  bottomRadius = position[3], positionX = position[0], positionY = position[1] , positionZ = position[2], topRadius = distal[3], distalX = distal[0], distalY = distal[1], distalZ = distal[2], python_variable = python_variable)

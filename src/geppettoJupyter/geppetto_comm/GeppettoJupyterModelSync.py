@@ -56,7 +56,7 @@ class ExperimentSync(widgets.Widget):
     name = Unicode('').tag(sync=True)
     id = Unicode('').tag(sync=True)
     lastModified = Unicode('').tag(sync=True)
-    state = Unicode('').tag(sync=True)
+    status = Unicode('').tag(sync=True)
 
     def __init__(self, **kwargs):
         super(ExperimentSync, self).__init__(**kwargs)
