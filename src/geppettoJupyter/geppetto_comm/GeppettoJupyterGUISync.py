@@ -101,11 +101,8 @@ class DropDownSync(ComponentSync):
     def __init__(self, **kwargs):
         super(DropDownSync, self).__init__(**kwargs)
 
-    def addChild(self, child):
+    def add_child(self, child):
         self.items = [i for i in self.items] + [child]
-
-    # def display(self):
-    #     self.send({"type": "display"})
 
 class PanelSync(ComponentSync):
     _model_name = Unicode('PanelSync').tag(sync=True)
@@ -120,7 +117,7 @@ class PanelSync(ComponentSync):
     def __init__(self, **kwargs):
         super(PanelSync, self).__init__(**kwargs)
 
-    def addChild(self, child):
+    def add_child(self, child):
         child.embedded = True
         self.items = [i for i in self.items] + [child]
 
