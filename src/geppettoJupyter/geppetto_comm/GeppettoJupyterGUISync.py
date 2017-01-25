@@ -5,7 +5,7 @@ Component (textfield, button, checkbox, etc...) and Panel Sync
 import logging
 from collections import defaultdict
 import ipywidgets as widgets
-from traitlets import (Unicode, Instance, List, Dict, Bool, Float)
+from traitlets import (Unicode, Instance, List, Dict, Bool, Float, Int)
 
 from geppettoJupyter.geppetto_comm import GeppettoJupyterModelSync
 
@@ -111,8 +111,10 @@ class PanelSync(ComponentSync):
     items = List(Instance(widgets.Widget)).tag(
         sync=True, **widgets.widget_serialization)
     parentStyle = Dict({'flexDirection': 'column'}).tag(sync=True)
-    positionX = Float(-1).tag(sync=True)
-    positionY = Float(-1).tag(sync=True)
+    position_x = Int(-1).tag(sync=True)
+    position_y = Int(-1).tag(sync=True)
+    width = Int(-1).tag(sync=True)
+    height = Int(-1).tag(sync=True)
 
     def __init__(self, **kwargs):
         super(PanelSync, self).__init__(**kwargs)

@@ -53,9 +53,9 @@ def createStateVariable(id = None, name = 'Untitled State Variable', units = 'Un
     return state_variable
 
 #PLOT API
-def plotVariable(name = None, variables = []):
-    return PlotWidgetSync(widget_id = 0, name = name, data = variables)
+def plotVariable(name = None, variables = [], position_x=-1, position_y=-1, width=-1,height=-1):
+    return PlotWidgetSync(widget_id = 0, name = name, data = variables, position_x=position_x, position_y=position_y, width=width, height=height)
 
 #POPUP API
-def popupVariable(name = None, variables = []):
-    return PopupWidgetSync(widget_id = 1, name = name, data = variables)
+def popupVariable(name = None, variables = [], position_x=-1, position_y=-1, width=-1,height=-1):
+    return PopupWidgetSync(widget_id = 1, name = name, data = variables, position_x=position_x, position_y=position_y, width=width, height=height)
