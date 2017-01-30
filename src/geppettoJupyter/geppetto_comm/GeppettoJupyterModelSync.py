@@ -96,6 +96,25 @@ class StateVariableSync(widgets.Widget):
         if 'python_variable' in kwargs and kwargs["python_variable"] is not None:
             record_variables[kwargs["python_variable"]] = self
 
+class DerivedStateVariableSync(widgets.Widget):
+    _model_name = Unicode('DerivedStateVariableSync').tag(sync=True)
+    _model_module = Unicode('geppettoJupyter').tag(sync=True)
+
+    id = Unicode('').tag(sync=True)
+    name = Unicode('').tag(sync=True)
+    units = Unicode('').tag(sync=True)
+    inputs = List(Unicode).tag(sync=True)
+    timeSeries = List(Float).tag(sync=True)
+    normalizationFunction = Unicode('').tag(sync=True)
+
+    inputs_raw = []
+
+    def __init__(self, **kwargs):
+        super(DerivedStateVariableSync, self).__init__(**kwargs)
+
+        if self.inputs_raw != None and len(self.inputs_raw) > 0:
+            self.inputs = [input_raw.id for input_raw in self.inputs_raw]
+
 
 class GeometrySync():
     id = ''
@@ -154,6 +173,8 @@ class ModelSync(widgets.Widget):
     geometries = List(Dict).tag(
         sync=True)
     geometries_raw = []
+    derived_state_variables = List(Instance(DerivedStateVariableSync)).tag(
+        sync=True, **widgets.widget_serialization)
 
     def __init__(self, **kwargs):
         super(ModelSync, self).__init__(**kwargs)
@@ -161,6 +182,12 @@ class ModelSync(widgets.Widget):
     def addStateVariable(self, stateVariable):
         self.stateVariables = [
             i for i in self.stateVariables] + [stateVariable]
+
+    def addDerivedStateVariable(self, derived_state_variable):
+        self.derived_state_variables = [
+            i for i in self.derived_state_variables] + [derived_state_variable]
+        logging.debug("derived")            
+        logging.debug(self.derived_state_variables)            
 
     def addGeometries(self, geometries):
         self.geometries_raw = [i for i in self.geometries_raw] + geometries
