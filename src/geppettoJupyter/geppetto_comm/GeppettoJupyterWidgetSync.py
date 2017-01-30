@@ -29,10 +29,15 @@ class PlotWidgetSync(WidgetSync):
     def __init__(self, **kwargs):
         super(PlotWidgetSync, self).__init__(**kwargs)
 
+    def plot_data(self):
+        self.send({"command": "plot", "plot_mode": "plot_data"})
+        
+    def plot_XY_data(self):
+        self.send({"command": "plot", "plot_mode": "plot_XY_data"})
+        
 class PopupWidgetSync(WidgetSync):
     _model_name = Unicode('PopupWidgetSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
 
     def __init__(self, **kwargs):
         super(PopupWidgetSync, self).__init__(**kwargs)
-        
