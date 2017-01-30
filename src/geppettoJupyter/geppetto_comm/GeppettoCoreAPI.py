@@ -3,7 +3,7 @@ from traitlets import (Unicode, Instance, List, Dict, Bool, Float)
 from collections import defaultdict
 from IPython.display import Javascript, display_javascript
 
-from .GeppettoJupyterModelSync import ProjectSync, ExperimentSync, ModelSync, StateVariableSync, GeometrySync
+from .GeppettoJupyterModelSync import ProjectSync, ExperimentSync, ModelSync, StateVariableSync, GeometrySync, DerivedStateVariableSync
 from .GeppettoJupyterWidgetSync import PlotWidgetSync, PopupWidgetSync
 from . import GeppettoJupyterModelSync
 
@@ -12,6 +12,7 @@ lastId = {
     'experiment': 0,
     'model': 0,
     'stateVariable': 0,
+    'derived_state_variable': 0,
     'component': 0,
     'id': 0,
     'geometry': 0
@@ -36,7 +37,7 @@ def createExperiment(id = None, name = 'Untitled Experiment', status = 'DESIGN')
     return ExperimentSync(id = id, name = name, status = status)
 
 def createGeometry(sec_name = 'Untitled Geometry', index = 0, position = [], distal = [], python_variable = None):
-    return GeometrySync(id = sec_name + "_" + str(index), name = sec_name + " " + str(index),  bottomRadius = position[3], positionX = position[0], positionY = position[1] , positionZ = position[2], topRadius = distal[3], distalX = distal[0], distalY = distal[1], distalZ = distal[2], python_variable = python_variable)
+    return GeometrySync(id = sec_name + "_" + str(index), name = sec_name + " " + str(index),  bottomRadius = position[3]/2, positionX = position[0], positionY = position[1] , positionZ = position[2], topRadius = distal[3]/2, distalX = distal[0], distalY = distal[1], distalZ = distal[2], python_variable = python_variable)
 
 def createModel(id = None, name = 'Untitled Model', stateVariables = []):
     if id is None: id = newId('model')
@@ -51,6 +52,16 @@ def createStateVariable(id = None, name = 'Untitled State Variable', units = 'Un
     state_variable = StateVariableSync(id = id, name = name, units = units, timeSeries = timeSeries, python_variable = python_variable)
     GeppettoJupyterModelSync.current_model.addStateVariable(state_variable)
     return state_variable
+
+def createDerivedStateVariable(id = None, name = 'Untitled State Variable', units = 'Unknown', timeSeries = [], inputs = [], normalizationFunction = None):
+    if id is None: id = newId('derivedStateVariable')
+    # Check this variable is not already in the model
+    for derived_state_variable in GeppettoJupyterModelSync.current_model.derived_state_variables:
+        if derived_state_variable.id == id:
+            return derived_state_variable
+    derived_state_variable = DerivedStateVariableSync(id = id, name = name, units = units, timeSeries = timeSeries, inputs_raw = inputs, normalizationFunction = normalizationFunction)
+    GeppettoJupyterModelSync.current_model.addDerivedStateVariable(derived_state_variable)
+    return derived_state_variable
 
 #PLOT API
 def plotVariable(name = None, variables = [], position_x=-1, position_y=-1, width=-1,height=-1):
