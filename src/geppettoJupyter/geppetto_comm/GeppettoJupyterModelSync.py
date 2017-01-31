@@ -193,8 +193,8 @@ class ModelSync(widgets.Widget):
         self.geometries_raw = [i for i in self.geometries_raw] + geometries
         self.geometries = [i for i in self.geometries] + [i.get_geometry_dict() for i in geometries]
 
-    def sync(self):
-        self.send({"type": "load"})
+    def sync(self, hard_reload = False):
+        self.send({"type": "load", "hard_reload": hard_reload})
 
     def draw(self,x,y,z,radius):
         self.send({"type": "draw_sphere", "content": {"x":x,"y":y,"z":z,"radius":radius}})
