@@ -2,7 +2,7 @@ import ipywidgets as widgets
 from traitlets import (Unicode, List, Float, Integer, Int)
 from geppettoJupyter.geppetto_comm import GeppettoJupyterModelSync
 
-# WIDGET
+
 class WidgetSync(widgets.Widget):
     name = Unicode('').tag(sync=True)
     widget_id = Integer(-1).tag(sync=True)
@@ -22,6 +22,7 @@ class WidgetSync(widgets.Widget):
         GeppettoJupyterModelSync.events_controller.register_to_event(
             events, callback)
 
+
 class PlotWidgetSync(WidgetSync):
     _model_name = Unicode('PlotWidgetSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
@@ -31,10 +32,11 @@ class PlotWidgetSync(WidgetSync):
 
     def plot_data(self):
         self.send({"command": "plot", "plot_mode": "plot_data"})
-        
+
     def plot_XY_data(self):
         self.send({"command": "plot", "plot_mode": "plot_XY_data"})
-        
+
+
 class PopupWidgetSync(WidgetSync):
     _model_name = Unicode('PopupWidgetSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
