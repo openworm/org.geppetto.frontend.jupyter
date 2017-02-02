@@ -30,10 +30,14 @@ class PlotWidgetSync(WidgetSync):
     def __init__(self, **kwargs):
         super(PlotWidgetSync, self).__init__(**kwargs)
 
-    def plot_data(self):
+    def plot_data(self, plot_widget_data = None):
+        if plot_widget_data is not None:
+            self.data = plot_widget_data
         self.send({"command": "plot", "plot_mode": "plot_data"})
 
-    def plot_XY_data(self):
+    def plot_XY_data(self, plot_widget_data = None):
+        if plot_widget_data is not None:
+            self.data = plot_widget_data
         self.send({"command": "plot", "plot_mode": "plot_XY_data"})
 
 
