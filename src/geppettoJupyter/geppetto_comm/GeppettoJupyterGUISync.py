@@ -132,3 +132,6 @@ class PanelSync(ComponentSync):
 
     def display(self):
         self.send({"type": "display"})
+
+    def shake(self):
+        self.send({"type": "shake"})

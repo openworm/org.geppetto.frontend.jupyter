@@ -22,6 +22,8 @@ class WidgetSync(widgets.Widget):
         GeppettoJupyterModelSync.events_controller.register_to_event(
             events, callback)
 
+    def shake(self):
+        self.send({"command": "shake"})
 
 class PlotWidgetSync(WidgetSync):
     _model_name = Unicode('PlotWidgetSync').tag(sync=True)
