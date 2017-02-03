@@ -1,7 +1,7 @@
 import ipywidgets as widgets
 from traitlets import (Unicode, List, Float, Integer, Int)
 from geppettoJupyter.geppetto_comm import GeppettoJupyterModelSync
-
+import logging
 
 class WidgetSync(widgets.Widget):
     name = Unicode('').tag(sync=True)
@@ -14,6 +14,17 @@ class WidgetSync(widgets.Widget):
 
     def __init__(self, **kwargs):
         super(WidgetSync, self).__init__(**kwargs)
+        self._close_handlers = widgets.CallbackDispatcher()
+        self.on_msg(self._handle_widget_msg)
+
+    def on_close(self, callback, remove=False):
+        self._close_handlers.register_callback(callback, remove=remove)
+
+    def _handle_widget_msg(self, _, content, buffers):
+        if content.get('event', '') == 'close':
+
+            logging.debug('closing')
+            self._close_handlers(self, content)
 
     def add_data(self, item):
         self.data = [i for i in self.data] + [item]
