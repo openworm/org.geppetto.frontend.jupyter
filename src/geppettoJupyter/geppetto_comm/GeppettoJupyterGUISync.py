@@ -143,6 +143,10 @@ class PanelSync(ComponentSync):
         GeppettoJupyterModelSync.events_controller.register_to_event(
             events, callback)
 
+    def unregister_to_event(self, events, callback):
+        GeppettoJupyterModelSync.events_controller.unregister_to_event(
+            events, callback)
+
     def display(self):
         self.send({"type": "display"})
 

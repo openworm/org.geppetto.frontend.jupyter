@@ -33,6 +33,10 @@ class WidgetSync(widgets.Widget):
         GeppettoJupyterModelSync.events_controller.register_to_event(
             events, callback)
 
+    def unregister_to_event(self, events, callback):
+        GeppettoJupyterModelSync.events_controller.unregister_to_event(
+            events, callback)
+
     def shake(self):
         self.send({"command": "shake"})
 

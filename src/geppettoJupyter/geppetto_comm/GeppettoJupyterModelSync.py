@@ -12,6 +12,7 @@ current_experiment = None
 current_model = None
 current_python_model = None
 events_controller = None
+# gui_controller = defaultdict(list)
 
 
 class EventsSync(widgets.Widget):
@@ -40,12 +41,17 @@ class EventsSync(widgets.Widget):
                     raise
 
     def register_to_event(self, events, callback):
-        # FIXME we should allow to add callback not only init
         for event in events:
             if event not in self._eventsCallbacks:
                 self._eventsCallbacks[event] = []
             self._eventsCallbacks[event].append(callback)
             logging.debug("Registring event " + str(event) +
+                          " with callback " + str(callback))
+
+    def unregister_to_event(self, events, callback):
+        for event in events:
+            self._eventsCallbacks[event].remove(callback)
+            logging.debug("Unregistring event " + str(event) +
                           " with callback " + str(callback))
 
 
