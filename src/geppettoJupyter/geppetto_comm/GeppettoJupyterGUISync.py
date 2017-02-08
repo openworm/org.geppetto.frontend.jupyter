@@ -84,7 +84,6 @@ class ButtonSync(ComponentSync):
         if content.get('event', '') == 'click':
             self._click_handlers(self, content)
 
-
 class LabelSync(ComponentSync):
     _model_name = Unicode('LabelSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
@@ -118,6 +117,20 @@ class PanelSync(ComponentSync):
 
     def __init__(self, **kwargs):
         super(PanelSync, self).__init__(**kwargs)
+        self._close_handlers = widgets.CallbackDispatcher()
+        self.on_msg(self._handle_panel_msg)
+
+    def on_close(self, callback, remove=False):
+        self._close_handlers.register_callback(callback, remove=remove)
+
+    def _handle_panel_msg(self, _, content, buffers):
+        super(PanelSync, self)._handle_component_msg(_, content, buffers)
+        logging.debug('receive message')
+        if content.get('event', '') == 'close':
+
+            logging.debug('closing')
+            self._close_handlers(self, content)
+
 
     def add_child(self, child):
         child.embedded = True
@@ -128,6 +141,10 @@ class PanelSync(ComponentSync):
 
     def register_to_event(self, events, callback):
         GeppettoJupyterModelSync.events_controller.register_to_event(
+            events, callback)
+
+    def unregister_to_event(self, events, callback):
+        GeppettoJupyterModelSync.events_controller.unregister_to_event(
             events, callback)
 
     def display(self):
