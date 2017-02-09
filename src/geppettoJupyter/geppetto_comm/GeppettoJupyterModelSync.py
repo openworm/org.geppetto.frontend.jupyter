@@ -100,7 +100,7 @@ class StateVariableSync(widgets.Widget):
 
         # Add it to the syncvalues
         if 'python_variable' in kwargs and kwargs["python_variable"] is not None:
-            record_variables[kwargs["python_variable"]] = self
+            record_variables[kwargs["python_variable"]["record_variable"]] = self
 
 class DerivedStateVariableSync(widgets.Widget):
     _model_name = Unicode('DerivedStateVariableSync').tag(sync=True)
@@ -162,7 +162,8 @@ class GeometrySync():
                 'topRadius': self.topRadius,
                 'distalX': self.distalX,
                 'distalY': self.distalY,
-                'distalZ': self.distalZ
+                'distalZ': self.distalZ,
+                'sectionName': self.python_variable["section"].hname()
                }
     def __str__(self):
         return "Geometry Sync => " + "Id: " + self.id + ", Name: " + self.name + ", Bottom Radius: " + str(self.bottomRadius) + ", Position X: " + str(self.positionX) + ", Position Y: " + str(self.positionY) + ", Position Z: " + str(self.positionZ) + ", Top Radius: " + str(self.topRadius) + ", Distal X: " + str(self.distalX) + ", Distal Y: " + str(self.distalY) + ", Distal Z: " + str(self.distalZ)
@@ -176,6 +177,8 @@ class ModelSync(widgets.Widget):
     name = Unicode('').tag(sync=True)
     stateVariables = List(Instance(StateVariableSync)).tag(
         sync=True, **widgets.widget_serialization)
+    # stateVariables2Geometry = Dict().tag(
+    #     sync=True)
     geometries = List(Dict).tag(
         sync=True)
     geometries_raw = []
@@ -188,6 +191,16 @@ class ModelSync(widgets.Widget):
     def addStateVariable(self, stateVariable):
         self.stateVariables = [
             i for i in self.stateVariables] + [stateVariable]
+        # self.stateVariables2Geometry[stateVariable.id] = stateVariable["python_variable"]["segment"]
+
+        # segment = stateVariable["python_variable"]["segment"]
+        # segment.x
+        # section = stateVariable["python_variable"]["segment"].parent()
+        # section.nseg
+        # var geometries = []
+        # neuron_utils.secs
+
+
 
     def addDerivedStateVariable(self, derived_state_variable):
         self.derived_state_variables = [
@@ -204,3 +217,6 @@ class ModelSync(widgets.Widget):
 
     def draw(self,x,y,z,radius):
         self.send({"type": "draw_sphere", "content": {"x":x,"y":y,"z":z,"radius":radius}})
+
+    def highlight_visual_group_element(self, visual_group_element):
+        self.send({"type": "highlight_visual_group_element", 'visual_group_element': visual_group_element})
