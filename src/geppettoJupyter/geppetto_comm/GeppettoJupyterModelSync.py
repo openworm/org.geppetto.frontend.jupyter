@@ -163,7 +163,7 @@ class GeometrySync():
                 'distalX': self.distalX,
                 'distalY': self.distalY,
                 'distalZ': self.distalZ,
-                'sectionName': self.python_variable["section"].hname()
+                'sectionName': self.python_variable["section"].name() #FIXME There should not be NEURON stuff here
                }
     def __str__(self):
         return "Geometry Sync => " + "Id: " + self.id + ", Name: " + self.name + ", Bottom Radius: " + str(self.bottomRadius) + ", Position X: " + str(self.positionX) + ", Position Y: " + str(self.positionY) + ", Position Z: " + str(self.positionZ) + ", Top Radius: " + str(self.topRadius) + ", Distal X: " + str(self.distalX) + ", Distal Y: " + str(self.distalY) + ", Distal Z: " + str(self.distalZ)
