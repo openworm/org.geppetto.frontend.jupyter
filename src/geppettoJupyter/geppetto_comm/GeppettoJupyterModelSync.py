@@ -175,14 +175,11 @@ class ModelSync(widgets.Widget):
     name = Unicode('').tag(sync=True)
     stateVariables = List(Instance(StateVariableSync)).tag(
         sync=True, **widgets.widget_serialization)
-    # stateVariables2Geometry = Dict().tag(
-    #     sync=True)
     geometries = List(Dict).tag(
         sync=True)
     geometries_raw = []
     derived_state_variables = List(Instance(DerivedStateVariableSync)).tag(
         sync=True, **widgets.widget_serialization)
-    
 
     def __init__(self, **kwargs):
         super(ModelSync, self).__init__(**kwargs)
@@ -190,22 +187,10 @@ class ModelSync(widgets.Widget):
     def addStateVariable(self, stateVariable):
         self.stateVariables = [
             i for i in self.stateVariables] + [stateVariable]
-        # self.stateVariables2Geometry[stateVariable.id] = stateVariable["python_variable"]["segment"]
-
-        # segment = stateVariable["python_variable"]["segment"]
-        # segment.x
-        # section = stateVariable["python_variable"]["segment"].parent()
-        # section.nseg
-        # var geometries = []
-        # neuron_utils.secs
-
-
 
     def addDerivedStateVariable(self, derived_state_variable):
         self.derived_state_variables = [
             i for i in self.derived_state_variables] + [derived_state_variable]
-        logging.debug("derived")            
-        logging.debug(self.derived_state_variables)            
 
     def addGeometries(self, geometries):
         self.geometries_raw = [i for i in self.geometries_raw] + geometries
