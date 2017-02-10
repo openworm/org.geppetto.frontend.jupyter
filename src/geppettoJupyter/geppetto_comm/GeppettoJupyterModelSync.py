@@ -51,7 +51,7 @@ class EventsSync(widgets.Widget):
             logging.debug("Unregistring event " + str(event) +
                           " with callback " + str(callback))
 
-    def triggerEvent(self, event, options):
+    def triggerEvent(self, event, options={}):
         self.send({"event": event, "options": options})
 
 class ExperimentSync(widgets.Widget):
