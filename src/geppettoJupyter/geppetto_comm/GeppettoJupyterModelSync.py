@@ -1,7 +1,7 @@
 import logging
 from collections import defaultdict
 import ipywidgets as widgets
-from traitlets import (Unicode, Instance, List, Float, Dict)
+from traitlets import (Unicode, Instance, List, Float, Dict, Int)
 
 from IPython.core.debugger import Tracer
 
@@ -92,6 +92,7 @@ class StateVariableSync(widgets.Widget):
     name = Unicode('').tag(sync=True)
     units = Unicode('').tag(sync=True)
     timeSeries = List(Float).tag(sync=True)
+    geometries = List(Unicode).tag(sync=True)
 
     python_variable = None
 
@@ -184,6 +185,7 @@ class ModelSync(widgets.Widget):
     geometries_raw = []
     derived_state_variables = List(Instance(DerivedStateVariableSync)).tag(
         sync=True, **widgets.widget_serialization)
+    
 
     def __init__(self, **kwargs):
         super(ModelSync, self).__init__(**kwargs)

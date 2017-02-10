@@ -43,13 +43,14 @@ def createModel(id = None, name = 'Untitled Model', stateVariables = []):
     if id is None: id = newId('model')
     return ModelSync(id = id, name = name, stateVariables = stateVariables)
 
-def createStateVariable(id = None, name = 'Untitled State Variable', units = 'Unknown', timeSeries = [], python_variable = None):
+def createStateVariable(id = None, name = 'Untitled State Variable', units = 'Unknown', timeSeries = [], python_variable = None, geometries = []):
     if id is None: id = newId('stateVariable')
     # Check this variable is not already in the model
     for stateVariable in GeppettoJupyterModelSync.current_model.stateVariables:
         if stateVariable.id == id:
             return stateVariable
-    state_variable = StateVariableSync(id = id, name = name, units = units, timeSeries = timeSeries, python_variable = python_variable)
+
+    state_variable = StateVariableSync(id = id, name = name, units = units, timeSeries = timeSeries, python_variable = python_variable, geometries = geometries)
     GeppettoJupyterModelSync.current_model.addStateVariable(state_variable)
     return state_variable
 
