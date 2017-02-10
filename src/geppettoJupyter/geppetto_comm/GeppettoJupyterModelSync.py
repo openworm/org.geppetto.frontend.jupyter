@@ -3,8 +3,6 @@ from collections import defaultdict
 import ipywidgets as widgets
 from traitlets import (Unicode, Instance, List, Float, Dict)
 
-from IPython.core.debugger import Tracer
-
 # Current variables
 record_variables = defaultdict(list)
 current_project = None
@@ -12,7 +10,6 @@ current_experiment = None
 current_model = None
 current_python_model = None
 events_controller = None
-# gui_controller = defaultdict(list)
 
 
 class EventsSync(widgets.Widget):
@@ -92,6 +89,7 @@ class StateVariableSync(widgets.Widget):
     name = Unicode('').tag(sync=True)
     units = Unicode('').tag(sync=True)
     timeSeries = List(Float).tag(sync=True)
+    geometries = List(Unicode).tag(sync=True)
 
     python_variable = None
 
@@ -100,7 +98,7 @@ class StateVariableSync(widgets.Widget):
 
         # Add it to the syncvalues
         if 'python_variable' in kwargs and kwargs["python_variable"] is not None:
-            record_variables[kwargs["python_variable"]] = self
+            record_variables[kwargs["python_variable"]["record_variable"]] = self
 
 class DerivedStateVariableSync(widgets.Widget):
     _model_name = Unicode('DerivedStateVariableSync').tag(sync=True)
@@ -162,7 +160,8 @@ class GeometrySync():
                 'topRadius': self.topRadius,
                 'distalX': self.distalX,
                 'distalY': self.distalY,
-                'distalZ': self.distalZ
+                'distalZ': self.distalZ,
+                'sectionName': self.python_variable["section"].hname()
                }
     def __str__(self):
         return "Geometry Sync => " + "Id: " + self.id + ", Name: " + self.name + ", Bottom Radius: " + str(self.bottomRadius) + ", Position X: " + str(self.positionX) + ", Position Y: " + str(self.positionY) + ", Position Z: " + str(self.positionZ) + ", Top Radius: " + str(self.topRadius) + ", Distal X: " + str(self.distalX) + ", Distal Y: " + str(self.distalY) + ", Distal Z: " + str(self.distalZ)
@@ -192,8 +191,6 @@ class ModelSync(widgets.Widget):
     def addDerivedStateVariable(self, derived_state_variable):
         self.derived_state_variables = [
             i for i in self.derived_state_variables] + [derived_state_variable]
-        logging.debug("derived")            
-        logging.debug(self.derived_state_variables)            
 
     def addGeometries(self, geometries):
         self.geometries_raw = [i for i in self.geometries_raw] + geometries
@@ -204,3 +201,6 @@ class ModelSync(widgets.Widget):
 
     def draw(self,x,y,z,radius):
         self.send({"type": "draw_sphere", "content": {"x":x,"y":y,"z":z,"radius":radius}})
+
+    def highlight_visual_group_element(self, visual_group_element):
+        self.send({"type": "highlight_visual_group_element", 'visual_group_element': visual_group_element})
