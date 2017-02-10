@@ -1,9 +1,7 @@
 import logging
 from collections import defaultdict
 import ipywidgets as widgets
-from traitlets import (Unicode, Instance, List, Float, Dict, Int)
-
-from IPython.core.debugger import Tracer
+from traitlets import (Unicode, Instance, List, Float, Dict)
 
 # Current variables
 record_variables = defaultdict(list)
@@ -12,7 +10,6 @@ current_experiment = None
 current_model = None
 current_python_model = None
 events_controller = None
-# gui_controller = defaultdict(list)
 
 
 class EventsSync(widgets.Widget):
