@@ -114,6 +114,7 @@ class PanelSync(ComponentSync):
     position_y = Int(-1).tag(sync=True)
     width = Int(-1).tag(sync=True)
     height = Int(-1).tag(sync=True)
+    properties = Dict({'closable':True}).tag(sync=True)
 
     def __init__(self, **kwargs):
         super(PanelSync, self).__init__(**kwargs)
