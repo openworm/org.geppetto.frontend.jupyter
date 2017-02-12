@@ -23,8 +23,43 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 			return true;
 		});
 
-		// Restart kernel to delete any previous variable and start with a fresh instance
-		IPython.notebook.restart_run_all({confirm: false})
+		window.parent.loadModelInJupyter = function(module,model){
+
+			// Close any previous panel
+			window.parent.removeAllPanels();
+
+			IPython.notebook.restart_kernel({confirm: false}).then(function() {
+
+				// IPython.notebook.execute_all_cells();
+
+				// Load Neuron Basic GUI
+				var kernel = IPython.notebook.kernel;
+				kernel.execute('import neuron_geppetto');
+				kernel.execute('neuron_geppetto.init()');
+				
+				// Load Model
+				if (module != undefined && module != "" && model != undefined  && model != ""){
+					kernel.execute('from geppettoJupyter.geppetto_comm import GeppettoJupyterModelSync');
+					kernel.execute('import importlib');
+					kernel.execute('python_module = importlib.import_module("models.' + module +'")')
+					kernel.execute('GeppettoJupyterModelSync.current_python_model = getattr( python_module, "' + model + '")()')
+				}
+			});
+        }
+
+		// Read attributes from url
+		function getParameterByName(name) {
+			name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+			var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+			results = regex.exec(window.parent.location.search);
+			return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+		}
+		module = getParameterByName('load_module');
+		model = getParameterByName('load_model');
+
+		// Restart server and load model if needed
+		window.parent.loadModelInJupyter(module,model)
+
 	}
 
 	 var load_ipython_extension = function () {
@@ -33,6 +68,10 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
         }
         $([IPython.events]).on("notebook_loaded.Notebook", load_extension);
     };
+
+	// $([IPython.events]).on("notebook_loaded.Notebook", function () {
+	// 	IPython.notebook.set_autosave_interval(0);
+	// });
 
 	// Export the required load_ipython_extention
 	return {
