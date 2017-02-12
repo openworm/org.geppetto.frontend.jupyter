@@ -201,8 +201,14 @@ class ModelSync(widgets.Widget):
     def sync(self, hard_reload = False):
         self.send({"type": "load", "hard_reload": hard_reload})
 
-    def draw(self,x,y,z,radius):
+    def drawSphere(self,x,y,z,radius):
         self.send({"type": "draw_sphere", "content": {"x":x,"y":y,"z":z,"radius":radius}})
+
+    def removeSphere(self):
+        self.send({"type": "remove_sphere"})
 
     def highlight_visual_group_element(self, visual_group_element):
         self.send({"type": "highlight_visual_group_element", 'visual_group_element': visual_group_element})
+
+    def reload(self, module, model):
+        self.send({"type": "reload", 'module': module, 'model': model})
