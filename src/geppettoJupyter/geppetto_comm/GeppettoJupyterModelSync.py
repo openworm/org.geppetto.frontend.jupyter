@@ -194,6 +194,10 @@ class ModelSync(widgets.Widget):
         self.derived_state_variables = [
             i for i in self.derived_state_variables] + [derived_state_variable]
 
+    def addDerivedStateVariables(self, derived_state_variables):
+        self.derived_state_variables = []
+        self.derived_state_variables = derived_state_variables
+
     def addGeometries(self, geometries):
         self.geometries_raw = [i for i in self.geometries_raw] + geometries
         self.geometries = [i for i in self.geometries] + [i.get_geometry_dict() for i in geometries]

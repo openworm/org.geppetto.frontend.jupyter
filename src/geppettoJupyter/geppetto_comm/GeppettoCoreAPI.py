@@ -69,9 +69,7 @@ def createDerivedStateVariable(id = None, name = 'Untitled State Variable', unit
     for derived_state_variable in GeppettoJupyterModelSync.current_model.derived_state_variables:
         if derived_state_variable.id == id:
             return derived_state_variable
-    derived_state_variable = DerivedStateVariableSync(id = id, name = name, units = units, timeSeries = timeSeries, inputs_raw = inputs, normalizationFunction = normalizationFunction)
-    GeppettoJupyterModelSync.current_model.addDerivedStateVariable(derived_state_variable)
-    return derived_state_variable
+    return DerivedStateVariableSync(id = id, name = name, units = units, timeSeries = timeSeries, inputs_raw = inputs, normalizationFunction = normalizationFunction)
 
 #PLOT API
 def plotVariable(name = None, variables = [], position_x=-1, position_y=-1, width=-1,height=-1):
