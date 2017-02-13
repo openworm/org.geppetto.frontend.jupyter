@@ -16,7 +16,8 @@ class EventsSync(widgets.Widget):
     _model_name = Unicode('EventsSync').tag(sync=True)
     _model_module = Unicode('geppettoJupyter').tag(sync=True)
     _events = {
-        'Select': 'experiment:selection_changed'
+        'Select': 'experiment:selection_changed',
+        'Instances_created': "instances:created"
     }
     _eventsCallbacks = {}
 
@@ -33,6 +34,14 @@ class EventsSync(widgets.Widget):
                     callback(content.get('data', ''),
                              content.get('geometryIdentifier', ''),
                              content.get('point', ''))
+                except Exception as e:
+                    logging.exception( "Unexpected error executing callback on event triggered:")
+                    raise
+        elif content.get('event', '') == self._events['Instances_created']:
+            logging.debug("Instances created Event triggered")
+            for callback in self._eventsCallbacks[self._events['Instances_created']]:
+                try:
+                    callback(content.get('data', ''))
                 except Exception as e:
                     logging.exception( "Unexpected error executing callback on event triggered:")
                     raise
@@ -195,6 +204,7 @@ class ModelSync(widgets.Widget):
             i for i in self.derived_state_variables] + [derived_state_variable]
 
     def addDerivedStateVariables(self, derived_state_variables):
+        # Hack to force on change js side and trigger merge model
         self.derived_state_variables = []
         self.derived_state_variables = derived_state_variables
 
