@@ -23,29 +23,7 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 			return true;
 		});
 
-		window.parent.loadModelInJupyter = function(module,model){
 
-			// Close any previous panel
-			window.parent.removeAllPanels();
-
-			IPython.notebook.restart_kernel({confirm: false}).then(function() {
-
-				// IPython.notebook.execute_all_cells();
-
-				// Load Neuron Basic GUI
-				var kernel = IPython.notebook.kernel;
-				kernel.execute('import neuron_geppetto');
-				kernel.execute('neuron_geppetto.init()');
-				
-				// Load Model
-				if (module != undefined && module != "" && model != undefined  && model != ""){
-					kernel.execute('from geppettoJupyter.geppetto_comm import GeppettoJupyterModelSync');
-					kernel.execute('import importlib');
-					kernel.execute('python_module = importlib.import_module("models.' + module +'")')
-					kernel.execute('GeppettoJupyterModelSync.current_python_model = getattr( python_module, "' + model + '")()')
-				}
-			});
-        }
 
 		// Read attributes from url
 		function getParameterByName(name) {
@@ -57,8 +35,14 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 		module = getParameterByName('load_module');
 		model = getParameterByName('load_model');
 
-		// Restart server and load model if needed
-		window.parent.loadModelInJupyter(module,model)
+		window.parent.IPython = IPython;
+
+		// If a Geppetto extension is defining a custom behavior to load the kernel we call it
+		if(window.parent.customJupyterModelLoad!=undefined){
+			window.parent.customJupyterModelLoad(module,model);
+		}
+
+
 
 	}
 
