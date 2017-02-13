@@ -2,6 +2,7 @@ import ipywidgets as widgets
 from traitlets import (Unicode, Instance, List, Dict, Bool, Float)
 from collections import defaultdict
 from IPython.display import Javascript, display_javascript
+import logging
 
 from .GeppettoJupyterModelSync import ProjectSync, ExperimentSync, ModelSync, StateVariableSync, GeometrySync, DerivedStateVariableSync
 from .GeppettoJupyterWidgetSync import PlotWidgetSync, PopupWidgetSync
@@ -17,14 +18,21 @@ lastId = {
     'id': 0,
     'geometry': 0
 } 
-def newId(prefix ='id'):
+def newId(prefix='id'):
     global lastId
     lastId[prefix]+=1
     return str(lastId[prefix])
 
+def getId(id, prefix='id'):
+    if id is None: id = newId(prefix)
+    return removeSpecialCharacters(id)
+
+def removeSpecialCharacters(string):
+    return ''.join(c for c in string if c.isalnum())
+
 #MODEL API
 def createProject(id = None, name = 'Untitled Project', experiments = []):
-    if id is None: id = newId('project')
+    id = getId(id, 'project')
     if experiments == []:
         experiment = createExperiment()
         GeppettoJupyterModelSync.current_experiment = experiment
@@ -33,18 +41,19 @@ def createProject(id = None, name = 'Untitled Project', experiments = []):
     GeppettoJupyterModelSync.current_project = ProjectSync(id = id, name = name, experiments = experiments)
 
 def createExperiment(id = None, name = 'Untitled Experiment', status = 'DESIGN'):
-    if id is None: id = newId('experiment')
+    id = getId(id, 'experiment')
     return ExperimentSync(id = id, name = name, status = status)
 
 def createGeometry(sec_name = 'Untitled Geometry', index = 0, position = [], distal = [], python_variable = None):
-    return GeometrySync(id = sec_name + "_" + str(index), name = sec_name + " " + str(index),  bottomRadius = position[3]/2, positionX = position[0], positionY = position[1] , positionZ = position[2], topRadius = distal[3]/2, distalX = distal[0], distalY = distal[1], distalZ = distal[2], python_variable = python_variable)
+    id = getId(sec_name) + "_" + str(index)
+    return GeometrySync(id = id, name = sec_name + " " + str(index),  bottomRadius = position[3]/2, positionX = position[0], positionY = position[1] , positionZ = position[2], topRadius = distal[3]/2, distalX = distal[0], distalY = distal[1], distalZ = distal[2], python_variable = python_variable)
 
 def createModel(id = None, name = 'Untitled Model', stateVariables = []):
-    if id is None: id = newId('model')
+    id = getId(id, 'model')
     return ModelSync(id = id, name = name, stateVariables = stateVariables)
 
 def createStateVariable(id = None, name = 'Untitled State Variable', units = 'Unknown', timeSeries = [], python_variable = None, geometries = []):
-    if id is None: id = newId('stateVariable')
+    id = getId(id, 'stateVariable')
     # Check this variable is not already in the model
     for stateVariable in GeppettoJupyterModelSync.current_model.stateVariables:
         if stateVariable.id == id:
@@ -55,7 +64,7 @@ def createStateVariable(id = None, name = 'Untitled State Variable', units = 'Un
     return state_variable
 
 def createDerivedStateVariable(id = None, name = 'Untitled State Variable', units = 'Unknown', timeSeries = [], inputs = [], normalizationFunction = None):
-    if id is None: id = newId('derivedStateVariable')
+    id = getId(id, 'derivedStateVariable')
     # Check this variable is not already in the model
     for derived_state_variable in GeppettoJupyterModelSync.current_model.derived_state_variables:
         if derived_state_variable.id == id:
