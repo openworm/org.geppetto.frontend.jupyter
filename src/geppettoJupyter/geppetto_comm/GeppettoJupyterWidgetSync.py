@@ -22,8 +22,6 @@ class WidgetSync(widgets.Widget):
 
     def _handle_widget_msg(self, _, content, buffers):
         if content.get('event', '') == 'close':
-
-            logging.debug('closing')
             self._close_handlers(self, content)
 
     def add_data(self, item):
