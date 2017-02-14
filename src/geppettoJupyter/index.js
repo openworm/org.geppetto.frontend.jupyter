@@ -23,8 +23,27 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 			return true;
 		});
 
-		// Restart kernel to delete any previous variable and start with a fresh instance
-		IPython.notebook.restart_run_all({confirm: false})
+
+
+		// Read attributes from url
+		function getParameterByName(name) {
+			name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+			var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+			results = regex.exec(window.parent.location.search);
+			return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+		}
+		module = getParameterByName('load_module');
+		model = getParameterByName('load_model');
+
+		window.parent.IPython = IPython;
+
+		// If a Geppetto extension is defining a custom behavior to load the kernel we call it
+		if(window.parent.customJupyterModelLoad!=undefined){
+			window.parent.customJupyterModelLoad(module,model);
+		}
+
+
+
 	}
 
 	 var load_ipython_extension = function () {
@@ -33,6 +52,10 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
         }
         $([IPython.events]).on("notebook_loaded.Notebook", load_extension);
     };
+
+	// $([IPython.events]).on("notebook_loaded.Notebook", function () {
+	// 	IPython.notebook.set_autosave_interval(0);
+	// });
 
 	// Export the required load_ipython_extention
 	return {

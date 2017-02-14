@@ -6,10 +6,14 @@ define('geppettoJupyter', function () {
 
     return {
         PanelSync: geppettoJupyterGUISync.PanelSync,
-        ComponentSync: geppettoJupyterGUISync.ComponentSync,
+        TextFieldSync: geppettoJupyterGUISync.TextFieldSync,
+        CheckboxSync: geppettoJupyterGUISync.CheckboxSync,
+        ButtonSync: geppettoJupyterGUISync.ButtonSync,
+        LabelSync: geppettoJupyterGUISync.LabelSync,
+        DropDownSync: geppettoJupyterGUISync.DropDownSync,
 
         StateVariableSync: geppettoJupyterModelSync.StateVariableSync,
-        GeometrySync: geppettoJupyterModelSync.GeometrySync,
+        DerivedStateVariableSync: geppettoJupyterModelSync.DerivedStateVariableSync,
         ModelSync: geppettoJupyterModelSync.ModelSync,
         ExperimentSync: geppettoJupyterModelSync.ExperimentSync,
         ProjectSync: geppettoJupyterModelSync.ProjectSync,
