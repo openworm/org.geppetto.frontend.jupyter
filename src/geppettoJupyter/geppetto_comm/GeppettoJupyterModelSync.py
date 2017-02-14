@@ -28,23 +28,25 @@ class EventsSync(widgets.Widget):
 
     def _handle_event(self, _, content, buffers):
         if content.get('event', '') == self._events['Select']:
-            logging.debug("Event triggered")
-            for callback in self._eventsCallbacks[self._events['Select']]:
-                try:
-                    callback(content.get('data', ''),
-                             content.get('geometryIdentifier', ''),
-                             content.get('point', ''))
-                except Exception as e:
-                    logging.exception( "Unexpected error executing callback on event triggered:")
-                    raise
+            logging.debug("Select Event triggered")
+            if self._events['Select'] in self._eventsCallbacks:
+                for callback in self._eventsCallbacks[self._events['Select']]:
+                    try:
+                        callback(content.get('data', ''),
+                                content.get('geometryIdentifier', ''),
+                                content.get('point', ''))
+                    except Exception as e:
+                        logging.exception( "Unexpected error executing callback on select event triggered:")
+                        raise
         elif content.get('event', '') == self._events['Instances_created']:
-            logging.debug("Instances created Event triggered")
-            for callback in self._eventsCallbacks[self._events['Instances_created']]:
-                try:
-                    callback(content.get('data', ''))
-                except Exception as e:
-                    logging.exception( "Unexpected error executing callback on event triggered:")
-                    raise
+            logging.debug("Instances_created Event triggered")
+            if self._events['Instances_created'] in self._eventsCallbacks:
+                for callback in self._eventsCallbacks[self._events['Instances_created']]:
+                    try:
+                        callback(content.get('data', ''))
+                    except Exception as e:
+                        logging.exception( "Unexpected error executing callback on instances_created event triggered:")
+                        raise
 
     def register_to_event(self, events, callback):
         for event in events:
