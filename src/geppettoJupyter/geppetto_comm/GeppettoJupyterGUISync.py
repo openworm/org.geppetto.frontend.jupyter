@@ -126,10 +126,7 @@ class PanelSync(ComponentSync):
 
     def _handle_panel_msg(self, _, content, buffers):
         super(PanelSync, self)._handle_component_msg(_, content, buffers)
-        logging.debug('receive message')
         if content.get('event', '') == 'close':
-
-            logging.debug('closing')
             self._close_handlers(self, content)
 
 
