@@ -1,8 +1,8 @@
 define('geppettoJupyter', function () {
 
-    var geppettoJupyterModelSync = window.parent.require('components/geppetto-jupyter/GeppettoJupyterModelSync');
-    var geppettoJupyterGUISync = window.parent.require('components/geppetto-jupyter/GeppettoJupyterGUISync');
-    var geppettoJupyterWidgetSync = window.parent.require('components/geppetto-jupyter/GeppettoJupyterWidgetSync');
+    var geppettoJupyterModelSync = window.parent.GEPPETTO.GeppettoJupyterModelSync;
+    var geppettoJupyterGUISync = window.parent.GEPPETTO.GeppettoJupyterGUISync;
+    var geppettoJupyterWidgetSync = window.parent.GEPPETTO.GeppettoJupyterWidgetSync;
 
     return {
         PanelSync: geppettoJupyterGUISync.PanelSync,
