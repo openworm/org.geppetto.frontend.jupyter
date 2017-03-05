@@ -7,8 +7,19 @@ import fileinput
 
 #This block copies resources to the server (/usr/local/share/jupyter/nbextensions/)
 data_files = []
-data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/*.js')))
-data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/*.css')))
+# data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/*.js')))
+# data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/*.css')))
+
+
+data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/geppetto/src/main/webapp/build/*.js')))
+data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/geppetto/src/main/webapp/build/*.vm')))
+data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/geppetto/src/main/webapp/build/fonts/*')))
+
+# data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/geppetto_comm/*')))
+data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/geppettoJupyter.css')))
+data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/GeppettoJupyter.js')))
+data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/index.js')))
+data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/overwrite_get_msg_cell.js')))
 
 setuptools.setup(
     name="geppettoJupyter",
