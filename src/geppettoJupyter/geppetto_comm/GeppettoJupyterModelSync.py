@@ -128,10 +128,15 @@ class DerivedStateVariableSync(widgets.Widget):
 
     def __init__(self, **kwargs):
         super(DerivedStateVariableSync, self).__init__(**kwargs)
+        self.generate_inputs()
 
+    def generate_inputs(self):
         if self.inputs_raw != None and len(self.inputs_raw) > 0:
             self.inputs = [input_raw.id for input_raw in self.inputs_raw]
-
+    
+    def set_inputs(self, inputs_raw):
+        self.inputs_raw = inputs_raw
+        self.generate_inputs()
 
 class GeometrySync():
     id = ''
