@@ -23,7 +23,7 @@ def _jupyter_nbextension_paths():
 
 class GeppettoHandler(IPythonHandler):
     def get(self):
-        template = os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/templates/dist/geppetto.vm')
+        template = os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/build/geppetto.vm')
         self.write(open(template).read())
 
 class GeppettoProjectsHandler(IPythonHandler):
