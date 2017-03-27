@@ -15,6 +15,7 @@ setuptools.setup(
     version="0.0.1",
     url="https://github.com/openworm/org.geppetto.frontend.jupyter",
     author="The Geppetto Development Team",
+    author_email="info@geppetto.org",
     description="Geppetto extension for Jupyter notebook",
     license= "MIT",
     long_description=open('README.md').read(),
