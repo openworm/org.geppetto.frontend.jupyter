@@ -24,7 +24,8 @@ setuptools.setup(
     data_files=data_files,
     include_package_data=True,
     install_requires = [
-        'ipywidgets>=5.1.5',
+        'ipywidgets>=5.1.5, <6.0',
+        'widgetsnbextension>=1.2.6, <2.0',
         'jupyter>=1.0.0'
     ],
 )
