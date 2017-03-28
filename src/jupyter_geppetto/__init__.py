@@ -7,19 +7,19 @@ import tornado.web
 
 def _jupyter_server_extension_paths():
     return [{
-        "module": "geppettoJupyter"
+        "module": "jupyter_geppetto"
     }]
 
 # Jupyter Extension points
 def _jupyter_nbextension_paths():
     return [dict(
         section="notebook",
-        # the path is relative to the `geppettoJupyter` directory
+        # the path is relative to the `jupyter_geppetto` directory
         src="",
         # directory in the `nbextension/` namespace
-        dest="geppettoJupyter",
+        dest="jupyter_geppetto",
         # _also_ in the `nbextension/` namespace
-        require="geppettoJupyter/index")]
+        require="jupyter_geppetto/index")]
 
 class GeppettoHandler(IPythonHandler):
     def get(self):

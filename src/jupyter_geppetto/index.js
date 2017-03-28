@@ -2,17 +2,17 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 
 	function load_extension() {
 		// Load css first
-		var $stylesheet = $('<link/>')
-			.attr({
-				id: 'geppettoJupyter',
-				rel: 'stylesheet',
-				type: 'text/css',
-				href: require.toUrl('/nbextensions/geppettoJupyter/geppettoJupyter.css')
-			})
-			.appendTo('head');
+		// var $stylesheet = $('<link/>')
+		// 	.attr({
+		// 		id: 'jupyter_geppetto',
+		// 		rel: 'stylesheet',
+		// 		type: 'text/css',
+		// 		href: require.toUrl('/nbextensions/jupyter_geppetto/jupyter_geppetto.css')
+		// 	})
+		// 	.appendTo('head');
 
 		// Hide the header
-		$('#header').hide();
+		//$('#header').hide();
 
 		// Add shortcut to hide/show header
 		IPython.keyboard_manager.command_shortcuts.add_shortcut('ctrl-`', function (event) {

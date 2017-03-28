@@ -9,8 +9,8 @@ How to install extension:
 ```
 git clone --recursive https://github.com/openworm/org.geppetto.frontend.jupyter.git
 sudo pip install .
-sudo jupyter nbextension install --py geppettoJupyter
-sudo jupyter nbextension enable --py geppettoJupyter
+sudo jupyter nbextension install --py jupyter_geppetto
+sudo jupyter nbextension enable --py jupyter_geppetto
 ```
 To overwrite the local install:
 
@@ -24,5 +24,5 @@ assuming the default Jupyter configuration, otherwise change port accordingly.
 
 Note if you get a 404 and you have a custom configuration of Jupyter notebook you will have to add the following to your jupyter_notebook_config.py:
 ```
-c.NotebookApp.nbserver_extensions = {'geppettoJupyter':True}
+c.NotebookApp.nbserver_extensions = {'jupyter_geppetto':True}
 ```
