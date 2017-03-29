@@ -1,10 +1,5 @@
 import setuptools
 from glob import glob
-import fnmatch
-import os
-from setuptools.command.install import install
-import fileinput
-import pypandoc
 
 #This block copies resources to the server (/usr/local/share/jupyter/nbextensions/)
 data_files = []
