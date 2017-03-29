@@ -12,7 +12,7 @@ data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupy
 data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/*.css')))
 
 
-long_description = pypandoc.convert('README.md', 'rst')
+#long_description = pypandoc.convert('README.md', 'rst')
 
 setuptools.setup(
     name="jupyter_geppetto",
@@ -22,7 +22,7 @@ setuptools.setup(
     author_email="info@geppetto.org",
     description="Geppetto extension for Jupyter notebook",
     license="MIT",
-    long_description=long_description,
+    long_description=open('README.rst').read(),
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
     data_files=data_files,
