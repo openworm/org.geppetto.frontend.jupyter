@@ -15,15 +15,11 @@ How to install extension:
     sudo jupyter nbextension install --py jupyter_geppetto
     sudo jupyter nbextension enable --py jupyter_geppetto
 
-"""
-
 To overwrite the local install:
 
 .. code-block::
 
     pip install . --upgrade --no-deps --force-reinstall
-
-"""
 
 To connect go to the URL: http://localhost:8888/geppetto assuming the
 default Jupyter configuration, otherwise change port accordingly.
@@ -35,5 +31,3 @@ jupyter\_notebook\_config.py:
 .. code-block:: python
 
     c.NotebookApp.nbserver_extensions = {'jupyter_geppetto':True}
-
-"""
