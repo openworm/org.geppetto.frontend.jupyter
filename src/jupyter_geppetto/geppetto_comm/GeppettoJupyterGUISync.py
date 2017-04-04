@@ -7,7 +7,7 @@ from collections import defaultdict
 import ipywidgets as widgets
 from traitlets import (Unicode, Instance, List, Dict, Bool, Float, Int)
 
-from geppettoJupyter.geppetto_comm import GeppettoJupyterModelSync
+from jupyter_geppetto.geppetto_comm import GeppettoJupyterModelSync
 
 # Current variables
 sync_values = defaultdict(list)
@@ -51,7 +51,7 @@ class ComponentSync(widgets.Widget):
 
 class TextFieldSync(ComponentSync):
     _model_name = Unicode('TextFieldSync').tag(sync=True)
-    _model_module = Unicode('geppettoJupyter').tag(sync=True)
+    _model_module = Unicode('jupyter_geppetto').tag(sync=True)
 
     read_only = Bool(False).tag(sync=True)
 
@@ -61,7 +61,7 @@ class TextFieldSync(ComponentSync):
 
 class CheckboxSync(ComponentSync):
     _model_name = Unicode('CheckboxSync').tag(sync=True)
-    _model_module = Unicode('geppettoJupyter').tag(sync=True)
+    _model_module = Unicode('jupyter_geppetto').tag(sync=True)
 
     def __init__(self, **kwargs):
         super(CheckboxSync, self).__init__(**kwargs)
@@ -69,7 +69,7 @@ class CheckboxSync(ComponentSync):
 
 class ButtonSync(ComponentSync):
     _model_name = Unicode('ButtonSync').tag(sync=True)
-    _model_module = Unicode('geppettoJupyter').tag(sync=True)
+    _model_module = Unicode('jupyter_geppetto').tag(sync=True)
 
     def __init__(self, **kwargs):
         super(ButtonSync, self).__init__(**kwargs)
@@ -86,14 +86,14 @@ class ButtonSync(ComponentSync):
 
 class LabelSync(ComponentSync):
     _model_name = Unicode('LabelSync').tag(sync=True)
-    _model_module = Unicode('geppettoJupyter').tag(sync=True)
+    _model_module = Unicode('jupyter_geppetto').tag(sync=True)
 
     def __init__(self, **kwargs):
         super(LabelSync, self).__init__(**kwargs)
 
 class DropDownSync(ComponentSync):
     _model_name = Unicode('DropDownSync').tag(sync=True)
-    _model_module = Unicode('geppettoJupyter').tag(sync=True)
+    _model_module = Unicode('jupyter_geppetto').tag(sync=True)
 
     items = List(Dict).tag(sync=True)
 
@@ -105,7 +105,7 @@ class DropDownSync(ComponentSync):
 
 class PanelSync(ComponentSync):
     _model_name = Unicode('PanelSync').tag(sync=True)
-    _model_module = Unicode('geppettoJupyter').tag(sync=True)
+    _model_module = Unicode('jupyter_geppetto').tag(sync=True)
 
     items = List(Instance(widgets.Widget)).tag(
         sync=True, **widgets.widget_serialization)
