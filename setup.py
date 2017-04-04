@@ -6,12 +6,9 @@ data_files = []
 data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/*.js')))
 data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/*.css')))
 
-
-#long_description = pypandoc.convert('README.md', 'rst')
-
 setuptools.setup(
     name="jupyter_geppetto",
-    version="0.3.5.5",
+    version="0.0.1",
     url="https://github.com/openworm/org.geppetto.frontend.jupyter",
     author="The Geppetto Development Team",
     author_email="info@geppetto.org",
