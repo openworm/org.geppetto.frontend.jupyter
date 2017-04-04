@@ -7,7 +7,7 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 				id: 'jupyter_geppetto',
 				rel: 'stylesheet',
 				type: 'text/css',
-				href: require.toUrl('/nbextensions/jupyter_geppetto/jupyter_geppetto.css')
+				href: require.toUrl('/nbextensions/jupyter_geppetto/geppettoJupyter.css')
 			})
 			.appendTo('head');
 
