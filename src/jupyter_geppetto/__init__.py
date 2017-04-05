@@ -4,8 +4,6 @@ from notebook.utils import url_path_join
 from notebook.base.handlers import IPythonHandler
 import tornado.websocket
 import tornado.web
-import json
-import requests
 import nbformat as nbf
 import codecs
 import os.path
