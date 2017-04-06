@@ -4,10 +4,10 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 		// Load css first
 		var $stylesheet = $('<link/>')
 			.attr({
-				id: 'geppettoJupyter',
+				id: 'jupyter_geppetto',
 				rel: 'stylesheet',
 				type: 'text/css',
-				href: require.toUrl('/nbextensions/geppettoJupyter/geppettoJupyter.css')
+				href: require.toUrl('/nbextensions/jupyter_geppetto/geppettoJupyter.css')
 			})
 			.appendTo('head');
 
