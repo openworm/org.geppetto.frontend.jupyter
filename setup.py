@@ -8,7 +8,7 @@ data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupy
 
 setuptools.setup(
     name="jupyter_geppetto",
-    version="0.3.4",
+    version="0.3.6",
     url="https://github.com/openworm/org.geppetto.frontend.jupyter",
     author="The Geppetto Development Team",
     author_email="info@geppetto.org",
