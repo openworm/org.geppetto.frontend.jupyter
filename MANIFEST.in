@@ -18,6 +18,7 @@
 
 graft src/jupyter_geppetto/geppetto/src/main/webapp/build
 recursive-include src/jupyter_geppetto/geppetto *.png *.css *.woff *.woff2
+include src/jupyter_geppetto/*
 
 
 #graft src/jupyter_geppetto/geppetto/src/main/webapp
