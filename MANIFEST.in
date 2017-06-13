@@ -1,14 +1,25 @@
 # explicit includes
-include package.json
-include LICENSE.txt
-include README.md
+#include package.json
+#include LICENSE.txt
+#include README.md
 
-graft src
+#include *
+
+#graft src
 
 # Patterns to exclude from any directory
-global-exclude *~
-global-exclude __pycache__
-global-exclude *.py[cod]
-global-exclude .git
-global-exclude .ipynb_checkpoints
-global-exclude .DS_Store
+#global-exclude *~
+#global-exclude __pycache__
+#global-exclude *.py[cod]
+#global-exclude .git
+#global-exclude .ipynb_checkpoints
+#global-exclude .DS_Store
+#global-exclude *node_modules
+
+
+#graft src/jupyter_geppetto/geppetto/src/main/webapp/build
+#recursive-include src/jupyter_geppetto/geppetto *.png *.css *.woff *.woff2
+
+
+graft src/jupyter_geppetto/geppetto/src/main/webapp
+recursive-exclude src/jupyter_geppetto/geppetto/src/main/webapp/node_modules *
