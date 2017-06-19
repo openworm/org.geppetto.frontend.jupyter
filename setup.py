@@ -43,8 +43,6 @@ setuptools.setup(
         'Programming Language :: Python :: 3.4'
     ],
     install_requires=[
-        'ipywidgets>=5.1.5, <6.0',
-        'widgetsnbextension>=1.2.6, <2.0',
-        'jupyter>=1.0.0'
+        'ipywidgets>=5.1.5, <6.0'
     ],
 )
