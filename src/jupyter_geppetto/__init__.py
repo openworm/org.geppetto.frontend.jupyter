@@ -41,8 +41,7 @@ class GeppettoHandler(IPythonHandler):
             nbf.write(nb0, f, 4)
             f.close()
 
-        template = os.path.join(os.path.dirname(
-            __file__), 'geppetto/src/main/webapp/templates/dist/geppetto.vm')
+        template = os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/build/geppetto.vm')
         self.write(open(template).read())
 
 
@@ -67,7 +66,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         if (jsonMessage['type'] == 'geppetto_version'):
             # Where do we get the geppetto version from?
             self.write_message({"requestID": jsonMessage[
-                               'requestID'], "type": "geppetto_version", "data": "{\"geppetto_version\":\"0.3.4\"}"})
+                               'requestID'], "type": "geppetto_version", "data": "{\"geppetto_version\":\"0.3.6\"}"})
 
     def on_close(self):
         pass
@@ -92,3 +91,5 @@ def load_jupyter_server_extension(nbapp):
 
     web_app.add_handlers(host_pattern, [(r"/geppetto/(.*)", tornado.web.StaticFileHandler, {
                          'path': os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/')})])
+    
+    web_app.add_handlers(host_pattern, [(r"/org.geppetto.frontend/geppetto/(.*)", tornado.web.StaticFileHandler, {'path': os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/')})])
