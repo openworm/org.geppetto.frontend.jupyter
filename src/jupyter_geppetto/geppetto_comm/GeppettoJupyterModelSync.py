@@ -198,6 +198,8 @@ class ModelSync(widgets.Widget):
     geometries_raw = []
     derived_state_variables = List(Instance(DerivedStateVariableSync)).tag(
         sync=True, **widgets.widget_serialization)
+    original_model = Unicode('').tag(
+        sync=True)
 
     def __init__(self, **kwargs):
         super(ModelSync, self).__init__(**kwargs)

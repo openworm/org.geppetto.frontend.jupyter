@@ -27,6 +27,8 @@ class ComponentSync(widgets.Widget):
 
         if 'value' in kwargs and kwargs["value"] is not None and kwargs["value"] != '':
             sync_values[kwargs["value"]] = self
+        if 'path' in kwargs and kwargs["path"] is not None and kwargs["path"] != '':
+            self.widget_id = kwargs["path"]
 
         self._change_handlers = widgets.CallbackDispatcher()
         self._blur_handlers = widgets.CallbackDispatcher()
@@ -57,6 +59,9 @@ class TextFieldSync(ComponentSync):
 
     def __init__(self, **kwargs):
         super(TextFieldSync, self).__init__(**kwargs)
+
+    def sync(self):
+        self.send({"type": "sync"})
 
 
 class CheckboxSync(ComponentSync):
