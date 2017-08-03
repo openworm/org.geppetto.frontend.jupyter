@@ -53,9 +53,10 @@ class ComponentSync(widgets.Widget):
 
     
     def updateModel(self, *args):
-        if self.model != None and self.model != '' and args[1]['data'] != None:
-            from neuron_ui.netpyne_init import netParams
-            exec(self.model + "='" + args[1]['data']+ "'")
+        if self.model != None and self.model != '' and args[1]['value'] != None:
+            if(args[1]['requirement']):
+                exec(args[1]['requirement'])    
+            exec(self.model + "='" + args[1]['value']+ "'")
 
     def connect(self):
         logging.debug("ComponentSync connecting to " + self.model)
