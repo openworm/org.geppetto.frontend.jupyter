@@ -55,7 +55,7 @@ class EventsSync(widgets.Widget):
             if self._events['Global_message'] in self._eventsCallbacks:
                 for callback in self._eventsCallbacks[self._events['Global_message']]:
                     try:
-                        callback(content.get('command', ''), content.get('parameters', ''))
+                        callback(content.get('id', ''), content.get('command', ''), content.get('parameters', ''))
                     except Exception as e:
                         logging.exception( "Unexpected error executing callback on Global_message event triggered:")
                         raise
