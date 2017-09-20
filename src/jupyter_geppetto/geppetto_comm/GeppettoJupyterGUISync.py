@@ -54,9 +54,18 @@ class ComponentSync(widgets.Widget):
     
     def updateModel(self, *args):
         if self.model != None and self.model != '' and args[1]['value'] != None:
-            if(args[1]['requirement']):
-                exec(args[1]['requirement'])    
-            exec(self.model + "='" + args[1]['value']+ "'")
+            try:
+                if isinstance(args[1]['value'], (str, unicode)):
+                    value = "'" + args[1]['value'] + "'"
+                else:
+                    value = str(args[1]['value'])
+                logging.debug("Updating model with new value " + value)
+                if(args[1]['requirement']):
+                    exec(args[1]['requirement'])    
+                
+                exec(self.model + "=" + value)
+            except Exception as identifier:
+                logging.exception("Error updating model")
 
     def connect(self):
         logging.debug("ComponentSync connecting to " + self.model)
