@@ -25,6 +25,7 @@ def remove_component_sync(componentType, model):
 class ComponentSync(widgets.Widget):
     componentType = Unicode('componentType').tag(sync=True)
     model = Unicode('').tag(sync=True)
+    id = Unicode('').tag(sync=True)
     value = Unicode().tag(sync=True)
 
     widget_name = Unicode('').tag(sync=True)
