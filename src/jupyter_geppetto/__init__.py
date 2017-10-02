@@ -7,8 +7,6 @@ import tornado.websocket
 import tornado.web
 import nbformat as nbf
 
-import jupyter_client
-
 from nbformat.v4.nbbase import new_notebook
 
 
@@ -68,24 +66,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             # Where do we get the geppetto version from?
             self.write_message({"requestID": jsonMessage[
                                'requestID'], "type": "geppetto_version", "data": "{\"geppetto_version\":\"0.3.6\"}"})
-        elif (jsonMessage['type'] == 'taka_socket'):
-            mak =0
-            while mak==0:
-                try:
-                    cf=jupyter_client.find_connection_file()
-                    mak=1
-                except Exception as exception:
-                    mak=0
-
-            print("por aki")
-            km=jupyter_client.BlockingKernelClient(connection_file=cf)
-            km.load_connection_file()
-
-            km.execute('a=5')
-            km.execute('from neuron_ui import neuron_geppetto')
-            km.execute('neuron_geppetto.init()')
-            km.execute('from jupyter_geppetto.geppetto_comm import GeppettoJupyterModelSync')
-            km.execute('GeppettoJupyterModelSync.events_controller.triggerEvent("spinner:hide")')
 
     def on_close(self):
         pass
