@@ -1,12 +1,11 @@
-import os
+import os.path
 import json
+import codecs
 from notebook.utils import url_path_join
 from notebook.base.handlers import IPythonHandler
 import tornado.websocket
 import tornado.web
 import nbformat as nbf
-import codecs
-import os.path
 
 from nbformat.v4.nbbase import new_notebook
 

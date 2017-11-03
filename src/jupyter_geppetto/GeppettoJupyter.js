@@ -5,8 +5,8 @@ define('jupyter_geppetto', function () {
     var jupyter_geppettoWidgetSync = window.parent.GEPPETTO.GeppettoJupyterWidgetSync;
 
     return {
+        ComponentSync: jupyter_geppettoGUISync.ComponentSync,
         PanelSync: jupyter_geppettoGUISync.PanelSync,
-        TextFieldSync: jupyter_geppettoGUISync.TextFieldSync,
         CheckboxSync: jupyter_geppettoGUISync.CheckboxSync,
         ButtonSync: jupyter_geppettoGUISync.ButtonSync,
         LabelSync: jupyter_geppettoGUISync.LabelSync,

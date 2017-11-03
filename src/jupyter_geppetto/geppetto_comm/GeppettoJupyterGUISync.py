@@ -9,44 +9,78 @@ from traitlets import (Unicode, Instance, List, Dict, Bool, Float, Int)
 
 from jupyter_geppetto.geppetto_comm import GeppettoJupyterModelSync
 
-# Current variables
-sync_values = defaultdict(list)
+# This is a list of all the models that are synched between Python and Javascript
+synched_models = defaultdict(list)
 
+def remove_component_sync(componentType, model):
+    component_to_remove = None
+    for existingModel, synched_component in list(synched_models.items()):
+        if existingModel == model:
+            component_to_remove = model
+            break
+    if(component_to_remove):
+        synched_models[component_to_remove].disconnect()
+        del synched_models[component_to_remove]
 
 class ComponentSync(widgets.Widget):
-    widget_id = Unicode('').tag(sync=True)
+    componentType = Unicode('componentType').tag(sync=True)
+    model = Unicode('').tag(sync=True)
+    id = Unicode('').tag(sync=True)
+    value = Unicode().tag(sync=True)
+
     widget_name = Unicode('').tag(sync=True)
     embedded = Bool(True).tag(sync=True)
-
-    sync_value = Unicode().tag(sync=True)
-    value = None
+    _model_name = Unicode('ComponentSync').tag(sync=True)
+    _model_module = Unicode('jupyter_geppetto').tag(sync=True)
+    
+    read_only = Bool(False).tag(sync=True)
     extraData = None
 
     def __init__(self, **kwargs):
         super(ComponentSync, self).__init__(**kwargs)
 
-        if 'value' in kwargs and kwargs["value"] is not None and kwargs["value"] != '':
-            sync_values[kwargs["value"]] = self
+        if 'model' in kwargs and kwargs["model"] is not None and kwargs["model"] != '':
+            synched_models[kwargs["model"]] = self
 
-        self._change_handlers = widgets.CallbackDispatcher()
-        self._blur_handlers = widgets.CallbackDispatcher()
+        self._value_handler = widgets.CallbackDispatcher()
+        #the method updateModel is executed in response to the sync_value event
+        self._value_handler.register_callback(self.updateModel)
 
         self.on_msg(self._handle_component_msg)
 
-    def on_change(self, callback, remove=False):
-        self._change_handlers.register_callback(callback, remove=remove)
-
-    def on_blur(self, callback, remove=False):
-        self._blur_handlers.register_callback(callback, remove=remove)
-
     def _handle_component_msg(self, _, content, buffers):
-        if content.get('event', '') == 'change':
-            self._change_handlers(self, content)
-        elif content.get('event', '') == 'blur':
-            self._blur_handlers(self, content)
+        if content.get('event', '') == 'sync_value':
+            self._value_handler(self, content)
+
+    
+    def updateModel(self, *args):
+        if self.model != None and self.model != '' and args[1]['value'] != None:
+            try:
+                if isinstance(args[1]['value'], (str, unicode)):
+                    value = "'" + args[1]['value'] + "'"
+                else:
+                    value = str(args[1]['value'])
+                logging.debug("Updating model with new value " + value)
+                if(args[1]['requirement']):
+                    exec(args[1]['requirement'])    
+                
+                exec(self.model + "=" + value)
+            except Exception as identifier:
+                logging.exception("Error updating model")
+
+    def connect(self):
+        logging.debug("ComponentSync connecting to " + self.model)
+        self.send({"type": "connect"})
+    
+    def disconnect(self):
+        logging.debug("ComponentSync disconnecting from " + self.model)
+        self.send({"type": "disconnect"})
+        self._value_handler.register_callback(self.updateModel, remove=True)
+        self.on_msg(self._handle_component_msg, remove=True)
+
 
     def __str__(self):
-        return "Component Sync => " + "Widget Id: " + self.widget_id + ", Widget Name: " + self.widget_name + ", Embedded: " + str(self.embedded) + ", Sync Value: " + self.sync_value + ", Value: " + str(self.value) + ", Extra Data: " + self.extraData
+        return "Component Sync => Widget Name: " + self.widget_name + ", Embedded: " + str(self.embedded) + ", Sync Value: " + self.value + ", Model: " + str(self.model) + ", Extra Data: " + self.extraData
 
 
 class TextFieldSync(ComponentSync):
@@ -57,6 +91,9 @@ class TextFieldSync(ComponentSync):
 
     def __init__(self, **kwargs):
         super(TextFieldSync, self).__init__(**kwargs)
+
+    def sync(self):
+        self.send({"type": "sync"})
 
 
 class CheckboxSync(ComponentSync):

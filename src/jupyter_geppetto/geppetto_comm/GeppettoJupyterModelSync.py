@@ -17,7 +17,8 @@ class EventsSync(widgets.Widget):
     _model_module = Unicode('jupyter_geppetto').tag(sync=True)
     _events = {
         'Select': 'experiment:selection_changed',
-        'Instances_created': "instances:created"
+        'Instances_created': "instances:created",
+        'Global_message': 'Global_message'
     }
     _eventsCallbacks = {}
 
@@ -36,7 +37,8 @@ class EventsSync(widgets.Widget):
                                 content.get('geometryIdentifier', ''),
                                 content.get('point', ''))
                     except Exception as e:
-                        logging.exception( "Unexpected error executing callback on select event triggered:")
+                        logging.exception(
+                            "Unexpected error executing callback on select event triggered:")
                         raise
         elif content.get('event', '') == self._events['Instances_created']:
             logging.debug("Instances_created Event triggered")
@@ -45,8 +47,19 @@ class EventsSync(widgets.Widget):
                     try:
                         callback(content.get('data', ''))
                     except Exception as e:
-                        logging.exception( "Unexpected error executing callback on instances_created event triggered:")
+                        logging.exception(
+                            "Unexpected error executing callback on instances_created event triggered:")
                         raise
+        elif content.get('event', '') == self._events['Global_message']:
+            logging.debug("Global message")
+            if self._events['Global_message'] in self._eventsCallbacks:
+                for callback in self._eventsCallbacks[self._events['Global_message']]:
+                    try:
+                        callback(content.get('id', ''), content.get('command', ''), content.get('parameters', ''))
+                    except Exception as e:
+                        logging.exception( "Unexpected error executing callback on Global_message event triggered:")
+                        raise
+        
 
     def register_to_event(self, events, callback):
         for event in events:
@@ -198,6 +211,8 @@ class ModelSync(widgets.Widget):
     geometries_raw = []
     derived_state_variables = List(Instance(DerivedStateVariableSync)).tag(
         sync=True, **widgets.widget_serialization)
+    original_model = Unicode('').tag(
+        sync=True)
 
     def __init__(self, **kwargs):
         super(ModelSync, self).__init__(**kwargs)
