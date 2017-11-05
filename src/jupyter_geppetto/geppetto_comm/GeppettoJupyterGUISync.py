@@ -5,7 +5,7 @@ Component (textfield, button, checkbox, etc...) and Panel Sync
 import logging
 from collections import defaultdict
 import ipywidgets as widgets
-from traitlets import (Unicode, Instance, List, Dict, Bool, Float, Int)
+from traitlets import (CUnicode, Unicode, Instance, List, Dict, Bool, Float, Int)
 
 from jupyter_geppetto.geppetto_comm import GeppettoJupyterModelSync
 
@@ -26,7 +26,7 @@ class ComponentSync(widgets.Widget):
     componentType = Unicode('componentType').tag(sync=True)
     model = Unicode('').tag(sync=True)
     id = Unicode('').tag(sync=True)
-    value = Unicode().tag(sync=True)
+    value = CUnicode().tag(sync=True)
 
     widget_name = Unicode('').tag(sync=True)
     embedded = Bool(True).tag(sync=True)
