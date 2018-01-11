@@ -5,6 +5,7 @@ Component (textfield, button, checkbox, etc...) and Panel Sync
 import logging
 from collections import defaultdict
 import ipywidgets as widgets
+import json
 from traitlets import (CUnicode, Unicode, Instance, List, Dict, Bool, Float, Int)
 
 from jupyter_geppetto.geppetto_comm import GeppettoJupyterModelSync
@@ -56,14 +57,16 @@ class ComponentSync(widgets.Widget):
     def updateModel(self, *args):
         if self.model != None and self.model != '' and args[1]['value'] != None:
             try:
-                if isinstance(args[1]['value'], (str, unicode)):
-                    value = "'" + args[1]['value'] + "'"
+                value = json.loads(args[1]['value'])
+                if isinstance(value, (str, unicode)):
+                    value = "'" + value + "'"
                 else:
-                    value = str(args[1]['value'])
+                    value = str(value)
                 logging.debug("Updating model with new value " + value)
                 if(args[1]['requirement']):
                     exec(args[1]['requirement'])    
                 
+                logging.debug("self.model = " + self.model)
                 exec(self.model + "=" + value)
             except Exception as identifier:
                 logging.exception("Error updating model")
