@@ -42,7 +42,6 @@ setuptools.setup(
         'jupyter_client>=4.0.0,<5.0.0',
         'notebook>=4.0.0,<5.0.0',
         'nbconvert>=4.0.0, <5.0.0',
-        'ipywidgets>=5.1.5, <6.0',
-        'widgetsnbextension<2.0'
+        'ipywidgets>=5.1.5, <6.0'
     ],
 )
