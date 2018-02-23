@@ -33,10 +33,10 @@ class GeppettoHandler(IPythonHandler):
 
     def get(self):
         # Create initial ipynb if it doesn't exist
-        if not os.path.isfile('netpyneNotebook.ipynb'):
+        if not os.path.isfile('notebook.ipynb'):
             nb0 = new_notebook(cells=[],
                                metadata={'language': 'python',})
-            f = codecs.open('netpyneNotebook.ipynb', encoding='utf-8', mode='w')
+            f = codecs.open('notebook.ipynb', encoding='utf-8', mode='w')
             nbf.write(nb0, f, 4)
             f.close()
 
