@@ -33,10 +33,10 @@ class GeppettoHandler(IPythonHandler):
 
     def get(self):
         # Create initial ipynb if it doesn't exist
-        if not os.path.isfile('neuron-ui-demo.ipynb'):
+        if not os.path.isfile('netpyneNotebook.ipynb'):
             nb0 = new_notebook(cells=[],
                                metadata={'language': 'python',})
-            f = codecs.open('neuron-ui-demo.ipynb', encoding='utf-8', mode='w')
+            f = codecs.open('netpyneNotebook.ipynb', encoding='utf-8', mode='w')
             nbf.write(nb0, f, 4)
             f.close()
 
@@ -65,7 +65,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         if (jsonMessage['type'] == 'geppetto_version'):
             # Where do we get the geppetto version from?
             self.write_message({"requestID": jsonMessage[
-                               'requestID'], "type": "geppetto_version", "data": "{\"geppetto_version\":\"0.3.6\"}"})
+                               'requestID'], "type": "geppetto_version", "data": "{\"geppetto_version\":\"0.3.9\"}"})
 
     def on_close(self):
         pass
