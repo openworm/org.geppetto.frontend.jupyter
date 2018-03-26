@@ -35,9 +35,9 @@ setuptools.setup(
     ],
     install_requires=[
         'ipython>=4.0.0,<6.0.0',
-        'jupyter_client>=4.0.0,<5.0.0',
-        'notebook>=4.0.0,<5.0.0',
+        'jupyter_client>=4.0.0,<5.4.0',
+        'notebook>=4.0.0,<5.1.0',
         'nbconvert>=4.0.0, <5.0.0',
-        'ipywidgets>=5.1.5, <6.0'
+        'ipywidgets>=5.1.5, <7.5'
     ],
 )
