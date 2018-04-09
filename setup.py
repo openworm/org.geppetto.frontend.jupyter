@@ -36,10 +36,10 @@ setuptools.setup(
     install_requires=[
         'ipython>=4.0.0,<6.0.0',
         'jupyter_client>=4.0.0,<5.0.0',
-        'notebook>=4.0.0,<5.5.0',
+        'notebook>=4.0.0,<5.0.0',
         'tornado>=4.0.0, <5.0.0',
         'nbconvert>=4.0.0, <5.0.0',
-        'ipywidgets>=5.1.5, <7.2.0',
+        'ipywidgets>=5.1.5, <6.0.0',
         'pyzmq>=16.0.0, <17.0.0',
         'widgetsnbextension>=1.2.0, <2.0.0'
     ],
