@@ -37,6 +37,7 @@ setuptools.setup(
         'ipython>=4.0.0,<6.0.0',
         'jupyter_client>=4.0.0,<5.4.0',
         'notebook>=4.0.0,<5.5.0',
+        'tornado>=4.0.0, <5.0.0',
         'nbconvert>=4.0.0, <5.2.0',
         'ipywidgets>=5.1.5, <7.2.0'
     ],
