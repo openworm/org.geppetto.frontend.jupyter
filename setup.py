@@ -14,7 +14,7 @@ data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppe
 
 setuptools.setup(
     name="jupyter_geppetto",
-    version="0.3.9",
+    version="0.4.0",
     url="https://github.com/openworm/org.geppetto.frontend.jupyter",
     author="The Geppetto Development Team",
     author_email="info@geppetto.org",
@@ -31,17 +31,16 @@ setuptools.setup(
         'Topic :: Scientific/Engineering :: Visualization',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4'
+        'Programming Language :: Python :: 2.7'
     ],
     install_requires=[
         'ipython>=4.0.0,<6.0.0',
         'jupyter_client>=4.0.0,<5.0.0',
         'notebook>=4.0.0,<5.0.0',
+        'tornado>=4.0.0, <5.0.0',
         'nbconvert>=4.0.0, <5.0.0',
-        'ipywidgets>=5.1.5, <6.0'
+        'ipywidgets>=5.1.5, <6.0.0',
+        'pyzmq>=16.0.0, <17.0.0',
+        'widgetsnbextension>=1.2.0, <2.0.0'
     ],
 )

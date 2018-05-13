@@ -14,4 +14,6 @@ Installation
     pip install jupyter_geppetto
     jupyter nbextension enable --py --sys-prefix jupyter_geppetto
 
+For further information please visit: https://github.com/openworm/org.geppetto.frontend.jupyter
+
 
