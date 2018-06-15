@@ -41,6 +41,7 @@ setuptools.setup(
         'nbconvert>=4.0.0, <5.0.0',
         'ipywidgets>=5.1.5, <6.0.0',
         'pyzmq>=16.0.0, <17.0.0',
-        'widgetsnbextension>=1.2.0, <2.0.0'
+        'widgetsnbextension>=1.2.0, <2.0.0',
+        "pygeppetto==0.3.9"
     ],
 )
