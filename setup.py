@@ -1,16 +1,21 @@
 import setuptools
 from glob import glob
+import fnmatch
+import os
 
-#This block copies resources to the server (/usr/local/share/jupyter/nbextensions/)
+#This block copies resources to the server so we avoid jupyter nbextension install --py --sys-prefix jupyter_geppetto
 data_files = []
-data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/geppetto/src/main/webapp/build/*.js')))
-data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/geppetto/src/main/webapp/build/*.vm')))
-data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/geppetto/src/main/webapp/build/fonts/*')))
+data_files.append(('share/jupyter/nbextensions/jupyter_geppetto/geppetto/src/main/webapp/build/', glob('src/jupyter_geppetto/geppetto/src/main/webapp/build/*.js')))
+data_files.append(('share/jupyter/nbextensions/jupyter_geppetto/geppetto/src/main/webapp/build/', glob('src/jupyter_geppetto/geppetto/src/main/webapp/build/*.vm')))
+data_files.append(('share/jupyter/nbextensions/jupyter_geppetto/geppetto/src/main/webapp/build/', glob('src/jupyter_geppetto/geppetto/src/main/webapp/build/fonts/*')))
+for root, dirnames, filenames in os.walk('src/jupyter_geppetto/geppetto/src/main/webapp/js/'):
+    for filename in fnmatch.filter(filenames, '*'):
+        data_files.append(('share/jupyter/nbextensions' + root[3:], [os.path.join(root, filename)]))
 
-data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/geppettoJupyter.css')))
-data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/GeppettoJupyter.js')))
-data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/index.js')))
-data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/overwrite_get_msg_cell.js')))
+data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/geppettoJupyter.css')))
+data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/GeppettoJupyter.js')))
+data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/index.js')))
+data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/overwrite_get_msg_cell.js')))
 
 setuptools.setup(
     name="jupyter_geppetto",
@@ -41,6 +46,7 @@ setuptools.setup(
         'nbconvert>=4.0.0, <5.0.0',
         'ipywidgets>=5.1.5, <6.0.0',
         'pyzmq>=16.0.0, <17.0.0',
-        'widgetsnbextension>=1.2.0, <2.0.0'
+        'widgetsnbextension>=1.2.0, <2.0.0',
+        "pygeppetto==0.4.0"
     ],
 )
