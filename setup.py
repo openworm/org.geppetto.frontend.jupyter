@@ -1,11 +1,16 @@
 import setuptools
 from glob import glob
+import fnmatch
+import os
 
 #This block copies resources to the server (/usr/local/share/jupyter/nbextensions/)
 data_files = []
-data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/geppetto/src/main/webapp/build/*.js')))
-data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/geppetto/src/main/webapp/build/*.vm')))
-data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/geppetto/src/main/webapp/build/fonts/*')))
+data_files.append(('share/jupyter/nbextensions/jupyter_geppetto/geppetto/src/main/webapp/build/', glob('src/jupyter_geppetto/geppetto/src/main/webapp/build/*.js')))
+data_files.append(('share/jupyter/nbextensions/jupyter_geppetto/geppetto/src/main/webapp/build/', glob('src/jupyter_geppetto/geppetto/src/main/webapp/build/*.vm')))
+data_files.append(('share/jupyter/nbextensions/jupyter_geppetto/geppetto/src/main/webapp/build/', glob('src/jupyter_geppetto/geppetto/src/main/webapp/build/fonts/*')))
+for root, dirnames, filenames in os.walk('src/jupyter_geppetto/geppetto/src/main/webapp/js/'):
+    for filename in fnmatch.filter(filenames, '*'):
+        data_files.append(('share/jupyter/nbextensions' + root[3:], [os.path.join(root, filename)]))
 
 data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/geppettoJupyter.css')))
 data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/GeppettoJupyter.js')))
@@ -18,7 +23,7 @@ data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupy
 
 setuptools.setup(
     name="jupyter_geppetto",
-    version="0.4.0.6",
+    version="0.4.0.8",
     url="https://github.com/openworm/org.geppetto.frontend.jupyter",
     author="The Geppetto Development Team",
     author_email="info@geppetto.org",
