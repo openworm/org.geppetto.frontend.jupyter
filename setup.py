@@ -3,7 +3,7 @@ from glob import glob
 import fnmatch
 import os
 
-#This block copies resources to the server (/usr/local/share/jupyter/nbextensions/)
+#This block copies resources to the server so we avoid jupyter nbextension install --py --sys-prefix jupyter_geppetto
 data_files = []
 data_files.append(('share/jupyter/nbextensions/jupyter_geppetto/geppetto/src/main/webapp/build/', glob('src/jupyter_geppetto/geppetto/src/main/webapp/build/*.js')))
 data_files.append(('share/jupyter/nbextensions/jupyter_geppetto/geppetto/src/main/webapp/build/', glob('src/jupyter_geppetto/geppetto/src/main/webapp/build/*.vm')))
@@ -17,13 +17,9 @@ data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupy
 data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/index.js')))
 data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/overwrite_get_msg_cell.js')))
 
-# This will work once we update to notebook 5.3
-# data_files.append(('etc/jupyter/nbconfig/notebook.d', glob('jupyter_geppetto.json')))
-# data_files.append(('etc/jupyter/jupyter_notebook_config.d', glob('jupyter_geppetto_extension.json')))
-
 setuptools.setup(
     name="jupyter_geppetto",
-    version="0.4.0.8",
+    version="0.4.0",
     url="https://github.com/openworm/org.geppetto.frontend.jupyter",
     author="The Geppetto Development Team",
     author_email="info@geppetto.org",

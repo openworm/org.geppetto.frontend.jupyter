@@ -6,12 +6,3 @@ recursive-include src/jupyter_geppetto/geppetto *.png *.css *.woff *.woff2
 
 # Include also root files (basically the extension)
 include src/jupyter_geppetto/*
-
-# Include config files to enable/install the extension
-include jupyter_geppetto.json
-include jupyter_geppetto_extension.json
-
-# Different approach (to be deleted once we are sure the current approach work as expected)
-#graft src/jupyter_geppetto/geppetto/src/main/webapp
-#recursive-exclude src/jupyter_geppetto/geppetto/src/main/webapp/node_modules *
-#recursive-exclude src .git
