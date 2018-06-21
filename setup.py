@@ -12,9 +12,13 @@ data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppe
 data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/index.js')))
 data_files.append(('share/jupyter/nbextensions/geppettoJupyter', glob('src/geppettoJupyter/overwrite_get_msg_cell.js')))
 
+data_files.append(('etc/jupyter/nbconfig/notebook.d', glob('jupyter_geppetto.json')))
+
+data_files.append(('etc/jupyter/jupyter_notebook_config.d', glob('jupyter_geppetto_extension.json')))
+
 setuptools.setup(
     name="jupyter_geppetto",
-    version="0.4.0",
+    version="0.4.0.7",
     url="https://github.com/openworm/org.geppetto.frontend.jupyter",
     author="The Geppetto Development Team",
     author_email="info@geppetto.org",
@@ -42,6 +46,6 @@ setuptools.setup(
         'ipywidgets>=5.1.5, <6.0.0',
         'pyzmq>=16.0.0, <17.0.0',
         'widgetsnbextension>=1.2.0, <2.0.0',
-        "pygeppetto==0.4.0"
+        "pygeppetto==0.4.0.6"
     ],
 )
