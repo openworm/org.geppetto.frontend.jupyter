@@ -12,9 +12,9 @@ data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupy
 data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/index.js')))
 data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/overwrite_get_msg_cell.js')))
 
-data_files.append(('etc/jupyter/nbconfig/notebook.d', glob('jupyter_geppetto.json')))
+data_files.append(('etc/jupyter/nbconfig', glob('jupyter_geppetto.json')))
 
-data_files.append(('etc/jupyter/jupyter_notebook_config.d', glob('jupyter_geppetto_extension.json')))
+data_files.append(('etc/jupyter/', glob('jupyter_geppetto_extension.json')))
 
 setuptools.setup(
     name="jupyter_geppetto",
