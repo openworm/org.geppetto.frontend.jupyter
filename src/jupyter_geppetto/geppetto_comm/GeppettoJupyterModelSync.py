@@ -15,6 +15,7 @@ events_controller = None
 class EventsSync(widgets.Widget):
     _model_name = Unicode('EventsSync').tag(sync=True)
     _model_module = Unicode('jupyter_geppetto').tag(sync=True)
+    _model_module_version = Unicode('~1.0.0')
     _events = {
         'Select': 'experiment:selection_changed',
         'Instances_created': "instances:created",
@@ -81,6 +82,7 @@ class EventsSync(widgets.Widget):
 class ExperimentSync(widgets.Widget):
     _model_name = Unicode('ExperimentSync').tag(sync=True)
     _model_module = Unicode('jupyter_geppetto').tag(sync=True)
+    _model_module_version = Unicode('~1.0.0')
 
     name = Unicode('').tag(sync=True)
     id = Unicode('').tag(sync=True)
@@ -94,6 +96,7 @@ class ExperimentSync(widgets.Widget):
 class ProjectSync(widgets.Widget):
     _model_name = Unicode('ProjectSync').tag(sync=True)
     _model_module = Unicode('jupyter_geppetto').tag(sync=True)
+    _model_module_version = Unicode('~1.0.0')
 
     id = Unicode('').tag(sync=True)
     name = Unicode('').tag(sync=True)
@@ -110,6 +113,7 @@ class ProjectSync(widgets.Widget):
 class StateVariableSync(widgets.Widget):
     _model_name = Unicode('StateVariableSync').tag(sync=True)
     _model_module = Unicode('jupyter_geppetto').tag(sync=True)
+    _model_module_version = Unicode('~1.0.0')
 
     id = Unicode('').tag(sync=True)
     name = Unicode('').tag(sync=True)
@@ -129,6 +133,7 @@ class StateVariableSync(widgets.Widget):
 class DerivedStateVariableSync(widgets.Widget):
     _model_name = Unicode('DerivedStateVariableSync').tag(sync=True)
     _model_module = Unicode('jupyter_geppetto').tag(sync=True)
+    _model_module_version = Unicode('~1.0.0')
 
     id = Unicode('').tag(sync=True)
     name = Unicode('').tag(sync=True)
@@ -201,6 +206,7 @@ class GeometrySync():
 class ModelSync(widgets.Widget):
     _model_name = Unicode('ModelSync').tag(sync=True)
     _model_module = Unicode('jupyter_geppetto').tag(sync=True)
+    _model_module_version = Unicode('~1.0.0')
 
     id = Unicode('').tag(sync=True)
     name = Unicode('').tag(sync=True)
