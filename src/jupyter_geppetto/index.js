@@ -1,6 +1,7 @@
 define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (Jupyter, GeppettoJupyter, events) {
 
 	function load_extension() {
+		console.log("Loading extension...")
 		// Load css first
 		var $stylesheet = $('<link/>')
 			.attr({
@@ -46,11 +47,14 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 
 	}
 
-	 var load_ipython_extension = function () {
-        if (IPython.notebook) {
-            load_extension();
-        }
-        $([IPython.events]).on("notebook_loaded.Notebook", load_extension);
+	var load_ipython_extension = function () {
+		// if (IPython.notebook) {
+		//     load_extension();
+		// }
+		// $([IPython.events]).on("notebook_loaded.Notebook", load_extension);
+			
+		console.log("Waiting for kernel to be ready")
+		events.on('kernel_ready.Kernel', load_extension);
     };
 
 	// $([IPython.events]).on("notebook_loaded.Notebook", function () {
