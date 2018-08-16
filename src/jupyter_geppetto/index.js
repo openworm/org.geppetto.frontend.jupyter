@@ -48,9 +48,9 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 	}
 
 	var load_ipython_extension = function () {
-		// if (IPython.notebook) {
-		//     load_extension();
-		// }
+		if (IPython.notebook.kernel) {
+		    load_extension();
+		}
 		// $([IPython.events]).on("notebook_loaded.Notebook", load_extension);
 			
 		console.log("Waiting for kernel to be ready")
