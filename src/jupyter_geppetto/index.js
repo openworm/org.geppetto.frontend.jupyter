@@ -1,6 +1,7 @@
-define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (Jupyter, GeppettoJupyter, events) {
+define(['base/js/namespace', './GeppettoJupyter', 'base/js/events', 'base/js/utils'], function (Jupyter, GeppettoJupyter, events, utils) {
 
 	function load_extension() {
+		console.log(utils);
 		console.log("Loading extension...")
 		// Load css first
 		var $stylesheet = $('<link/>')
@@ -40,7 +41,17 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 
 		// If a Geppetto extension is defining a custom behavior to load the kernel we call it
 		if(window.parent.customJupyterModelLoad!=undefined){
+			// if (!utils.is_loaded("jupyter-js-widgets/extension")) {
+			// 	utils.load_extension("jupyter-js-widgets/extension").then(window.parent.customJupyterModelLoad(module,model));
+			// }	
+			// else{
+				// window.parent.customJupyterModelLoad(module,model);
+			// }
+
+			setTimeout(function(){
+				console.log("THIS IS");
 			window.parent.customJupyterModelLoad(module,model);
+			}, 2000);
 		}
 
 
@@ -51,10 +62,13 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 		if (IPython.notebook.kernel) {
 		    load_extension();
 		}
+		else{
+			console.log("Waiting for kernel to be ready")
+			events.on('kernel_ready.Kernel', load_extension);
+
+		}
 		// $([IPython.events]).on("notebook_loaded.Notebook", load_extension);
 			
-		console.log("Waiting for kernel to be ready")
-		events.on('kernel_ready.Kernel', load_extension);
     };
 
 	// $([IPython.events]).on("notebook_loaded.Notebook", function () {
