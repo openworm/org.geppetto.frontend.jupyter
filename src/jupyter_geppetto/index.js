@@ -48,10 +48,12 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events', 'base/js/uti
 				// window.parent.customJupyterModelLoad(module,model);
 			// }
 
-			setTimeout(function(){
-				console.log("THIS IS");
+			// setTimeout(function(){
+			// 	console.log("THIS IS");
+			// window.parent.customJupyterModelLoad(module,model);
+			// }, 2000);
+
 			window.parent.customJupyterModelLoad(module,model);
-			}, 2000);
 		}
 
 
@@ -59,14 +61,27 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events', 'base/js/uti
 	}
 
 	var load_ipython_extension = function () {
-		if (IPython.notebook.kernel) {
-		    load_extension();
-		}
-		else{
-			console.log("Waiting for kernel to be ready")
-			events.on('kernel_ready.Kernel', load_extension);
+		// if (IPython.notebook.kernel) {
+		//     load_extension();
+		// }
+		// else{
+		// 	console.log("Waiting for kernel to be ready")
+		// 	events.on('kernel_ready.Kernel', load_extension);
 
+		// }
+		// setTimeout(function(){
+		if (Jupyter.notebook !== undefined && Jupyter.notebook._fully_loaded) {
+			console.log("Kernel ready")
+            load_extension();
+        } else {
+            events.on("notebook_loaded.Notebook", function () {
+				console.log("Waiting for kernel to be ready")
+                load_extension();
+            })
 		}
+		
+			// }, 2000);
+
 		// $([IPython.events]).on("notebook_loaded.Notebook", load_extension);
 			
     };
