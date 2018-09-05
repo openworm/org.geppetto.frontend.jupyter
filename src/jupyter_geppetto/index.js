@@ -1,8 +1,6 @@
-define(['base/js/namespace', './GeppettoJupyter', 'base/js/events', 'base/js/utils'], function (Jupyter, GeppettoJupyter, events, utils) {
+define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (Jupyter, GeppettoJupyter, events) {
 
 	function load_extension() {
-		console.log(utils);
-		console.log("Loading extension...")
 		// Load css first
 		var $stylesheet = $('<link/>')
 			.attr({
@@ -41,56 +39,22 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events', 'base/js/uti
 
 		// If a Geppetto extension is defining a custom behavior to load the kernel we call it
 		if(window.parent.customJupyterModelLoad!=undefined){
-			// if (!utils.is_loaded("jupyter-js-widgets/extension")) {
-			// 	utils.load_extension("jupyter-js-widgets/extension").then(window.parent.customJupyterModelLoad(module,model));
-			// }	
-			// else{
-				// window.parent.customJupyterModelLoad(module,model);
-			// }
-
-			// setTimeout(function(){
-			// 	console.log("THIS IS");
-			// window.parent.customJupyterModelLoad(module,model);
-			// }, 2000);
-
 			window.parent.customJupyterModelLoad(module,model);
 		}
-
-
-
 	}
 
 	var load_ipython_extension = function () {
-		// if (IPython.notebook.kernel) {
-		//     load_extension();
-		// }
-		// else{
-		// 	console.log("Waiting for kernel to be ready")
-		// 	events.on('kernel_ready.Kernel', load_extension);
-
-		// }
-		// setTimeout(function(){
 		if (Jupyter.notebook !== undefined && Jupyter.notebook._fully_loaded) {
 			console.log("Kernel ready")
             load_extension();
         } else {
+			console.log("Waiting for kernel to be ready")
             events.on("notebook_loaded.Notebook", function () {
-				console.log("Waiting for kernel to be ready")
                 load_extension();
             })
 		}
-		
-			// }, 2000);
-
-		// $([IPython.events]).on("notebook_loaded.Notebook", load_extension);
-			
     };
-
-	// $([IPython.events]).on("notebook_loaded.Notebook", function () {
-	// 	IPython.notebook.set_autosave_interval(0);
-	// });
-
-	// Export the required load_ipython_extention
+	
 	return {
 		load_ipython_extension: load_ipython_extension
 	};
