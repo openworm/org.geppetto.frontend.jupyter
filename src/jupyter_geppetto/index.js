@@ -41,23 +41,20 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 		if(window.parent.customJupyterModelLoad!=undefined){
 			window.parent.customJupyterModelLoad(module,model);
 		}
-
-
-
 	}
 
-	 var load_ipython_extension = function () {
-        if (IPython.notebook) {
+	var load_ipython_extension = function () {
+		if (Jupyter.notebook !== undefined && Jupyter.notebook._fully_loaded) {
+			console.log("Kernel ready")
             load_extension();
-        }
-        $([IPython.events]).on("notebook_loaded.Notebook", load_extension);
+        } else {
+			console.log("Waiting for kernel to be ready")
+            events.on("notebook_loaded.Notebook", function () {
+                load_extension();
+            })
+		}
     };
-
-	// $([IPython.events]).on("notebook_loaded.Notebook", function () {
-	// 	IPython.notebook.set_autosave_interval(0);
-	// });
-
-	// Export the required load_ipython_extention
+	
 	return {
 		load_ipython_extension: load_ipython_extension
 	};

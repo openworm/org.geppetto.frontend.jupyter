@@ -58,7 +58,7 @@ class ComponentSync(widgets.Widget):
         if self.model != None and self.model != '' and args[1]['value'] != None:
             try:
                 value = json.loads(args[1]['value'])
-                if isinstance(value, (str, unicode)):
+                if isinstance(value, str):
                     value = "'" + value + "'"
                 else:
                     value = str(value)

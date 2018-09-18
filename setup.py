@@ -35,18 +35,13 @@ setuptools.setup(
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Visualization',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7'
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.7'
     ],
     install_requires=[
-        'ipython>=4.0.0,<6.0.0',
-        'jupyter_client>=4.0.0,<5.0.0',
-        'notebook>=4.0.0,<5.0.0',
-        'tornado>=4.0.0, <5.0.0',
-        'nbconvert>=4.0.0, <5.0.0',
-        'ipywidgets>=5.1.5, <6.0.0',
-        'pyzmq>=16.0.0, <17.0.0',
-        'widgetsnbextension>=1.2.0, <2.0.0',
-        "pygeppetto==0.4.1"
+        'jupyter==1.0.0',
+        'pygeppetto==0.4.1'
     ],
 )
