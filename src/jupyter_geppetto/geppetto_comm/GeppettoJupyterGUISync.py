@@ -66,8 +66,13 @@ class ComponentSync(widgets.Widget):
                 if(args[1]['requirement']):
                     exec(args[1]['requirement'])    
                 
-                logging.debug("self.model = " + self.model)
-                exec(self.model + "=" + value)
+                context = args[1]['context']
+                if(context and context!=""):
+                    logging.debug("self.model = " + context+"."+self.model)
+                    exec(context+"."+self.model + "=" + value)
+                else:
+                    logging.debug("self.model = " + self.model)
+                    exec(self.model + "=" + value)
             except Exception as identifier:
                 logging.exception("Error updating model")
 

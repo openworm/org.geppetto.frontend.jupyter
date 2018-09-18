@@ -24,11 +24,13 @@ class EventsSync(widgets.Widget):
     _eventsCallbacks = {}
 
     def __init__(self, **kwargs):
+        logging.debug("Event sync initialized")
         super(EventsSync, self).__init__(**kwargs)
 
         self.on_msg(self._handle_event)
 
     def _handle_event(self, _, content, buffers):
+        logging.debug("Event received")
         if content.get('event', '') == self._events['Select']:
             logging.debug("Select Event triggered")
             if self._events['Select'] in self._eventsCallbacks:
