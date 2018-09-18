@@ -41,7 +41,7 @@ setuptools.setup(
         'Programming Language :: Python :: 3.7'
     ],
     install_requires=[
-        'jupyter',
-        "pygeppetto==0.4.1"
+        'jupyter==1.0.0',
+        'pygeppetto==0.4.1'
     ],
 )
