@@ -39,7 +39,12 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 
 		// If a Geppetto extension is defining a custom behavior to load the kernel we call it
 		if(window.parent.customJupyterModelLoad!=undefined){
-			window.parent.customJupyterModelLoad(module,model);
+			window.IPython.notebook.restart_kernel({ confirm: false }).then(function () {
+                IPython.notebook.kernel.execute('from zmq.utils import jsonapi')
+                IPython.notebook.kernel.execute('from ipykernel.jsonutil import json_clean')
+                
+				window.parent.customJupyterModelLoad();
+            });
 		}
 	}
 
