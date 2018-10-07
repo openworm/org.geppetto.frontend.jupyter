@@ -40,12 +40,11 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 		// If a Geppetto extension is defining a custom behavior to load the kernel we call it
 		if(window.parent.customJupyterModelLoad!=undefined){
 			window.IPython.notebook.restart_kernel({ confirm: false }).then(function () {
-                IPython.notebook.kernel.execute('from zmq.utils import jsonapi')
-                IPython.notebook.kernel.execute('from ipykernel.jsonutil import json_clean')
+
                 //import the GUI sync to use the Python Controlled Capabilities
 				IPython.notebook.kernel.execute('from jupyter_geppetto.geppetto_comm import GeppettoJupyterGUISync');
 				//initialize the Geppetto Python connector
-                IPython.notebook.kernel.execute('from jupyter_geppetto import geppetto_init');
+                IPython.notebook.kernel.execute('from jupyter_geppetto.geppetto_comm import geppetto_init');
 				window.parent.customJupyterModelLoad();
             });
 		}

@@ -10,6 +10,14 @@ from jupyter_geppetto.geppetto_comm import GeppettoCoreAPI as G
 import time
 import threading
 import importlib
+from zmq.utils import jsonapi
+from ipykernel.jsonutil import json_clean
+
+def convertToJS(content):
+    return jsonapi.dumps(json_clean(content)).decode("utf-8")
+
+def converToPython(content):
+    return jsonapi.loads(content)
 
 def getJSONError(message, details):
     data = {}
