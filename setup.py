@@ -15,7 +15,6 @@ for root, dirnames, filenames in os.walk('src/jupyter_geppetto/geppetto/src/main
 data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/geppettoJupyter.css')))
 data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/GeppettoJupyter.js')))
 data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/index.js')))
-data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/overwrite_get_msg_cell.js')))
 
 setuptools.setup(
     name="jupyter_geppetto",
