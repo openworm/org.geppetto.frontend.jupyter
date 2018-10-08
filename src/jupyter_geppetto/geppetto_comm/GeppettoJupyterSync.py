@@ -1,9 +1,16 @@
+"""
+GeppettoJupyterSync.py
+Component, Model, Project, Experiment, Event
+"""
 import logging
 from collections import defaultdict
 import ipywidgets as widgets
-from traitlets import (Unicode, Instance, List, Float, Dict)
+import json
+from traitlets import (CUnicode, Unicode, Instance, List, Dict, Bool, Float, Int)
 
-# Current variables
+
+# This is a list of all the models that are synched between Python and Javascript
+synched_models = defaultdict(list)
 record_variables = defaultdict(list)
 current_project = None
 current_experiment = None
@@ -11,6 +18,82 @@ current_model = None
 current_python_model = None
 events_controller = None
 
+def remove_component_sync(componentType, model):
+    component_to_remove = None
+    for existingModel, synched_component in list(synched_models.items()):
+        if existingModel == model:
+            component_to_remove = model
+            break
+    if(component_to_remove):
+        synched_models[component_to_remove].disconnect()
+        del synched_models[component_to_remove]
+
+class ComponentSync(widgets.Widget):
+    componentType = Unicode('componentType').tag(sync=True)
+    model = Unicode('').tag(sync=True)
+    id = Unicode('').tag(sync=True)
+    value = CUnicode().tag(sync=True)
+
+    widget_name = Unicode('').tag(sync=True)
+    embedded = Bool(True).tag(sync=True)
+    _model_name = Unicode('ComponentSync').tag(sync=True)
+    _model_module = Unicode('jupyter_geppetto').tag(sync=True)
+    
+    read_only = Bool(False).tag(sync=True)
+    extraData = None
+
+    def __init__(self, **kwargs):
+        super(ComponentSync, self).__init__(**kwargs)
+
+        if 'model' in kwargs and kwargs["model"] is not None and kwargs["model"] != '':
+            synched_models[kwargs["model"]] = self
+
+        self._value_handler = widgets.CallbackDispatcher()
+        #the method updateModel is executed in response to the sync_value event
+        self._value_handler.register_callback(self.updateModel)
+
+        self.on_msg(self._handle_component_msg)
+
+    def _handle_component_msg(self, _, content, buffers):
+        if content.get('event', '') == 'sync_value':
+            self._value_handler(self, content)
+
+    
+    def updateModel(self, *args):
+        if self.model != None and self.model != '' and args[1]['value'] != None:
+            try:
+                value = json.loads(args[1]['value'])
+                if isinstance(value, str):
+                    value = "'" + value + "'"
+                else:
+                    value = str(value)
+                logging.debug("Updating model with new value " + value)
+                if(args[1]['requirement']):
+                    exec(args[1]['requirement'])    
+                
+                context = args[1]['context']
+                if(context and context!=""):
+                    logging.debug("self.model = " + context+"."+self.model)
+                    exec(context+"."+self.model + "=" + value)
+                else:
+                    logging.debug("self.model = " + self.model)
+                    exec(self.model + "=" + value)
+            except Exception as identifier:
+                logging.exception("Error updating model")
+
+    def connect(self):
+        logging.debug("ComponentSync connecting to " + self.model)
+        self.send({"type": "connect"})
+    
+    def disconnect(self):
+        logging.debug("ComponentSync disconnecting from " + self.model)
+        self.send({"type": "disconnect"})
+        self._value_handler.register_callback(self.updateModel, remove=True)
+        self.on_msg(self._handle_component_msg, remove=True)
+
+
+    def __str__(self):
+        return "Component Sync => Widget Name: " + self.widget_name + ", Embedded: " + str(self.embedded) + ", Sync Value: " + self.value + ", Model: " + str(self.model) + ", Extra Data: " + self.extraData
 
 class EventsSync(widgets.Widget):
     _model_name = Unicode('EventsSync').tag(sync=True)
@@ -112,99 +195,6 @@ class ProjectSync(widgets.Widget):
         self.experiments = [i for i in self.experiments] + [experiment]
 
 
-class StateVariableSync(widgets.Widget):
-    _model_name = Unicode('StateVariableSync').tag(sync=True)
-    _model_module = Unicode('jupyter_geppetto').tag(sync=True)
-    _model_module_version = Unicode('~1.0.0')
-
-    id = Unicode('').tag(sync=True)
-    name = Unicode('').tag(sync=True)
-    units = Unicode('').tag(sync=True)
-    timeSeries = List(Float).tag(sync=True)
-    geometries = List(Unicode).tag(sync=True)
-
-    python_variable = None
-
-    def __init__(self, **kwargs):
-        super(StateVariableSync, self).__init__(**kwargs)
-
-        # Add it to the syncvalues
-        if 'python_variable' in kwargs and kwargs["python_variable"] is not None:
-            record_variables[kwargs["python_variable"]["record_variable"]] = self
-
-class DerivedStateVariableSync(widgets.Widget):
-    _model_name = Unicode('DerivedStateVariableSync').tag(sync=True)
-    _model_module = Unicode('jupyter_geppetto').tag(sync=True)
-    _model_module_version = Unicode('~1.0.0')
-
-    id = Unicode('').tag(sync=True)
-    name = Unicode('').tag(sync=True)
-    units = Unicode('').tag(sync=True)
-    inputs = List(Unicode).tag(sync=True)
-    timeSeries = List(Float).tag(sync=True)
-    normalizationFunction = Unicode('').tag(sync=True)
-
-    inputs_raw = []
-
-    def __init__(self, **kwargs):
-        super(DerivedStateVariableSync, self).__init__(**kwargs)
-        self.generate_inputs()
-
-    def generate_inputs(self):
-        if self.inputs_raw != None and len(self.inputs_raw) > 0:
-            self.inputs = [input_raw.id for input_raw in self.inputs_raw]
-    
-    def set_inputs(self, inputs_raw):
-        self.inputs_raw = inputs_raw
-        self.generate_inputs()
-
-class GeometrySync():
-    id = ''
-    name = ''
-
-    bottomRadius = -1
-    topRadius = -1
-    positionX = -1
-    positionY = -1
-    positionZ = -1
-    distalX = -1
-    distalY = -1
-    distalZ = -1
-
-    python_variable = None
-
-    def __init__(self, **kwargs):
-        self.id = kwargs.get('id')
-        self.name = kwargs.get('name')
-
-        self.bottomRadius = kwargs.get('bottomRadius')
-        self.topRadius = kwargs.get('topRadius')
-        self.positionX = kwargs.get('positionX')
-        self.positionY = kwargs.get('positionY')
-        self.positionZ = kwargs.get('positionZ')
-        self.distalX = kwargs.get('distalX')
-        self.distalY = kwargs.get('distalY')
-        self.distalZ = kwargs.get('distalZ')
-
-        self.python_variable = kwargs.get('python_variable')
-
-    def get_geometry_dict(self):
-        return {'id': self.id,
-                'name': self.name,
-                'bottomRadius': self.bottomRadius,
-                'positionX': self.positionX,
-                'positionY': self.positionY,
-                'positionZ': self.positionZ,
-                'topRadius': self.topRadius,
-                'distalX': self.distalX,
-                'distalY': self.distalY,
-                'distalZ': self.distalZ,
-                'sectionName': self.python_variable["section"].name() #FIXME There should not be NEURON stuff here
-               }
-    def __str__(self):
-        return "Geometry Sync => " + "Id: " + self.id + ", Name: " + self.name + ", Bottom Radius: " + str(self.bottomRadius) + ", Position X: " + str(self.positionX) + ", Position Y: " + str(self.positionY) + ", Position Z: " + str(self.positionZ) + ", Top Radius: " + str(self.topRadius) + ", Distal X: " + str(self.distalX) + ", Distal Y: " + str(self.distalY) + ", Distal Z: " + str(self.distalZ)
-
-
 class ModelSync(widgets.Widget):
     _model_name = Unicode('ModelSync').tag(sync=True)
     _model_module = Unicode('jupyter_geppetto').tag(sync=True)
@@ -212,47 +202,14 @@ class ModelSync(widgets.Widget):
 
     id = Unicode('').tag(sync=True)
     name = Unicode('').tag(sync=True)
-    stateVariables = List(Instance(StateVariableSync)).tag(
-        sync=True, **widgets.widget_serialization)
-    geometries = List(Dict).tag(
-        sync=True)
-    geometries_raw = []
-    derived_state_variables = List(Instance(DerivedStateVariableSync)).tag(
-        sync=True, **widgets.widget_serialization)
     original_model = Unicode('').tag(
         sync=True)
 
     def __init__(self, **kwargs):
         super(ModelSync, self).__init__(**kwargs)
 
-    def addStateVariable(self, stateVariable):
-        self.stateVariables = [
-            i for i in self.stateVariables] + [stateVariable]
-
-    def addDerivedStateVariable(self, derived_state_variable):
-        self.derived_state_variables = [
-            i for i in self.derived_state_variables] + [derived_state_variable]
-
-    def addDerivedStateVariables(self, derived_state_variables):
-        # Hack to force on change js side and trigger merge model
-        self.derived_state_variables = []
-        self.derived_state_variables = derived_state_variables
-
-    def addGeometries(self, geometries):
-        self.geometries_raw = [i for i in self.geometries_raw] + geometries
-        self.geometries = [i for i in self.geometries] + [i.get_geometry_dict() for i in geometries]
-
     def sync(self, hard_reload = False):
         self.send({"type": "load", "hard_reload": hard_reload})
-
-    def drawSphere(self,x,y,z,radius):
-        self.send({"type": "draw_sphere", "content": {"x":x,"y":y,"z":z,"radius":radius}})
-
-    def removeSphere(self):
-        self.send({"type": "remove_sphere"})
-
-    def highlight_visual_group_element(self, visual_group_element):
-        self.send({"type": "highlight_visual_group_element", 'visual_group_element': visual_group_element})
 
     def reload(self, module, model):
         self.send({"type": "reload", 'module': module, 'model': model})

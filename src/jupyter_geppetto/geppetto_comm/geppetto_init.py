@@ -5,7 +5,7 @@ Initialise NetPyNE Geppetto, this class contains methods to connect NetPyNE with
 import traceback
 import json
 import logging
-from jupyter_geppetto.geppetto_comm import GeppettoJupyterModelSync, GeppettoJupyterGUISync
+from jupyter_geppetto.geppetto_comm import GeppettoJupyterSync
 from jupyter_geppetto.geppetto_comm import GeppettoCoreAPI as G
 import time
 import threading
@@ -49,15 +49,15 @@ def initGeppetto():
 
         # Reset any previous value
         logging.debug('Initialising Sync and Status Variables')
-        GeppettoJupyterModelSync.current_project = None
-        GeppettoJupyterModelSync.current_experiment = None
-        GeppettoJupyterModelSync.current_model = None
-        GeppettoJupyterModelSync.current_python_model = None
-        GeppettoJupyterModelSync.events_controller = GeppettoJupyterModelSync.EventsSync()
+        GeppettoJupyterSync.current_project = None
+        GeppettoJupyterSync.current_experiment = None
+        GeppettoJupyterSync.current_model = None
+        GeppettoJupyterSync.current_python_model = None
+        GeppettoJupyterSync.events_controller = GeppettoJupyterSync.EventsSync()
         logging.debug('EventSync was created: ')
-        logging.debug(GeppettoJupyterModelSync.events_controller)
-        GeppettoJupyterModelSync.events_controller.register_to_event(
-            [GeppettoJupyterModelSync.events_controller._events['Global_message']], globalMessageHandler)
+        logging.debug(GeppettoJupyterSync.events_controller)
+        GeppettoJupyterSync.events_controller.register_to_event(
+            [GeppettoJupyterSync.events_controller._events['Global_message']], globalMessageHandler)
 
         # Sync values when no sim is running
         logging.debug('Initialising Sync Mechanism for non-sim environment')
@@ -106,10 +106,10 @@ class LoopTimer(threading.Thread):
     def process_events(self):
         try:
             # Using 'list' so that a copy is made and we don't get: dictionary changed size during iteration items
-            for key, value in list(GeppettoJupyterModelSync.record_variables.items()):
+            for key, value in list(GeppettoJupyterSync.record_variables.items()):
                 value.timeSeries = key.to_python()
 
-            for model, synched_component in list(GeppettoJupyterGUISync.synched_models.items()):
+            for model, synched_component in list(GeppettoJupyterSync.synched_models.items()):
                 modelValue=None
                 if model != '':
                     try:
@@ -143,11 +143,11 @@ def globalMessageHandler(identifier, command, parameters):
         else:
             response = eval(command + '(*parameters)')
         
-        GeppettoJupyterModelSync.events_controller.triggerEvent(
+        GeppettoJupyterSync.events_controller.triggerEvent(
             "receive_python_message", {'id': identifier, 'response': response.decode("utf-8") if isinstance(response, bytes) else response})
     except:
         response = getJSONError("Error while executing command "+command,traceback.format_exc())
-        GeppettoJupyterModelSync.events_controller.triggerEvent(
+        GeppettoJupyterSync.events_controller.triggerEvent(
             "receive_python_message", {'id': identifier, 'response': response})
     
 logging.debug('Initialising Geppetto')

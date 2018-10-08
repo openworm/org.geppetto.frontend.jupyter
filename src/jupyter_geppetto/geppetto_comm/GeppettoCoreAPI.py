@@ -4,8 +4,8 @@ from collections import defaultdict
 from IPython.display import Javascript, display_javascript
 import logging
 
-from .GeppettoJupyterModelSync import ProjectSync, ExperimentSync, ModelSync
-from . import GeppettoJupyterModelSync
+from . import GeppettoJupyterSync
+from .GeppettoJupyterSync import ProjectSync, ExperimentSync, ModelSync
 
 lastId = {
     'project': 0,
@@ -31,10 +31,10 @@ def createProject(id = None, name = 'Untitled Project', experiments = []):
     id = getId(id, 'project')
     if experiments == []:
         experiment = createExperiment()
-        GeppettoJupyterModelSync.current_experiment = experiment
+        GeppettoJupyterSync.current_experiment = experiment
         experiments.append(experiment)
-    GeppettoJupyterModelSync.current_model = createModel(id = name.replace(" ", ""), name = name)    
-    GeppettoJupyterModelSync.current_project = ProjectSync(id = id, name = name, experiments = experiments)
+    GeppettoJupyterSync.current_model = createModel(id = name.replace(" ", ""), name = name)    
+    GeppettoJupyterSync.current_project = ProjectSync(id = id, name = name, experiments = experiments)
 
 def createExperiment(id = None, name = 'Untitled Experiment', status = 'DESIGN'):
     id = getId(id, 'experiment')

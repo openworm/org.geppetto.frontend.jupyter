@@ -1,13 +1,12 @@
 define('jupyter_geppetto', function () {
 
-    var jupyter_geppettoModelSync = window.parent.GEPPETTO.GeppettoJupyterModelSync;
-    var jupyter_geppettoGUISync = window.parent.GEPPETTO.GeppettoJupyterGUISync;
-
+    var GeppettoJupyterSync = window.parent.GEPPETTO.GeppettoJupyterSync;
+    
     return {
-        ComponentSync: jupyter_geppettoGUISync.ComponentSync,
-        ModelSync: jupyter_geppettoModelSync.ModelSync,
-        ExperimentSync: jupyter_geppettoModelSync.ExperimentSync,
-        ProjectSync: jupyter_geppettoModelSync.ProjectSync,
-        EventsSync: jupyter_geppettoModelSync.EventsSync,
+        ComponentSync: GeppettoJupyterSync.ComponentSync,
+        ModelSync: GeppettoJupyterSync.ModelSync,
+        ExperimentSync: GeppettoJupyterSync.ExperimentSync,
+        ProjectSync: GeppettoJupyterSync.ProjectSync,
+        EventsSync: GeppettoJupyterSync.EventsSync,
     };
 });
