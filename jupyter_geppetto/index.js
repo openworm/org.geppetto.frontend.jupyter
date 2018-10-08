@@ -42,9 +42,10 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 			window.IPython.notebook.restart_kernel({ confirm: false }).then(function () {
 
                 //import the GUI sync to use the Python Controlled Capabilities
-				IPython.notebook.kernel.execute('from jupyter_geppetto.geppetto_comm import GeppettoJupyterSync');
+				IPython.notebook.kernel.execute('from jupyter_geppetto import GeppettoJupyterSync');
 				//initialize the Geppetto Python connector
-                IPython.notebook.kernel.execute('from jupyter_geppetto.geppetto_comm import geppetto_init');
+				IPython.notebook.kernel.execute('from jupyter_geppetto import geppetto_init');
+				// Call extension code
 				window.parent.customJupyterModelLoad();
             });
 		}

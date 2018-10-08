@@ -5,7 +5,7 @@ Initialise NetPyNE Geppetto, this class contains methods to connect NetPyNE with
 import traceback
 import json
 import logging
-from jupyter_geppetto.geppetto_comm import GeppettoJupyterSync
+from jupyter_geppetto import GeppettoJupyterSync
 import time
 import threading
 import importlib

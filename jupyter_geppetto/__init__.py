@@ -10,6 +10,7 @@ import logging
 from nbformat.v4.nbbase import new_notebook
 from tornado.routing import PathMatches
 import pkg_resources
+import traceback
 
 
 def _jupyter_server_extension_paths():
@@ -32,7 +33,8 @@ class GeppettoHandler(IPythonHandler):
 
     def get(self):
         # id=self.get_argument("id", None)
-        id = "jupyter_geppetto"
+        # id = "jupyter_geppetto"
+        id = "netpyne_ui"
         if id:
             # Create initial ipynb if it doesn't exist
             if not os.path.isfile('notebook.ipynb'):
@@ -86,7 +88,8 @@ def load_jupyter_server_extension(nbapp):
         nbapp.log.info("Geppetto Jupyter extension is running!")
 
         path = 'geppetto/src/main/webapp/'  # always use slash
-        template2 = pkg_resources.resource_filename('jupyter_geppetto', path)
+        # template2 = pkg_resources.resource_filename('jupyter_geppetto', path)
+        template2 = pkg_resources.resource_filename('netpyne_ui', path)
 
         web_app = nbapp.web_app
         host_pattern = '.*$'
@@ -102,23 +105,15 @@ def load_jupyter_server_extension(nbapp):
             web_app.settings['base_url'], '/org.geppetto.frontend/GeppettoServlet')
         web_app.add_handlers(host_pattern, [(websocket_pattern, WebSocketHandler)])
 
-        nbapp.log.info(os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/'))
-        nbapp.log.info(type(os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/')))
-        nbapp.log.info(template2)
-        nbapp.log.info(type(template2))
-
         # web_app.add_handlers(host_pattern, [(r"/geppetto/(.*)", tornado.web.StaticFileHandler, {
         #                     'path': os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/')})])
         web_app.add_handlers(host_pattern, [(r"/geppetto/(.*)", tornado.web.StaticFileHandler, {
                              'path': template2})])
         
-
-
-        nbapp.log.info(os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/'))
-        nbapp.log.info(template2)
         # web_app.add_handlers(host_pattern, [(r"/org.geppetto.frontend/geppetto/(.*)", tornado.web.StaticFileHandler, {
         #     'path': os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/')})])
         web_app.add_handlers(host_pattern, [(r"/org.geppetto.frontend/geppetto/(.*)", tornado.web.StaticFileHandler, {
             'path': template2})])
-    except:
-        nbapp.log.info('error')
+    except Exception:
+        nbapp.log.info('Error on Geppetto Server extension')
+        traceback.print_exc()
