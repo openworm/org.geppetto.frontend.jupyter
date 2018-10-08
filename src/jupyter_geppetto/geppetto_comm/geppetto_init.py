@@ -15,7 +15,7 @@ from ipykernel.jsonutil import json_clean
 def convertToJS(content):
     return jsonapi.dumps(json_clean(content)).decode("utf-8")
 
-def converToPython(content):
+def convertToPython(content):
     return jsonapi.loads(content)
 
 def getJSONError(message, details):
