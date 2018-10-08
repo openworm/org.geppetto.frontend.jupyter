@@ -6,7 +6,6 @@ import traceback
 import json
 import logging
 from jupyter_geppetto.geppetto_comm import GeppettoJupyterSync
-from jupyter_geppetto.geppetto_comm import GeppettoCoreAPI as G
 import time
 import threading
 import importlib
@@ -50,9 +49,7 @@ def initGeppetto():
         # Reset any previous value
         logging.debug('Initialising Sync and Status Variables')
         GeppettoJupyterSync.current_project = None
-        GeppettoJupyterSync.current_experiment = None
         GeppettoJupyterSync.current_model = None
-        GeppettoJupyterSync.current_python_model = None
         GeppettoJupyterSync.events_controller = GeppettoJupyterSync.EventsSync()
         logging.debug('EventSync was created: ')
         logging.debug(GeppettoJupyterSync.events_controller)

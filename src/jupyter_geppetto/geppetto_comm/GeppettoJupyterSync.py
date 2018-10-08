@@ -13,10 +13,19 @@ from traitlets import (CUnicode, Unicode, Instance, List, Dict, Bool, Float, Int
 synched_models = defaultdict(list)
 record_variables = defaultdict(list)
 current_project = None
-current_experiment = None
 current_model = None
-current_python_model = None
 events_controller = None
+
+
+def createProject(id = None, name = 'Untitled Project', experiments = []):
+    logging.debug('Creating Project')
+    if experiments == []:
+        experiment = ExperimentSync(id = '1', name = 'Untitled Experiment', status = 'DESIGN')
+        experiments.append(experiment) 
+    return ProjectSync(id = '1', name = name, experiments = experiments)
+
+def createModel(name):
+    return ModelSync(id = name.replace(" ", ""), name = name)   
 
 def remove_component_sync(componentType, model):
     component_to_remove = None
