@@ -44,6 +44,12 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 			IPython.notebook.kernel.execute('from jupyter_geppetto import GeppettoJupyterSync');
 			//initialize the Geppetto Python connector
 			IPython.notebook.kernel.execute('from jupyter_geppetto import geppetto_init');
+
+			var project = { id: 1, name: 'Project', experiments: [{ "id": 1, "name": 'Experiment', "status": 'DESIGN' }] }
+			// Load the project
+			window.parent.GEPPETTO.Manager.loadProject(project, false);
+			// Load the first experiment
+			window.parent.GEPPETTO.Manager.loadExperiment(1, [], []);
 			
 			window.parent.GEPPETTO.trigger('jupyter_geppetto_extension_ready')
 		});

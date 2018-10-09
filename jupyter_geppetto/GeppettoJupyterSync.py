@@ -18,17 +18,6 @@ events_controller = None
 
 context = None
 
-
-def createProject(id = None, name = 'Untitled Project', experiments = []):
-    logging.debug('Creating Project')
-    if experiments == []:
-        experiment = ExperimentSync(id = '1', name = 'Untitled Experiment', status = 'DESIGN')
-        experiments.append(experiment) 
-    return ProjectSync(id = '1', name = name, experiments = experiments)
-
-def createModel(name):
-    return ModelSync(id = name.replace(" ", ""), name = name)   
-
 def remove_component_sync(componentType, model):
     component_to_remove = None
     for existingModel, synched_component in list(synched_models.items()):
@@ -173,52 +162,3 @@ class EventsSync(widgets.Widget):
     def triggerEvent(self, event, options={}):
         self.send({"event": event, "options": options})
 
-class ExperimentSync(widgets.Widget):
-    _model_name = Unicode('ExperimentSync').tag(sync=True)
-    _model_module = Unicode('jupyter_geppetto').tag(sync=True)
-    _model_module_version = Unicode('~1.0.0')
-
-    name = Unicode('').tag(sync=True)
-    id = Unicode('').tag(sync=True)
-    lastModified = Unicode('').tag(sync=True)
-    status = Unicode('').tag(sync=True)
-
-    def __init__(self, **kwargs):
-        super(ExperimentSync, self).__init__(**kwargs)
-
-
-class ProjectSync(widgets.Widget):
-    _model_name = Unicode('ProjectSync').tag(sync=True)
-    _model_module = Unicode('jupyter_geppetto').tag(sync=True)
-    _model_module_version = Unicode('~1.0.0')
-
-    id = Unicode('').tag(sync=True)
-    name = Unicode('').tag(sync=True)
-    experiments = List(Instance(ExperimentSync)).tag(
-        sync=True, **widgets.widget_serialization)
-
-    def __init__(self, **kwargs):
-        super(ProjectSync, self).__init__(**kwargs)
-
-    def addExperiment(self, experiment):
-        self.experiments = [i for i in self.experiments] + [experiment]
-
-
-class ModelSync(widgets.Widget):
-    _model_name = Unicode('ModelSync').tag(sync=True)
-    _model_module = Unicode('jupyter_geppetto').tag(sync=True)
-    _model_module_version = Unicode('~1.0.0')
-
-    id = Unicode('').tag(sync=True)
-    name = Unicode('').tag(sync=True)
-    original_model = Unicode('').tag(
-        sync=True)
-
-    def __init__(self, **kwargs):
-        super(ModelSync, self).__init__(**kwargs)
-
-    def sync(self, hard_reload = False):
-        self.send({"type": "load", "hard_reload": hard_reload})
-
-    def reload(self, module, model):
-        self.send({"type": "reload", 'module': module, 'model': model})
