@@ -16,7 +16,7 @@ current_project = None
 current_model = None
 events_controller = None
 
-context_object = None
+context = None
 
 
 def createProject(id = None, name = 'Untitled Project', experiments = []):
@@ -80,10 +80,10 @@ class ComponentSync(widgets.Widget):
                     value = str(value)
                 logging.debug("Updating model with new value " + value)
 
-                context = args[1]['context']
-                if(context and context!=""):
-                    logging.debug("self.model = " + context+"."+self.model)
-                    exec(context+"."+self.model + "=" + value, {context: context_object})
+                context_path = next(iter(context))
+                if(context_path and context_path!=""):
+                    logging.debug("self.model = " + context_path+"."+self.model)
+                    exec(context_path+"."+self.model + "=" + value, context)
                 else:
                     logging.debug("self.model = " + self.model)
                     exec(self.model + "=" + value)
