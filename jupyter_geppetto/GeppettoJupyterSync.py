@@ -83,7 +83,7 @@ class ComponentSync(widgets.Widget):
                 context = args[1]['context']
                 if(context and context!=""):
                     logging.debug("self.model = " + context+"."+self.model)
-                    exec(context+"."+self.model + "=" + value, {'netpyne_geppetto': context_object})
+                    exec(context+"."+self.model + "=" + value, {context: context_object})
                 else:
                     logging.debug("self.model = " + self.model)
                     exec(self.model + "=" + value)
