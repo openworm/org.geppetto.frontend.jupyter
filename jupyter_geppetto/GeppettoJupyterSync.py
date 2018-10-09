@@ -16,6 +16,8 @@ current_project = None
 current_model = None
 events_controller = None
 
+context_object = None
+
 
 def createProject(id = None, name = 'Untitled Project', experiments = []):
     logging.debug('Creating Project')
@@ -77,13 +79,11 @@ class ComponentSync(widgets.Widget):
                 else:
                     value = str(value)
                 logging.debug("Updating model with new value " + value)
-                if(args[1]['requirement']):
-                    exec(args[1]['requirement'])    
-                
+
                 context = args[1]['context']
                 if(context and context!=""):
                     logging.debug("self.model = " + context+"."+self.model)
-                    exec(context+"."+self.model + "=" + value)
+                    exec(context+"."+self.model + "=" + value, {'netpyne_geppetto': context_object})
                 else:
                     logging.debug("self.model = " + self.model)
                     exec(self.model + "=" + value)
