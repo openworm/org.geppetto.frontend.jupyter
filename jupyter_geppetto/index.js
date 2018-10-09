@@ -38,17 +38,15 @@ define(['base/js/namespace', './GeppettoJupyter', 'base/js/events'], function (J
 		window.parent.IPython = IPython;
 
 		// If a Geppetto extension is defining a custom behavior to load the kernel we call it
-		if(window.parent.customJupyterModelLoad!=undefined){
-			window.IPython.notebook.restart_kernel({ confirm: false }).then(function () {
-
-                //import the GUI sync to use the Python Controlled Capabilities
-				IPython.notebook.kernel.execute('from jupyter_geppetto import GeppettoJupyterSync');
-				//initialize the Geppetto Python connector
-				IPython.notebook.kernel.execute('from jupyter_geppetto import geppetto_init');
-				// Call extension code
-				window.parent.customJupyterModelLoad();
-            });
-		}
+		window.IPython.notebook.restart_kernel({ confirm: false }).then(function () {
+			
+			//import the GUI sync to use the Python Controlled Capabilities
+			IPython.notebook.kernel.execute('from jupyter_geppetto import GeppettoJupyterSync');
+			//initialize the Geppetto Python connector
+			IPython.notebook.kernel.execute('from jupyter_geppetto import geppetto_init');
+			
+			window.parent.GEPPETTO.trigger('jupyter_geppetto_extension_ready')
+		});
 	}
 
 	var load_ipython_extension = function () {
