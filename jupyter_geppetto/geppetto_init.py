@@ -43,12 +43,7 @@ def initGeppetto():
     try:
         # Configure log
         configure_logging()
-        logging.debug('Initialising Geppetto Jupyter')
-
-        # Reset any previous value
-        logging.debug('Initialising Sync Variables')
-        GeppettoJupyterSync.events_controller = GeppettoJupyterSync.EventsSync()
-       
+        logging.debug('Initialising Geppetto Jupyter')      
     except Exception as exception:
         logging.exception("Unexpected error while initializing Geppetto from Python:")
         logging.error(exception)

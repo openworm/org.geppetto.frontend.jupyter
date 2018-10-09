@@ -4,6 +4,5 @@ define('jupyter_geppetto', function () {
     
     return {
         ComponentSync: GeppettoJupyterSync.ComponentSync,
-        EventsSync: GeppettoJupyterSync.EventsSync,
     };
 });

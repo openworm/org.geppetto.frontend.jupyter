@@ -11,7 +11,6 @@ from traitlets import (CUnicode, Unicode, Instance, List, Dict, Bool, Float, Int
 
 # This is a list of all the models that are synched between Python and Javascript
 synched_models = defaultdict(list)
-events_controller = None
 
 context = None
 
@@ -89,73 +88,3 @@ class ComponentSync(widgets.Widget):
 
     def __str__(self):
         return "Component Sync => Widget Name: " + self.widget_name + ", Embedded: " + str(self.embedded) + ", Sync Value: " + self.value + ", Model: " + str(self.model) + ", Extra Data: " + self.extraData
-
-class EventsSync(widgets.Widget):
-    _model_name = Unicode('EventsSync').tag(sync=True)
-    _model_module = Unicode('jupyter_geppetto').tag(sync=True)
-    _model_module_version = Unicode('~1.0.0')
-    _events = {
-        'Select': 'experiment:selection_changed',
-        'Instances_created': "instances:created",
-        'Global_message': 'Global_message'
-    }
-    _eventsCallbacks = {}
-
-    def __init__(self, **kwargs):
-        logging.debug("Event sync initialized")
-        super(EventsSync, self).__init__(**kwargs)
-
-        self.on_msg(self._handle_event)
-
-    def _handle_event(self, _, content, buffers):
-        logging.debug("Event received")
-        if content.get('event', '') == self._events['Select']:
-            logging.debug("Select Event triggered")
-            if self._events['Select'] in self._eventsCallbacks:
-                for callback in self._eventsCallbacks[self._events['Select']]:
-                    try:
-                        callback(content.get('data', ''),
-                                content.get('geometryIdentifier', ''),
-                                content.get('point', ''))
-                    except Exception as e:
-                        logging.exception(
-                            "Unexpected error executing callback on select event triggered:")
-                        raise
-        elif content.get('event', '') == self._events['Instances_created']:
-            logging.debug("Instances_created Event triggered")
-            if self._events['Instances_created'] in self._eventsCallbacks:
-                for callback in self._eventsCallbacks[self._events['Instances_created']]:
-                    try:
-                        callback(content.get('data', ''))
-                    except Exception as e:
-                        logging.exception(
-                            "Unexpected error executing callback on instances_created event triggered:")
-                        raise
-        elif content.get('event', '') == self._events['Global_message']:
-            logging.debug("Global message")
-            if self._events['Global_message'] in self._eventsCallbacks:
-                for callback in self._eventsCallbacks[self._events['Global_message']]:
-                    try:
-                        callback(content.get('id', ''), content.get('command', ''), content.get('parameters', ''))
-                    except Exception as e:
-                        logging.exception( "Unexpected error executing callback on Global_message event triggered:")
-                        raise
-        
-
-    def register_to_event(self, events, callback):
-        for event in events:
-            if event not in self._eventsCallbacks:
-                self._eventsCallbacks[event] = []
-            self._eventsCallbacks[event].append(callback)
-            logging.debug("Registring event " + str(event) +
-                          " with callback " + str(callback))
-
-    def unregister_to_event(self, events, callback):
-        for event in events:
-            self._eventsCallbacks[event].remove(callback)
-            logging.debug("Unregistring event " + str(event) +
-                          " with callback " + str(callback))
-
-    def triggerEvent(self, event, options={}):
-        self.send({"event": event, "options": options})
-
