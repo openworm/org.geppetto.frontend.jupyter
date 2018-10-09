@@ -11,9 +11,6 @@ from traitlets import (CUnicode, Unicode, Instance, List, Dict, Bool, Float, Int
 
 # This is a list of all the models that are synched between Python and Javascript
 synched_models = defaultdict(list)
-record_variables = defaultdict(list)
-current_project = None
-current_model = None
 events_controller = None
 
 context = None
