@@ -71,8 +71,3 @@ class LoopTimer(threading.Thread):
             logging.exception(
                 "Error on Sync Mechanism for non-sim environment thread")
             raise
-
-  
-# logging.debug('Initialising Geppetto')
-# initGeppetto()
-# logging.debug('Geppetto initialised')
