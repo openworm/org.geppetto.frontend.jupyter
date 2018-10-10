@@ -1,11 +1,8 @@
 var jupyter_widgets = require('@jupyter-widgets/base');
-// import jupyter_widgets from '@jupyter-widgets/base';
-// var GEPPETTO = require('geppetto');
 var GEPPETTO = window.parent.GEPPETTO;
-// var _ = require('underscore');
 import _ from 'underscore';
-define('jupyter_geppetto', function () {
 
+define('jupyter_geppetto', function () {
 
 	var ComponentSync = jupyter_widgets.WidgetModel.extend({
 		defaults: _.extend({}, jupyter_widgets.WidgetModel.prototype.defaults, {
@@ -93,5 +90,4 @@ define('jupyter_geppetto', function () {
 	return {
 		ComponentSync: ComponentSync
 	};
-	// export {ComponentSync}
 });
