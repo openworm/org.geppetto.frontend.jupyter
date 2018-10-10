@@ -3,50 +3,14 @@ netpyne_geppetto_init.py
 Initialise NetPyNE Geppetto, this class contains methods to connect NetPyNE with the Geppetto based UI
 """
 import traceback
-import json
+
 import logging
-from jupyter_geppetto import GeppettoJupyterSync
+from jupyter_geppetto import jupyter_geppetto
 import time
 import threading
 import importlib
-from zmq.utils import jsonapi
-from ipykernel.jsonutil import json_clean
+import json
 
-def convertToJS(content):
-    return jsonapi.dumps(json_clean(content)).decode("utf-8")
-
-def convertToPython(content):
-    return jsonapi.loads(content)
-
-def getJSONError(message, details):
-    data = {}
-    data['type'] = 'ERROR'
-    data['message'] = message
-    data['details'] = details
-    return json.dumps(data)
-
-def getJSONReply():
-    data = {}
-    data['type'] = 'OK'
-    return json.dumps(data)
-
-def configure_logging():
-    logger = logging.getLogger()
-    fhandler = logging.FileHandler(filename='netpyne-ui.log', mode='a')
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fhandler.setFormatter(formatter)
-    logger.addHandler(fhandler)
-    logger.setLevel(logging.DEBUG)
-    logging.debug('Log configured')
-
-def initGeppetto():      
-    try:
-        # Configure log
-        configure_logging()
-        logging.debug('Initialising Geppetto Jupyter')      
-    except Exception as exception:
-        logging.exception("Unexpected error while initializing Geppetto from Python:")
-        logging.error(exception)
 
 def startSynchronization(scope):
     timer = LoopTimer(0.3,scope)
@@ -86,7 +50,7 @@ class LoopTimer(threading.Thread):
 
     def process_events(self):
         try:
-            for model, synched_component in list(GeppettoJupyterSync.synched_models.items()):
+            for model, synched_component in list(jupyter_geppetto.synched_models.items()):
                 modelValue=None
                 if model != '':
                     try:
@@ -109,6 +73,6 @@ class LoopTimer(threading.Thread):
             raise
 
   
-logging.debug('Initialising Geppetto')
-initGeppetto()
-logging.debug('Geppetto initialised')
+# logging.debug('Initialising Geppetto')
+# initGeppetto()
+# logging.debug('Geppetto initialised')

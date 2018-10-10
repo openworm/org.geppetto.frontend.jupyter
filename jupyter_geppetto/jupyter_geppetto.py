@@ -1,18 +1,19 @@
 """
-GeppettoJupyterSync.py
-Component, Model, Project, Experiment, Event
+jupyter_geppetto.py
 """
 import logging
 from collections import defaultdict
 import ipywidgets as widgets
 import json
 from traitlets import (CUnicode, Unicode, Instance, List, Dict, Bool, Float, Int)
+from jupyter_geppetto import utils
 
 
 # This is a list of all the models that are synched between Python and Javascript
 synched_models = defaultdict(list)
-
 context = None
+
+utils.configure_logging()
 
 def remove_component_sync(componentType, model):
     component_to_remove = None
