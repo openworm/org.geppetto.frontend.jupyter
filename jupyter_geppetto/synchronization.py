@@ -1,6 +1,5 @@
 """
-netpyne_geppetto_init.py
-Initialise NetPyNE Geppetto, this class contains methods to connect NetPyNE with the Geppetto based UI
+synchronization.py
 """
 import traceback
 
