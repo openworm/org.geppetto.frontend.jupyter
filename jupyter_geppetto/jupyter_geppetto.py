@@ -37,9 +37,6 @@ class ComponentSync(widgets.Widget):
 
     widget_name = Unicode('').tag(sync=True)
     embedded = Bool(True).tag(sync=True)
-    _model_name = Unicode('ComponentSync').tag(sync=True)
-    _model_module = Unicode('jupyter_geppetto').tag(sync=True)
-    
     read_only = Bool(False).tag(sync=True)
     extraData = None
 
