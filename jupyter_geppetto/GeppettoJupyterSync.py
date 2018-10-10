@@ -25,6 +25,10 @@ def remove_component_sync(componentType, model):
         del synched_models[component_to_remove]
 
 class ComponentSync(widgets.Widget):
+    _model_name = Unicode('ComponentSync').tag(sync=True)
+    _model_module = Unicode('jupyter_geppetto').tag(sync=True)
+    _model_module_version = Unicode('~1.0.0')
+
     componentType = Unicode('componentType').tag(sync=True)
     model = Unicode('').tag(sync=True)
     id = Unicode('').tag(sync=True)
