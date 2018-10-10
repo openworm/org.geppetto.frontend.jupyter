@@ -32,6 +32,7 @@ def _jupyter_nbextension_paths():
 class GeppettoHandler(IPythonHandler):
 
     def get(self):
+        # FIXME: Approach to make the extension generic + global id variable
         # id=self.get_argument("id", None)
         # id = "jupyter_geppetto"
         id = "netpyne_ui"
@@ -43,12 +44,9 @@ class GeppettoHandler(IPythonHandler):
                 f = codecs.open('notebook.ipynb', encoding='utf-8', mode='w')
                 nbf.write(nb0, f, 4)
                 f.close()
-
             
             path = 'geppetto/src/main/webapp/build/geppetto.vm'  # always use slash
-            # template = pkg_resources.resource_filename('jupyter_geppetto', path)
             template = pkg_resources.resource_filename(id, path)
-            # template = os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/build/geppetto.vm')
             self.write(open(template).read())
         else:
             self.log.warning('Package to load missing in the url')
@@ -75,8 +73,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         jsonMessage = json.loads(message)
         if (jsonMessage['type'] == 'geppetto_version'):
             # Where do we get the geppetto version from?
-            self.write_message({"requestID": jsonMessage[
-                               'requestID'], "type": "geppetto_version", "data": "{\"geppetto_version\":\"0.4.1\"}"})
+            self.write_message({"requestID": jsonMessage['requestID'], "type": "geppetto_version", "data": "{\"geppetto_version\":\"0.4.1\"}"})
 
     def on_close(self):
         pass
@@ -88,7 +85,6 @@ def load_jupyter_server_extension(nbapp):
         nbapp.log.info("Geppetto Jupyter extension is running!")
 
         path = 'geppetto/src/main/webapp/'  # always use slash
-        # template2 = pkg_resources.resource_filename('jupyter_geppetto', path)
         template2 = pkg_resources.resource_filename('netpyne_ui', path)
 
         web_app = nbapp.web_app
@@ -105,13 +101,8 @@ def load_jupyter_server_extension(nbapp):
             web_app.settings['base_url'], '/org.geppetto.frontend/GeppettoServlet')
         web_app.add_handlers(host_pattern, [(websocket_pattern, WebSocketHandler)])
 
-        # web_app.add_handlers(host_pattern, [(r"/geppetto/(.*)", tornado.web.StaticFileHandler, {
-        #                     'path': os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/')})])
         web_app.add_handlers(host_pattern, [(r"/geppetto/(.*)", tornado.web.StaticFileHandler, {
                              'path': template2})])
-        
-        # web_app.add_handlers(host_pattern, [(r"/org.geppetto.frontend/geppetto/(.*)", tornado.web.StaticFileHandler, {
-        #     'path': os.path.join(os.path.dirname(__file__), 'geppetto/src/main/webapp/')})])
         web_app.add_handlers(host_pattern, [(r"/org.geppetto.frontend/geppetto/(.*)", tornado.web.StaticFileHandler, {
             'path': template2})])
     except Exception:

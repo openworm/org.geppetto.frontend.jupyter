@@ -24,12 +24,12 @@ function load_extension() {
 		//Import the GUI sync to use the Python Controlled Capabilities, logging, etc
 		IPython.notebook.kernel.execute('from jupyter_geppetto import jupyter_geppetto, utils');
 
+		// Load the project & activate the experiment
 		var project = { id: 1, name: 'Project', experiments: [{ "id": 1, "name": 'Experiment', "status": 'DESIGN' }] }
-		// Load the project
 		window.parent.GEPPETTO.Manager.loadProject(project, false);
-		// Load the first experiment
 		window.parent.GEPPETTO.Manager.loadExperiment(1, [], []);
-		
+
+		// Trigger event for the extension (ComponentInitialization) to run custom code
 		window.parent.GEPPETTO.trigger('jupyter_geppetto_extension_ready')
 	});
 }
