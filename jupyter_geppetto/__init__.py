@@ -43,7 +43,7 @@ class GeppettoHandler(IPythonHandler):
                     f = codecs.open('notebook.ipynb', encoding='utf-8', mode='w')
                     nbf.write(nb0, f, 4)
                     f.close()
-                
+
                 template = pkg_resources.resource_filename(config['library'], 'geppetto/src/main/webapp/build/geppetto.vm')
                 self.write(open(template).read())
             else:
@@ -111,7 +111,7 @@ def load_jupyter_server_extension(nbapp):
                 'path': template})])
         else:
             nbapp.log.warning('Package to load missing in the url')
-            raise
+            raise Exception
     
     except Exception:
         nbapp.log.info('Error on Geppetto Server extension')
