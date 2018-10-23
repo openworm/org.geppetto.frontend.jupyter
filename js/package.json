@@ -1,0 +1,31 @@
+{
+  "name": "org.geppetto.frontend.jupyter",
+  "version": "0.4.1",
+  "description": "Geppetto frontend jupyter. Geppetto is an open-source platform to build web-based tools to visualize and simulate neuroscience data and models.",
+  "repository": "http://git.geppetto.org",
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack -p --progress",
+    "build-dev": "webpack --devtool source-map",
+    "build-dev:watch": "webpack --devtool source-map --progress --watch",
+    "start": "node --max_old_space_size=2048 node_modules/webpack-dev-server/bin/webpack-dev-server.js --progress  --config webpack.config.dev.js"
+  },
+  "devDependencies": {
+    "@jupyter-widgets/base": "^1.2.1",
+    "css-loader": "0.28.7",
+    "underscore": "^1.8.3",
+    "webpack": "3.6.0",
+    "webpack-dev-server": "2.8.2",
+    "less": "^2.7.2",
+    "less-loader": "4.0.5",
+    "style-loader": "^0.13.2"
+  },
+  "buildOptions": {
+    "emitEntryPoint": true,
+    "compile": {
+      "exclude": [
+        "node_modules"
+      ]
+    }
+  }
+}

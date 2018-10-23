@@ -5,17 +5,9 @@ import os
 
 #This block copies resources to the server so we avoid jupyter nbextension install --py --sys-prefix jupyter_geppetto
 data_files = []
-data_files.append(('share/jupyter/nbextensions/jupyter_geppetto/geppetto/src/main/webapp/build/', glob('src/jupyter_geppetto/geppetto/src/main/webapp/build/*.js')))
-data_files.append(('share/jupyter/nbextensions/jupyter_geppetto/geppetto/src/main/webapp/build/', glob('src/jupyter_geppetto/geppetto/src/main/webapp/build/*.vm')))
-data_files.append(('share/jupyter/nbextensions/jupyter_geppetto/geppetto/src/main/webapp/build/', glob('src/jupyter_geppetto/geppetto/src/main/webapp/build/fonts/*')))
-for root, dirnames, filenames in os.walk('src/jupyter_geppetto/geppetto/src/main/webapp/js/'):
-    for filename in fnmatch.filter(filenames, '*'):
-        data_files.append(('share/jupyter/nbextensions' + root[3:], [os.path.join(root, filename)]))
-
-data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/geppettoJupyter.css')))
-data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/GeppettoJupyter.js')))
-data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/index.js')))
-data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('src/jupyter_geppetto/overwrite_get_msg_cell.js')))
+data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('jupyter_geppetto/geppettoJupyter.css')))
+data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('jupyter_geppetto/GeppettoJupyter.js')))
+data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('jupyter_geppetto/index.js')))
 
 setuptools.setup(
     name="jupyter_geppetto",
@@ -26,8 +18,7 @@ setuptools.setup(
     description="Geppetto extension for Jupyter notebook",
     license="MIT",
     long_description=open('README.rst').read(),
-    packages=setuptools.find_packages('src'),
-    package_dir={'': 'src'},
+    packages=setuptools.find_packages(),
     data_files=data_files,
     include_package_data=True,
     classifiers=[
