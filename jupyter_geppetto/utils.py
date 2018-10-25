@@ -13,13 +13,13 @@ def getJSONError(message, details):
     data = {}
     data['type'] = 'ERROR'
     data['message'] = message
-    data['details'] = details
-    return json.dumps(data)
+    data['details'] = str(details)
+    return data
 
 def getJSONReply():
     data = {}
     data['type'] = 'OK'
-    return json.dumps(data)
+    return data
 
 def configure_logging():
     try:
