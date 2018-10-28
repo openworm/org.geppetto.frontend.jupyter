@@ -1,17 +1,17 @@
 import logging
-from jupyter_client import session
-# from zmq.utils import jsonapi
-# from ipykernel.jsonutil import json_clean
+# from jupyter_client import session
+from zmq.utils import jsonapi
+from ipykernel.jsonutil import json_clean
 
 def convertToJS(content):
-    return session.json_packer(content).decode("utf-8")
+    # return session.json_packer(content).decode("utf-8")
     # Old way: this needs to be deleted if the above line is enough
-    # return jsonapi.dumps(json_clean(content)).decode("utf-8")
+    return jsonapi.dumps(json_clean(content)).decode("utf-8")
 
 def convertToPython(content):
-    return session.json_unpacker(content)
+    # return session.json_unpacker(content)
     # Old way: this needs to be deleted if the above line is enough
-    # return jsonapi.loads(content)
+    return jsonapi.loads(content)
 
 def exception_to_string(exc_info):
     import IPython.core.ultratb
