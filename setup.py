@@ -70,7 +70,6 @@ setuptools.setup(
         'prompt-toolkit==1.0.15',
         'ptyprocess==0.6.0',
         'pyecore==0.8.7',
-        'pygeppetto==0.4.1',
         'Pygments==2.2.0',
         'pyparsing==2.2.0',
         'python-dateutil==2.7.3',
