@@ -5,13 +5,11 @@ import os
 
 #This block copies resources to the server so we avoid jupyter nbextension install --py --sys-prefix jupyter_geppetto
 data_files = []
-data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('jupyter_geppetto/geppettoJupyter.css')))
-data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('jupyter_geppetto/GeppettoJupyter.js')))
 data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('jupyter_geppetto/index.js')))
 
 setuptools.setup(
     name="jupyter_geppetto",
-    version="0.4.1.2",
+    version="0.4.1.5",
     url="https://github.com/openworm/org.geppetto.frontend.jupyter",
     author="The Geppetto Development Team",
     author_email="info@geppetto.org",
@@ -51,7 +49,6 @@ setuptools.setup(
         'jupyter-client==5.2.3',
         'jupyter-console==5.2.0',
         'jupyter-core==4.4.0',
-        'jupyter-geppetto==0.4.1.2',
         'kiwisolver==1.0.1',
         'lxml==4.2.4',
         'MarkupSafe==1.0',
@@ -70,7 +67,6 @@ setuptools.setup(
         'prompt-toolkit==1.0.15',
         'ptyprocess==0.6.0',
         'pyecore==0.8.7',
-        'pygeppetto==0.4.1',
         'Pygments==2.2.0',
         'pyparsing==2.2.0',
         'python-dateutil==2.7.3',
@@ -90,6 +86,6 @@ setuptools.setup(
         'webencodings==0.5.1',
         'widgetsnbextension==3.4.1',
         'jupyter==1.0.0',
-        'pygeppetto==0.4.1'
+        'pygeppetto==0.4.2'
     ],
 )
