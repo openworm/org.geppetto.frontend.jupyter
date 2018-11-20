@@ -57,7 +57,7 @@ define('jupyter_geppetto', function () {
 				model.get('parent').forceRender();
 			}
 			else {
-				if (this.component != undefined) {
+				if ((this.component != undefined) && (this.component._isMounted == true)) {
 					if (this.component.state.value !== value || this.component.state.searchText !== value) {
 						this.component.setState({ value: value, searchText: value, checked: (value || value == "True") });
 					}
