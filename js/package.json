@@ -1,6 +1,6 @@
 {
   "name": "org.geppetto.frontend.jupyter",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Geppetto frontend jupyter. Geppetto is an open-source platform to build web-based tools to visualize and simulate neuroscience data and models.",
   "repository": "http://git.geppetto.org",
   "license": "MIT",
