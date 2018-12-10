@@ -34,7 +34,8 @@ class GeppettoHandler(IPythonHandler):
 
     def get(self):
         try:
-            config = self.application.settings['config']
+            # config = self.application.settings['config']
+            config = {'library': 'netpyne_ui'}
             if 'library' in config:
                 # Create initial ipynb if it doesn't exist
                 if not os.path.isfile('notebook.ipynb'):
@@ -80,14 +81,13 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def on_close(self):
         pass
 
-
 def load_jupyter_server_extension(nbapp):
     
     try:
         nbapp.log.info("Geppetto Jupyter extension is running!")
 
         web_app = nbapp.web_app
-        config = web_app.settings['config']
+        # config = web_app.settings['config']
 
         host_pattern = '.*$'
         route_pattern = url_path_join(web_app.settings['base_url'], '/geppetto')
@@ -101,14 +101,17 @@ def load_jupyter_server_extension(nbapp):
         websocket_pattern = url_path_join(
             web_app.settings['base_url'], '/org.geppetto.frontend/GeppettoServlet')
         web_app.add_handlers(host_pattern, [(websocket_pattern, WebSocketHandler)])
-
+        
+        config = {'library': 'netpyne_ui'}
         if 'library' in config:
             nbapp.log.info("Geppetto Jupyter extension loading library: " + str(config['library']))
             template = pkg_resources.resource_filename(config['library'], 'geppetto/src/main/webapp/') # always use slash
-            web_app.add_handlers(host_pattern, [(r"/geppetto/(.*)", tornado.web.StaticFileHandler, {
-                                'path': template})])
-            web_app.add_handlers(host_pattern, [(r"/org.geppetto.frontend/geppetto/(.*)", tornado.web.StaticFileHandler, {
-                'path': template})])
+
+            resources_pattern = url_path_join(web_app.settings['base_url'], r"/org.geppetto.frontend/geppetto/(.*)")
+            web_app.add_handlers(host_pattern, [(resources_pattern, tornado.web.StaticFileHandler, {'path': template})])
+
+            resources_pattern2 = url_path_join(web_app.settings['base_url'], r"/geppetto/(.*)")
+            web_app.add_handlers(host_pattern, [(resources_pattern2, tornado.web.StaticFileHandler, {'path': template})])
         else:
             nbapp.log.warning('Package to load missing in the url')
             raise Exception
