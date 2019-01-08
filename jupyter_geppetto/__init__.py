@@ -34,8 +34,7 @@ class GeppettoHandler(IPythonHandler):
 
     def get(self):
         try:
-            # config = self.application.settings['config']
-            config = {'library': 'netpyne_ui'}
+            config = self.application.settings['config']
             if 'library' in config:
                 # Create initial ipynb if it doesn't exist
                 if not os.path.isfile('notebook.ipynb'):
@@ -87,7 +86,7 @@ def load_jupyter_server_extension(nbapp):
         nbapp.log.info("Geppetto Jupyter extension is running!")
 
         web_app = nbapp.web_app
-        # config = web_app.settings['config']
+        config = web_app.settings['config']
 
         host_pattern = '.*$'
         route_pattern = url_path_join(web_app.settings['base_url'], '/geppetto')
@@ -102,7 +101,6 @@ def load_jupyter_server_extension(nbapp):
             web_app.settings['base_url'], '/org.geppetto.frontend/GeppettoServlet')
         web_app.add_handlers(host_pattern, [(websocket_pattern, WebSocketHandler)])
         
-        config = {'library': 'netpyne_ui'}
         if 'library' in config:
             nbapp.log.info("Geppetto Jupyter extension loading library: " + str(config['library']))
             template = pkg_resources.resource_filename(config['library'], 'geppetto/src/main/webapp/') # always use slash
