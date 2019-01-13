@@ -27,7 +27,7 @@ function load_extension() {
 		// Load the project & activate the experiment
 		var project = { id: 1, name: 'Project', experiments: [{ "id": 1, "name": 'Experiment', "status": 'DESIGN' }] }
 		window.parent.GEPPETTO.Manager.loadProject(project, false);
-		window.parent.GEPPETTO.Manager.loadExperiment(1, [], []);
+		// window.parent.GEPPETTO.Manager.loadExperiment(1, [], []);
 
 		// Trigger event for the extension (ComponentInitialization) to run custom code
 		window.parent.GEPPETTO.trigger('jupyter_geppetto_extension_ready')
