@@ -51,10 +51,7 @@ class GeppettoHandler(IPythonHandler):
                 self.write('Package to load missing in the url')
         except Exception:
             self.log.info('Error on Geppetto Server extension')
-            traceback.print_exc()
-        
-        
-
+            traceback.print_exc()      
 
 class GeppettoProjectsHandler(IPythonHandler):
 
@@ -100,7 +97,7 @@ def load_jupyter_server_extension(nbapp):
         websocket_pattern = url_path_join(
             web_app.settings['base_url'], '/org.geppetto.frontend/GeppettoServlet')
         web_app.add_handlers(host_pattern, [(websocket_pattern, WebSocketHandler)])
-        
+
         if 'library' in config:
             nbapp.log.info("Geppetto Jupyter extension loading library: " + str(config['library']))
             template = pkg_resources.resource_filename(config['library'], 'geppetto/src/main/webapp/') # always use slash
