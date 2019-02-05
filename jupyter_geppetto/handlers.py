@@ -1,0 +1,35 @@
+from notebook.base.handlers import IPythonHandler
+import tornado
+import os
+
+
+webapp_path = './static/org.geppetto.frontend/src/main/webapp/'
+template_path = webapp_path + 'build/geppetto.vm'
+
+
+class GeppettoHandler(IPythonHandler):
+
+    def get(self):
+        try:
+
+            template = template_path
+            self.write(open(template).read())
+        except Exception:
+            self.log.info('Error on Geppetto Server extension')
+            traceback.print_exc()
+
+
+class GeppettoProjectsHandler(IPythonHandler):
+
+    def get(self):
+        self.write({})
+
+
+class GeppettoStaticHandler(tornado.web.StaticFileHandler):
+
+    def initialize(self):
+        if not os.path.exists(webapp_path):
+            raise Exception("Webapp path not recognized: {}. Check configuration on file {}".format(
+                            webapp_path, os.path.dirname(os.path.realpath(__file__))))
+        # self.log.debug("Initializing static resources from {}".format(webapp_path))
+        tornado.web.StaticFileHandler.initialize(self, webapp_path)

@@ -48,3 +48,13 @@ def configure_logging():
     except Exception as exception:
         logging.exception("Unexpected error while initializing Geppetto from Python:")
         logging.error(exception)
+
+
+def createNotebook(filename):
+    import nbformat as nbf
+    from nbformat.v4.nbbase import new_notebook
+    import codecs
+    nb0 = new_notebook(cells=[], metadata={'language': 'python',})
+    f = codecs.open(filename, encoding='utf-8', mode='w')
+    nbf.write(nb0, f, 4)
+    f.close()
