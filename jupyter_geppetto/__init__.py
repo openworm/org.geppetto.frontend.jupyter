@@ -99,7 +99,7 @@ def load_jupyter_server_extension(nbapp):
         web_app = nbapp.web_app
         config = web_app.settings['config']
 
-        if not os.path.isfile(notebook_path):
+        if not os.path.exists(notebook_path):
             nbapp.log.info("Creating notebook {}".format(notebook_path))
             createNotebook(notebook_path)
         else:
@@ -112,10 +112,11 @@ def load_jupyter_server_extension(nbapp):
         if 'library' in config:
             modules = config['library'].split(',')
             for moduleName in modules:
+                nbapp.log.info('Initializing library module {}'.format(moduleName))
                 module = __import__(moduleName)
-                nbapp.log.info('Initializing library module {}', moduleName)
+                
                 if hasattr(module, 'routes'):
-                    nbapp.log.info('Adding routes from module {}', moduleName)
+                    nbapp.log.info('Adding routes from module {}'.format(moduleName))
                     routes += module.routes
 
         _add_routes(nbapp, routes, host_pattern)

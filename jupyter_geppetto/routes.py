@@ -1,12 +1,12 @@
-import jupyter_geppetto.handlers as handlers
-
+from jupyter_geppetto import handlers
+from jupyter_geppetto.webapi import Route
 routes = []
 
 
-class Route:
-    def __init__(self, path, handler):
-        self.path = path
-        self.handler = handler
+
+def get(fn, path):
+    '''Annotation for get paths'''
+    fn.path = path
 
 
 routes.append(Route("/geppetto", handlers.GeppettoHandler))
