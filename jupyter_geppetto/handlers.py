@@ -3,7 +3,7 @@ import tornado
 import os
 
 
-webapp_path = './static/org.geppetto.frontend/src/main/webapp/'
+webapp_path = './webapp/'
 template_path = webapp_path + 'build/geppetto.vm'
 
 
@@ -26,7 +26,8 @@ class GeppettoProjectsHandler(IPythonHandler):
 
 
 class GeppettoStaticHandler(tornado.web.StaticFileHandler):
-
+    '''Serves the Geppetto web application'''
+    
     def initialize(self):
         if not os.path.exists(webapp_path):
             raise Exception("Webapp path not recognized: {}. Check configuration on file {}".format(
