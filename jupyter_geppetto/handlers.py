@@ -1,8 +1,13 @@
 from notebook.base.handlers import IPythonHandler
 import tornado
+<<<<<<< HEAD
 import tornado.web
 import os
 import logging
+=======
+import os
+
+>>>>>>> 12e321e91602daf635ef2e7a0c1fca48348889ff
 
 webapp_path = './webapp/'
 template_path = webapp_path + 'build/geppetto.vm'
@@ -10,6 +15,7 @@ template_path = webapp_path + 'build/geppetto.vm'
 
 class GeppettoHandler(IPythonHandler):
 
+<<<<<<< HEAD
     def get(self, *args):
         try:
             template = template_path
@@ -17,6 +23,16 @@ class GeppettoHandler(IPythonHandler):
         except Exception:
             logging.info('Error on Geppetto Server extension')
             raise
+=======
+    def get(self):
+        try:
+
+            template = template_path
+            self.write(open(template).read())
+        except Exception:
+            self.log.info('Error on Geppetto Server extension')
+            traceback.print_exc()
+>>>>>>> 12e321e91602daf635ef2e7a0c1fca48348889ff
 
 
 class GeppettoProjectsHandler(IPythonHandler):

@@ -11,6 +11,11 @@ from nbformat.v4.nbbase import new_notebook
 import pkg_resources
 import traceback
 from jupyter_geppetto.utils import createNotebook
+<<<<<<< HEAD
+=======
+
+notebook_path = 'notebook.ipynb'
+>>>>>>> 12e321e91602daf635ef2e7a0c1fca48348889ff
 
 notebook_path = 'notebook.ipynb'
 host_pattern = '.*$'
@@ -59,6 +64,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             })
         })
     }
+<<<<<<< HEAD
 
     def open(self):
         # 1 -> Send the connection
@@ -112,6 +118,39 @@ def initRoutes(nbapp, base_path):
                 routes += module.routes
 
     _add_routes(nbapp, routes, host_pattern, base_path)
+=======
+
+    def open(self):
+        # 1 -> Send the connection
+        self.write_message(json.dumps(self.CLIENT_ID))
+        # 2 -> Check user privileges
+        self.write_message(json.dumps(self.PRIVILEGES))
+
+    def on_message(self, message):
+        payload = json.loads(message)
+
+        if (payload['type'] == 'geppetto_version'):
+
+            self.write_message(json.dumps({
+                "requestID": payload['requestID'],
+                "type": "geppetto_version",
+                "data": json.dumps({
+                        "geppetto_version": "0.4.2"
+                })
+            }))
+
+    # def on_close(self):
+    #     self.write_message(json.dumps({
+    #         'type': 'socket_closed',
+    #         'data': ''
+    #     }))
+
+
+def _add_routes(nbapp, routes, host_pattern = '.*$'):
+    for route in routes:
+        nbapp.log.info('Adding http route {}'.format(route.path))
+        nbapp.web_app.add_handlers(host_pattern, [(route.path, route.handler)])
+>>>>>>> 12e321e91602daf635ef2e7a0c1fca48348889ff
 
     websocket_pattern = url_path_join(
         base_path, '/org.geppetto.frontend/GeppettoServlet')
@@ -122,8 +161,14 @@ def load_jupyter_server_extension(nbapp):
 
     try:
         nbapp.log.info("Starting Geppetto Jupyter extension")
+<<<<<<< HEAD
 
 
+=======
+
+        web_app = nbapp.web_app
+        config = web_app.settings['config']
+>>>>>>> 12e321e91602daf635ef2e7a0c1fca48348889ff
 
         if not os.path.exists(notebook_path):
             nbapp.log.info("Creating notebook {}".format(notebook_path))
@@ -131,6 +176,7 @@ def load_jupyter_server_extension(nbapp):
         else:
             nbapp.log.info("Using notebook {}".format(notebook_path))
 
+<<<<<<< HEAD
 
 
         # base_url = 'base_url' if 'base_url' in config else config['base_url']
@@ -180,6 +226,28 @@ def load_jupyter_server_extension(nbapp):
 
 
 
+=======
+        host_pattern = '.*$'
+        # TODO implement a hook mechanism to get routes from outside
+        from jupyter_geppetto.routes import routes
+
+        if 'library' in config:
+            modules = config['library'].split(',')
+            for moduleName in modules:
+                nbapp.log.info('Initializing library module {}'.format(moduleName))
+                module = __import__(moduleName)
+                
+                if hasattr(module, 'routes'):
+                    nbapp.log.info('Adding routes from module {}'.format(moduleName))
+                    routes += module.routes
+
+        _add_routes(nbapp, routes, host_pattern)
+
+        websocket_pattern = url_path_join(
+            web_app.settings['base_url'], '/org.geppetto.frontend/GeppettoServlet')
+        web_app.add_handlers(
+            host_pattern, [(websocket_pattern, WebSocketHandler)])
+>>>>>>> 12e321e91602daf635ef2e7a0c1fca48348889ff
 
         nbapp.log.info("Geppetto Jupyter extension is running!")
 
