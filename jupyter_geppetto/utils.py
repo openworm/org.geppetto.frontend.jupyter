@@ -39,7 +39,7 @@ def configure_logging():
     try:
         # Configure log
         logger = logging.getLogger()
-        fhandler = logging.FileHandler(filename='netpyne-ui.log', mode='a')
+        fhandler = logging.FileHandler(filename='app.log', mode='a')
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         fhandler.setFormatter(formatter)
         logger.addHandler(fhandler)

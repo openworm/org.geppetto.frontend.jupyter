@@ -1,52 +1,86 @@
 from notebook.base.handlers import IPythonHandler
-import tornado
-<<<<<<< HEAD
-import tornado.web
-import os
+from tornado.websocket import WebSocketHandler
 import logging
-=======
-import os
-
->>>>>>> 12e321e91602daf635ef2e7a0c1fca48348889ff
-
-webapp_path = './webapp/'
-template_path = webapp_path + 'build/geppetto.vm'
+from .settings import webapp_directory_default, template_path
+from .webapi import get, RouteManager
+import json
+import codecs
+import jupyter_geppetto.settings as settings
 
 
-class GeppettoHandler(IPythonHandler):
+class GeppettoController:
 
-<<<<<<< HEAD
-    def get(self, *args):
+    @get('/geppettoprojects')
+    def getProjects(self, **kwargs):
+        # TODO still no project handling here.
+        return {}
+
+    @get('/geppetto')
+    def getProject(self, **kwargs):
         try:
             template = template_path
-            self.write(open(template).read())
+            return open(template).read()
         except Exception:
             logging.info('Error on Geppetto Server extension')
             raise
-=======
-    def get(self):
-        try:
-
-            template = template_path
-            self.write(open(template).read())
-        except Exception:
-            self.log.info('Error on Geppetto Server extension')
-            traceback.print_exc()
->>>>>>> 12e321e91602daf635ef2e7a0c1fca48348889ff
 
 
-class GeppettoProjectsHandler(IPythonHandler):
+class GeppettoWebSocketHandler(WebSocketHandler):
+    CLIENT_ID = {
+        'type': 'client_id',
+        'data': json.dumps({
+            'clientID': 'Connection1'
+        })
+    }
 
-    def get(self):
-        self.write({})
+    PRIVILEGES = {
+        'type': 'user_privileges',
+        'data': json.dumps({
+            "user_privileges": json.dumps({
+                "userName": "Python User",
+                "loggedIn": True,
+                "hasPersistence": False,
+                "privileges": [
+                    "READ_PROJECT",
+                    "DOWNLOAD",
+                    "DROPBOX_INTEGRATION",
+                    "RUN_EXPERIMENT",
+                    "WRITE_PROJECT"
+                ]
+            })
+        })
+    }
+
+    def open(self):
+        # 1 -> Send the connection
+        logging.debug('Open websocket')
+        self.write_message(json.dumps(self.CLIENT_ID))
+        # 2 -> Check user privileges
+        self.write_message(json.dumps(self.PRIVILEGES))
+
+    def on_message(self, message):
+
+        payload = json.loads(message)
+        assert 'type' in payload, 'Websocket message without type received: {}'.format(payload)
+
+        logging.debug('Websocket message received: {}', payload['type'])
+        # TODO only the geppetto_version message is handled by now
+        if (payload['type'] == 'geppetto_version'):
+
+            self.write_message(json.dumps({
+                "requestID": payload['requestID'],
+                "type": "geppetto_version",
+                "data": json.dumps({
+                        "geppetto_version": settings.geppetto_version
+                })
+            }))
+        else:
+            raise Exception('Message type not handled', payload['type'])
+
+    # def on_close(self):
+    #     self.write_message(json.dumps({
+    #         'type': 'socket_closed',
+    #         'data': ''
+    #     }))
 
 
-class GeppettoStaticHandler(tornado.web.StaticFileHandler):
-    '''Serves the Geppetto web application'''
-    
-    def initialize(self):
-        if not os.path.exists(webapp_path):
-            raise Exception("Webapp path not recognized: {}. Check configuration on file {}".format(
-                            webapp_path, os.path.dirname(os.path.realpath(__file__))))
-        # self.log.debug("Initializing static resources from {}".format(webapp_path))
-        tornado.web.StaticFileHandler.initialize(self, webapp_path)
