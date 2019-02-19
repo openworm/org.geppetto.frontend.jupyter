@@ -43,6 +43,7 @@ class GeppettoStaticHandler(StaticFileHandler):
         # self.log.debug("Initializing static resources from {}".format(webapp_path))
         StaticFileHandler.initialize(self, path)
 
+
 @export
 class RouteManager:
     '''Gives an access point to define routes and relates controllers/handlers'''
@@ -88,7 +89,14 @@ def tornado_action(path, method):
         def handlerFn(self, *args):
             logging.info('Calling {}'.format(fn.__name__))
             function_arguments = fn.__code__.co_varnames
-            kwargs = {name: self.get_query_argument(name) for name in function_arguments[len(args) + 1:] if self.get_query_argument(name, None) != None}
+            kwargs = {name: self.get_query_argument(name)
+                      for name in function_arguments[len(args) + 1:]
+                      if self.get_query_argument(name, None) != None
+                      }
+            kwargs.update({name: self.get_body_argument(name)
+                           for name in function_arguments[len(args) + 1:]
+                           if self.get_body_argument(name, None) != None
+                           })
             logging.debug('Positional arguments: {}'.format(args))
             logging.debug('Keyword arguments: {}'.format(kwargs))
             value = fn(self, *args, **kwargs)
@@ -112,7 +120,6 @@ def get(path):
 @export
 def post(path):
     '''Annotation for post actions'''
-    # TODO handle POST payload
     return tornado_action(path, METHODS.POST)
 
 
