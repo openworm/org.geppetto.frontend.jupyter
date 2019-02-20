@@ -3,6 +3,7 @@ import logging
 from zmq.utils import jsonapi
 from ipykernel.jsonutil import json_clean
 
+
 def convertToJS(content):
     # return session.json_packer(content).decode("utf-8")
     # Old way: this needs to be deleted if the above line is enough
@@ -58,3 +59,4 @@ def createNotebook(filename):
     f = codecs.open(filename, encoding='utf-8', mode='w')
     nbf.write(nb0, f, 4)
     f.close()
+

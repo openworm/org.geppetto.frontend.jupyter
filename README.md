@@ -15,8 +15,10 @@ How to install extension from sources:
 ```bash
 git clone --recursive https://github.com/openworm/org.geppetto.frontend.jupyter.git
 pip install .
-jupyter nbextension install --py jupyter_geppetto
+
+jupyter nbextension install --py --symlink --sys-prefix jupyter_geppetto
 jupyter nbextension enable --py jupyter_geppetto
+jupyter serverextension enable --py jupyter_geppetto
 ```
 To overwrite the local install:
 ```bash

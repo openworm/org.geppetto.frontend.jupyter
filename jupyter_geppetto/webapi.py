@@ -3,10 +3,9 @@ Define decorators to easily define action controllers
 
 '''
 from tornado.web import RequestHandler, StaticFileHandler
-import os
 import logging
+from jupyter_geppetto import utils
 
-from jupyter_geppetto.settings import webapp_directory_default
 
 import sys
 
@@ -31,17 +30,6 @@ class Route:
     def __init__(self, path, handler):
         self.path = path
         self.handler = handler
-
-
-class GeppettoStaticHandler(StaticFileHandler):
-    '''Serves the Geppetto web application'''
-
-    def initialize(self, path=webapp_directory_default):
-        if not os.path.exists(path):
-            raise Exception("Webapp path not recognized: {}. Check configuration on file {}".format(
-                path, os.path.dirname(os.path.realpath(__file__))))
-        # self.log.debug("Initializing static resources from {}".format(webapp_path))
-        StaticFileHandler.initialize(self, path)
 
 
 @export

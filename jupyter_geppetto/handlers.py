@@ -1,10 +1,9 @@
-from notebook.base.handlers import IPythonHandler
 from tornado.websocket import WebSocketHandler
 import logging
-from .settings import webapp_directory_default, template_path
-from .webapi import get, RouteManager
+from .settings import template_path, home_page
+from .webapi import get
 import json
-import codecs
+from jupyter_geppetto.service import PathService
 import jupyter_geppetto.settings as settings
 
 
@@ -15,11 +14,11 @@ class GeppettoController:
         # TODO still no project handling here.
         return {}
 
-    @get('/geppetto')
-    def getProject(self, **kwargs):
+    @get(home_page)
+    def index(self, **kwargs):
         try:
             template = template_path
-            return open(template).read()
+            return open(PathService.get_webapp_resource(template)).read()
         except Exception:
             logging.info('Error on Geppetto Server extension')
             raise
