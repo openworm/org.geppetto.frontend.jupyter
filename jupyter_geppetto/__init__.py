@@ -100,12 +100,12 @@ def load_jupyter_server_extension(nbapp):
 
         if 'library' in config:
             nbapp.log.info("Geppetto Jupyter extension loading library: " + str(config['library']))
-            template = pkg_resources.resource_filename(config['library'], 'geppetto/src/main/webapp/') # always use slash
+            template = pkg_resources.resource_filename(config['library'], '../geppetto-hnn/') # always use slash
 
             resources_pattern = url_path_join(web_app.settings['base_url'], r"/org.geppetto.frontend/geppetto/(.*)")
             web_app.add_handlers(host_pattern, [(resources_pattern, tornado.web.StaticFileHandler, {'path': template})])
 
-            resources_pattern2 = url_path_join(web_app.settings['base_url'], r"../geppetto-hnn/(.*)")
+            resources_pattern2 = url_path_join(web_app.settings['base_url'], r"/geppetto-hnn/(.*)")
             web_app.add_handlers(host_pattern, [(resources_pattern2, tornado.web.StaticFileHandler, {'path': template})])
         else:
             nbapp.log.warning('Package to load missing in the url')
