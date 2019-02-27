@@ -105,7 +105,7 @@ def load_jupyter_server_extension(nbapp):
             resources_pattern = url_path_join(web_app.settings['base_url'], r"/org.geppetto.frontend/geppetto/(.*)")
             web_app.add_handlers(host_pattern, [(resources_pattern, tornado.web.StaticFileHandler, {'path': template})])
 
-            resources_pattern2 = url_path_join(web_app.settings['base_url'], r"/geppetto-hnn/(.*)")
+            resources_pattern2 = url_path_join(web_app.settings['base_url'], r"/geppetto/(.*)")
             web_app.add_handlers(host_pattern, [(resources_pattern2, tornado.web.StaticFileHandler, {'path': template})])
         else:
             nbapp.log.warning('Package to load missing in the url')
