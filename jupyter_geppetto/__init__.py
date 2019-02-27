@@ -44,7 +44,7 @@ class GeppettoHandler(IPythonHandler):
                     nbf.write(nb0, f, 4)
                     f.close()
 
-                template = pkg_resources.resource_filename(config['library'], 'geppetto/src/main/webapp/build/geppetto.vm')
+                template = pkg_resources.resource_filename(config['library'], '../geppetto-hnn/build/geppetto.vm')
                 self.write(open(template).read())
             else:
                 self.log.warning('Package to load missing in the url')
@@ -105,7 +105,7 @@ def load_jupyter_server_extension(nbapp):
             resources_pattern = url_path_join(web_app.settings['base_url'], r"/org.geppetto.frontend/geppetto/(.*)")
             web_app.add_handlers(host_pattern, [(resources_pattern, tornado.web.StaticFileHandler, {'path': template})])
 
-            resources_pattern2 = url_path_join(web_app.settings['base_url'], r"/geppetto/(.*)")
+            resources_pattern2 = url_path_join(web_app.settings['base_url'], r"../geppetto-hnn/(.*)")
             web_app.add_handlers(host_pattern, [(resources_pattern2, tornado.web.StaticFileHandler, {'path': template})])
         else:
             nbapp.log.warning('Package to load missing in the url')
