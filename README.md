@@ -17,8 +17,8 @@ git clone --recursive https://github.com/openworm/org.geppetto.frontend.jupyter.
 pip install .
 
 jupyter nbextension install --py --symlink --sys-prefix jupyter_geppetto
-jupyter nbextension enable --py jupyter_geppetto
-jupyter serverextension enable --py jupyter_geppetto
+jupyter nbextension enable --py --sys-prefix jupyter_geppetto
+jupyter serverextension enable --py --sys-prefix jupyter_geppetto
 ```
 To overwrite the local install:
 ```bash

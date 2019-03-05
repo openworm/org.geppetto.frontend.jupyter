@@ -97,7 +97,7 @@ if (typeof Object.create === 'function') {
 /***/ (function(module, exports, __webpack_require__) {
 
 /* eslint-disable node/no-deprecated-api */
-var buffer = __webpack_require__(4)
+var buffer = __webpack_require__(5)
 var Buffer = buffer.Buffer
 
 // alternative to using Object.keys for old browsers
@@ -3634,6 +3634,972 @@ __export(__webpack_require__(308));
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+/*-----------------------------------------------------------------------------
+| Copyright (c) 2014-2017, PhosphorJS Contributors
+|
+| Distributed under the terms of the BSD 3-Clause License.
+|
+| The full license is in the file LICENSE, distributed with this software.
+|----------------------------------------------------------------------------*/
+var algorithm_1 = __webpack_require__(2);
+var messaging_1 = __webpack_require__(7);
+var properties_1 = __webpack_require__(24);
+var signaling_1 = __webpack_require__(11);
+var title_1 = __webpack_require__(68);
+/**
+ * The base class of the Phosphor widget hierarchy.
+ *
+ * #### Notes
+ * This class will typically be subclassed in order to create a useful
+ * widget. However, it can be used directly to host externally created
+ * content.
+ */
+var Widget = (function () {
+    /**
+     * Construct a new widget.
+     *
+     * @param options - The options for initializing the widget.
+     */
+    function Widget(options) {
+        if (options === void 0) { options = {}; }
+        this._flags = 0;
+        this._layout = null;
+        this._parent = null;
+        this._disposed = new signaling_1.Signal(this);
+        this.node = Private.createNode(options);
+        this.addClass('p-Widget');
+    }
+    /**
+     * Dispose of the widget and its descendant widgets.
+     *
+     * #### Notes
+     * It is unsafe to use the widget after it has been disposed.
+     *
+     * All calls made to this method after the first are a no-op.
+     */
+    Widget.prototype.dispose = function () {
+        // Do nothing if the widget is already disposed.
+        if (this.isDisposed) {
+            return;
+        }
+        // Set the disposed flag and emit the disposed signal.
+        this.setFlag(Widget.Flag.IsDisposed);
+        this._disposed.emit(undefined);
+        // Remove or detach the widget if necessary.
+        if (this.parent) {
+            this.parent = null;
+        }
+        else if (this.isAttached) {
+            Widget.detach(this);
+        }
+        // Dispose of the widget layout.
+        if (this._layout) {
+            this._layout.dispose();
+            this._layout = null;
+        }
+        // Clear the extra data associated with the widget.
+        signaling_1.Signal.clearData(this);
+        messaging_1.MessageLoop.clearData(this);
+        properties_1.AttachedProperty.clearData(this);
+    };
+    Object.defineProperty(Widget.prototype, "disposed", {
+        /**
+         * A signal emitted when the widget is disposed.
+         */
+        get: function () {
+            return this._disposed;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Widget.prototype, "isDisposed", {
+        /**
+         * Test whether the widget has been disposed.
+         */
+        get: function () {
+            return this.testFlag(Widget.Flag.IsDisposed);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Widget.prototype, "isAttached", {
+        /**
+         * Test whether the widget's node is attached to the DOM.
+         */
+        get: function () {
+            return this.testFlag(Widget.Flag.IsAttached);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Widget.prototype, "isHidden", {
+        /**
+         * Test whether the widget is explicitly hidden.
+         */
+        get: function () {
+            return this.testFlag(Widget.Flag.IsHidden);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Widget.prototype, "isVisible", {
+        /**
+         * Test whether the widget is visible.
+         *
+         * #### Notes
+         * A widget is visible when it is attached to the DOM, is not
+         * explicitly hidden, and has no explicitly hidden ancestors.
+         */
+        get: function () {
+            return this.testFlag(Widget.Flag.IsVisible);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Widget.prototype, "title", {
+        /**
+         * The title object for the widget.
+         *
+         * #### Notes
+         * The title object is used by some container widgets when displaying
+         * the widget alongside some title, such as a tab panel or side bar.
+         *
+         * Since not all widgets will use the title, it is created on demand.
+         *
+         * The `owner` property of the title is set to this widget.
+         */
+        get: function () {
+            return Private.titleProperty.get(this);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Widget.prototype, "id", {
+        /**
+         * Get the id of the widget's DOM node.
+         */
+        get: function () {
+            return this.node.id;
+        },
+        /**
+         * Set the id of the widget's DOM node.
+         */
+        set: function (value) {
+            this.node.id = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Widget.prototype, "dataset", {
+        /**
+         * The dataset for the widget's DOM node.
+         */
+        get: function () {
+            return this.node.dataset;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Widget.prototype, "parent", {
+        /**
+         * Get the parent of the widget.
+         */
+        get: function () {
+            return this._parent;
+        },
+        /**
+         * Set the parent of the widget.
+         *
+         * #### Notes
+         * Children are typically added to a widget by using a layout, which
+         * means user code will not normally set the parent widget directly.
+         *
+         * The widget will be automatically removed from its old parent.
+         *
+         * This is a no-op if there is no effective parent change.
+         */
+        set: function (value) {
+            if (this._parent === value) {
+                return;
+            }
+            if (value && this.contains(value)) {
+                throw new Error('Invalid parent widget.');
+            }
+            if (this._parent && !this._parent.isDisposed) {
+                var msg = new Widget.ChildMessage('child-removed', this);
+                messaging_1.MessageLoop.sendMessage(this._parent, msg);
+            }
+            this._parent = value;
+            if (this._parent && !this._parent.isDisposed) {
+                var msg = new Widget.ChildMessage('child-added', this);
+                messaging_1.MessageLoop.sendMessage(this._parent, msg);
+            }
+            if (!this.isDisposed) {
+                messaging_1.MessageLoop.sendMessage(this, Widget.Msg.ParentChanged);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Widget.prototype, "layout", {
+        /**
+         * Get the layout for the widget.
+         */
+        get: function () {
+            return this._layout;
+        },
+        /**
+         * Set the layout for the widget.
+         *
+         * #### Notes
+         * The layout is single-use only. It cannot be changed after the
+         * first assignment.
+         *
+         * The layout is disposed automatically when the widget is disposed.
+         */
+        set: function (value) {
+            if (this._layout === value) {
+                return;
+            }
+            if (this.testFlag(Widget.Flag.DisallowLayout)) {
+                throw new Error('Cannot set widget layout.');
+            }
+            if (this._layout) {
+                throw new Error('Cannot change widget layout.');
+            }
+            if (value.parent) {
+                throw new Error('Cannot change layout parent.');
+            }
+            this._layout = value;
+            value.parent = this;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Create an iterator over the widget's children.
+     *
+     * @returns A new iterator over the children of the widget.
+     *
+     * #### Notes
+     * The widget must have a populated layout in order to have children.
+     *
+     * If a layout is not installed, the returned iterator will be empty.
+     */
+    Widget.prototype.children = function () {
+        return this._layout ? this._layout.iter() : algorithm_1.empty();
+    };
+    /**
+     * Test whether a widget is a descendant of this widget.
+     *
+     * @param widget - The descendant widget of interest.
+     *
+     * @returns `true` if the widget is a descendant, `false` otherwise.
+     */
+    Widget.prototype.contains = function (widget) {
+        for (var value = widget; value; value = value._parent) {
+            if (value === this) {
+                return true;
+            }
+        }
+        return false;
+    };
+    /**
+     * Test whether the widget's DOM node has the given class name.
+     *
+     * @param name - The class name of interest.
+     *
+     * @returns `true` if the node has the class, `false` otherwise.
+     */
+    Widget.prototype.hasClass = function (name) {
+        return this.node.classList.contains(name);
+    };
+    /**
+     * Add a class name to the widget's DOM node.
+     *
+     * @param name - The class name to add to the node.
+     *
+     * #### Notes
+     * If the class name is already added to the node, this is a no-op.
+     *
+     * The class name must not contain whitespace.
+     */
+    Widget.prototype.addClass = function (name) {
+        this.node.classList.add(name);
+    };
+    /**
+     * Remove a class name from the widget's DOM node.
+     *
+     * @param name - The class name to remove from the node.
+     *
+     * #### Notes
+     * If the class name is not yet added to the node, this is a no-op.
+     *
+     * The class name must not contain whitespace.
+     */
+    Widget.prototype.removeClass = function (name) {
+        this.node.classList.remove(name);
+    };
+    /**
+     * Toggle a class name on the widget's DOM node.
+     *
+     * @param name - The class name to toggle on the node.
+     *
+     * @param force - Whether to force add the class (`true`) or force
+     *   remove the class (`false`). If not provided, the presence of
+     *   the class will be toggled from its current state.
+     *
+     * @returns `true` if the class is now present, `false` otherwise.
+     *
+     * #### Notes
+     * The class name must not contain whitespace.
+     */
+    Widget.prototype.toggleClass = function (name, force) {
+        if (force === true) {
+            this.node.classList.add(name);
+            return true;
+        }
+        if (force === false) {
+            this.node.classList.remove(name);
+            return false;
+        }
+        return this.node.classList.toggle(name);
+    };
+    /**
+     * Post an `'update-request'` message to the widget.
+     *
+     * #### Notes
+     * This is a simple convenience method for posting the message.
+     */
+    Widget.prototype.update = function () {
+        messaging_1.MessageLoop.postMessage(this, Widget.Msg.UpdateRequest);
+    };
+    /**
+     * Post a `'fit-request'` message to the widget.
+     *
+     * #### Notes
+     * This is a simple convenience method for posting the message.
+     */
+    Widget.prototype.fit = function () {
+        messaging_1.MessageLoop.postMessage(this, Widget.Msg.FitRequest);
+    };
+    /**
+     * Post an `'activate-request'` message to the widget.
+     *
+     * #### Notes
+     * This is a simple convenience method for posting the message.
+     */
+    Widget.prototype.activate = function () {
+        messaging_1.MessageLoop.postMessage(this, Widget.Msg.ActivateRequest);
+    };
+    /**
+     * Send a `'close-request'` message to the widget.
+     *
+     * #### Notes
+     * This is a simple convenience method for sending the message.
+     */
+    Widget.prototype.close = function () {
+        messaging_1.MessageLoop.sendMessage(this, Widget.Msg.CloseRequest);
+    };
+    /**
+     * Show the widget and make it visible to its parent widget.
+     *
+     * #### Notes
+     * This causes the [[isHidden]] property to be `false`.
+     *
+     * If the widget is not explicitly hidden, this is a no-op.
+     */
+    Widget.prototype.show = function () {
+        if (!this.testFlag(Widget.Flag.IsHidden)) {
+            return;
+        }
+        if (this.isAttached && (!this.parent || this.parent.isVisible)) {
+            messaging_1.MessageLoop.sendMessage(this, Widget.Msg.BeforeShow);
+        }
+        this.clearFlag(Widget.Flag.IsHidden);
+        this.removeClass('p-mod-hidden');
+        if (this.isAttached && (!this.parent || this.parent.isVisible)) {
+            messaging_1.MessageLoop.sendMessage(this, Widget.Msg.AfterShow);
+        }
+        if (this.parent) {
+            var msg = new Widget.ChildMessage('child-shown', this);
+            messaging_1.MessageLoop.sendMessage(this.parent, msg);
+        }
+    };
+    /**
+     * Hide the widget and make it hidden to its parent widget.
+     *
+     * #### Notes
+     * This causes the [[isHidden]] property to be `true`.
+     *
+     * If the widget is explicitly hidden, this is a no-op.
+     */
+    Widget.prototype.hide = function () {
+        if (this.testFlag(Widget.Flag.IsHidden)) {
+            return;
+        }
+        if (this.isAttached && (!this.parent || this.parent.isVisible)) {
+            messaging_1.MessageLoop.sendMessage(this, Widget.Msg.BeforeHide);
+        }
+        this.setFlag(Widget.Flag.IsHidden);
+        this.addClass('p-mod-hidden');
+        if (this.isAttached && (!this.parent || this.parent.isVisible)) {
+            messaging_1.MessageLoop.sendMessage(this, Widget.Msg.AfterHide);
+        }
+        if (this.parent) {
+            var msg = new Widget.ChildMessage('child-hidden', this);
+            messaging_1.MessageLoop.sendMessage(this.parent, msg);
+        }
+    };
+    /**
+     * Show or hide the widget according to a boolean value.
+     *
+     * @param hidden - `true` to hide the widget, or `false` to show it.
+     *
+     * #### Notes
+     * This is a convenience method for `hide()` and `show()`.
+     */
+    Widget.prototype.setHidden = function (hidden) {
+        if (hidden) {
+            this.hide();
+        }
+        else {
+            this.show();
+        }
+    };
+    /**
+     * Test whether the given widget flag is set.
+     *
+     * #### Notes
+     * This will not typically be called directly by user code.
+     */
+    Widget.prototype.testFlag = function (flag) {
+        return (this._flags & flag) !== 0;
+    };
+    /**
+     * Set the given widget flag.
+     *
+     * #### Notes
+     * This will not typically be called directly by user code.
+     */
+    Widget.prototype.setFlag = function (flag) {
+        this._flags |= flag;
+    };
+    /**
+     * Clear the given widget flag.
+     *
+     * #### Notes
+     * This will not typically be called directly by user code.
+     */
+    Widget.prototype.clearFlag = function (flag) {
+        this._flags &= ~flag;
+    };
+    /**
+     * Process a message sent to the widget.
+     *
+     * @param msg - The message sent to the widget.
+     *
+     * #### Notes
+     * Subclasses may reimplement this method as needed.
+     */
+    Widget.prototype.processMessage = function (msg) {
+        switch (msg.type) {
+            case 'resize':
+                this.notifyLayout(msg);
+                this.onResize(msg);
+                break;
+            case 'update-request':
+                this.notifyLayout(msg);
+                this.onUpdateRequest(msg);
+                break;
+            case 'fit-request':
+                this.notifyLayout(msg);
+                this.onFitRequest(msg);
+                break;
+            case 'before-show':
+                this.notifyLayout(msg);
+                this.onBeforeShow(msg);
+                break;
+            case 'after-show':
+                this.setFlag(Widget.Flag.IsVisible);
+                this.notifyLayout(msg);
+                this.onAfterShow(msg);
+                break;
+            case 'before-hide':
+                this.notifyLayout(msg);
+                this.onBeforeHide(msg);
+                break;
+            case 'after-hide':
+                this.clearFlag(Widget.Flag.IsVisible);
+                this.notifyLayout(msg);
+                this.onAfterHide(msg);
+                break;
+            case 'before-attach':
+                this.notifyLayout(msg);
+                this.onBeforeAttach(msg);
+                break;
+            case 'after-attach':
+                if (!this.isHidden && (!this.parent || this.parent.isVisible)) {
+                    this.setFlag(Widget.Flag.IsVisible);
+                }
+                this.setFlag(Widget.Flag.IsAttached);
+                this.notifyLayout(msg);
+                this.onAfterAttach(msg);
+                break;
+            case 'before-detach':
+                this.notifyLayout(msg);
+                this.onBeforeDetach(msg);
+                break;
+            case 'after-detach':
+                this.clearFlag(Widget.Flag.IsVisible);
+                this.clearFlag(Widget.Flag.IsAttached);
+                this.notifyLayout(msg);
+                this.onAfterDetach(msg);
+                break;
+            case 'activate-request':
+                this.notifyLayout(msg);
+                this.onActivateRequest(msg);
+                break;
+            case 'close-request':
+                this.notifyLayout(msg);
+                this.onCloseRequest(msg);
+                break;
+            case 'child-added':
+                this.notifyLayout(msg);
+                this.onChildAdded(msg);
+                break;
+            case 'child-removed':
+                this.notifyLayout(msg);
+                this.onChildRemoved(msg);
+                break;
+            default:
+                this.notifyLayout(msg);
+                break;
+        }
+    };
+    /**
+     * Invoke the message processing routine of the widget's layout.
+     *
+     * @param msg - The message to dispatch to the layout.
+     *
+     * #### Notes
+     * This is a no-op if the widget does not have a layout.
+     *
+     * This will not typically be called directly by user code.
+     */
+    Widget.prototype.notifyLayout = function (msg) {
+        if (this._layout) {
+            this._layout.processParentMessage(msg);
+        }
+    };
+    /**
+     * A message handler invoked on a `'close-request'` message.
+     *
+     * #### Notes
+     * The default implementation unparents or detaches the widget.
+     */
+    Widget.prototype.onCloseRequest = function (msg) {
+        if (this.parent) {
+            this.parent = null;
+        }
+        else if (this.isAttached) {
+            Widget.detach(this);
+        }
+    };
+    /**
+     * A message handler invoked on a `'resize'` message.
+     *
+     * #### Notes
+     * The default implementation of this handler is a no-op.
+     */
+    Widget.prototype.onResize = function (msg) { };
+    /**
+     * A message handler invoked on an `'update-request'` message.
+     *
+     * #### Notes
+     * The default implementation of this handler is a no-op.
+     */
+    Widget.prototype.onUpdateRequest = function (msg) { };
+    /**
+     * A message handler invoked on a `'fit-request'` message.
+     *
+     * #### Notes
+     * The default implementation of this handler is a no-op.
+     */
+    Widget.prototype.onFitRequest = function (msg) { };
+    /**
+     * A message handler invoked on an `'activate-request'` message.
+     *
+     * #### Notes
+     * The default implementation of this handler is a no-op.
+     */
+    Widget.prototype.onActivateRequest = function (msg) { };
+    /**
+     * A message handler invoked on a `'before-show'` message.
+     *
+     * #### Notes
+     * The default implementation of this handler is a no-op.
+     */
+    Widget.prototype.onBeforeShow = function (msg) { };
+    /**
+     * A message handler invoked on an `'after-show'` message.
+     *
+     * #### Notes
+     * The default implementation of this handler is a no-op.
+     */
+    Widget.prototype.onAfterShow = function (msg) { };
+    /**
+     * A message handler invoked on a `'before-hide'` message.
+     *
+     * #### Notes
+     * The default implementation of this handler is a no-op.
+     */
+    Widget.prototype.onBeforeHide = function (msg) { };
+    /**
+     * A message handler invoked on an `'after-hide'` message.
+     *
+     * #### Notes
+     * The default implementation of this handler is a no-op.
+     */
+    Widget.prototype.onAfterHide = function (msg) { };
+    /**
+     * A message handler invoked on a `'before-attach'` message.
+     *
+     * #### Notes
+     * The default implementation of this handler is a no-op.
+     */
+    Widget.prototype.onBeforeAttach = function (msg) { };
+    /**
+     * A message handler invoked on an `'after-attach'` message.
+     *
+     * #### Notes
+     * The default implementation of this handler is a no-op.
+     */
+    Widget.prototype.onAfterAttach = function (msg) { };
+    /**
+     * A message handler invoked on a `'before-detach'` message.
+     *
+     * #### Notes
+     * The default implementation of this handler is a no-op.
+     */
+    Widget.prototype.onBeforeDetach = function (msg) { };
+    /**
+     * A message handler invoked on an `'after-detach'` message.
+     *
+     * #### Notes
+     * The default implementation of this handler is a no-op.
+     */
+    Widget.prototype.onAfterDetach = function (msg) { };
+    /**
+     * A message handler invoked on a `'child-added'` message.
+     *
+     * #### Notes
+     * The default implementation of this handler is a no-op.
+     */
+    Widget.prototype.onChildAdded = function (msg) { };
+    /**
+     * A message handler invoked on a `'child-removed'` message.
+     *
+     * #### Notes
+     * The default implementation of this handler is a no-op.
+     */
+    Widget.prototype.onChildRemoved = function (msg) { };
+    return Widget;
+}());
+exports.Widget = Widget;
+/**
+ * The namespace for the `Widget` class statics.
+ */
+(function (Widget) {
+    /**
+     * An enum of widget bit flags.
+     */
+    var Flag;
+    (function (Flag) {
+        /**
+         * The widget has been disposed.
+         */
+        Flag[Flag["IsDisposed"] = 1] = "IsDisposed";
+        /**
+         * The widget is attached to the DOM.
+         */
+        Flag[Flag["IsAttached"] = 2] = "IsAttached";
+        /**
+         * The widget is hidden.
+         */
+        Flag[Flag["IsHidden"] = 4] = "IsHidden";
+        /**
+         * The widget is visible.
+         */
+        Flag[Flag["IsVisible"] = 8] = "IsVisible";
+        /**
+         * A layout cannot be set on the widget.
+         */
+        Flag[Flag["DisallowLayout"] = 16] = "DisallowLayout";
+    })(Flag = Widget.Flag || (Widget.Flag = {}));
+    /**
+     * A collection of stateless messages related to widgets.
+     */
+    var Msg;
+    (function (Msg) {
+        /**
+         * A singleton `'before-show'` message.
+         *
+         * #### Notes
+         * This message is sent to a widget before it becomes visible.
+         *
+         * This message is **not** sent when the widget is being attached.
+         */
+        Msg.BeforeShow = new messaging_1.Message('before-show');
+        /**
+         * A singleton `'after-show'` message.
+         *
+         * #### Notes
+         * This message is sent to a widget after it becomes visible.
+         *
+         * This message is **not** sent when the widget is being attached.
+         */
+        Msg.AfterShow = new messaging_1.Message('after-show');
+        /**
+         * A singleton `'before-hide'` message.
+         *
+         * #### Notes
+         * This message is sent to a widget before it becomes not-visible.
+         *
+         * This message is **not** sent when the widget is being detached.
+         */
+        Msg.BeforeHide = new messaging_1.Message('before-hide');
+        /**
+         * A singleton `'after-hide'` message.
+         *
+         * #### Notes
+         * This message is sent to a widget after it becomes not-visible.
+         *
+         * This message is **not** sent when the widget is being detached.
+         */
+        Msg.AfterHide = new messaging_1.Message('after-hide');
+        /**
+         * A singleton `'before-attach'` message.
+         *
+         * #### Notes
+         * This message is sent to a widget before it is attached.
+         */
+        Msg.BeforeAttach = new messaging_1.Message('before-attach');
+        /**
+         * A singleton `'after-attach'` message.
+         *
+         * #### Notes
+         * This message is sent to a widget after it is attached.
+         */
+        Msg.AfterAttach = new messaging_1.Message('after-attach');
+        /**
+         * A singleton `'before-detach'` message.
+         *
+         * #### Notes
+         * This message is sent to a widget before it is detached.
+         */
+        Msg.BeforeDetach = new messaging_1.Message('before-detach');
+        /**
+         * A singleton `'after-detach'` message.
+         *
+         * #### Notes
+         * This message is sent to a widget after it is detached.
+         */
+        Msg.AfterDetach = new messaging_1.Message('after-detach');
+        /**
+         * A singleton `'parent-changed'` message.
+         *
+         * #### Notes
+         * This message is sent to a widget when its parent has changed.
+         */
+        Msg.ParentChanged = new messaging_1.Message('parent-changed');
+        /**
+         * A singleton conflatable `'update-request'` message.
+         *
+         * #### Notes
+         * This message can be dispatched to supporting widgets in order to
+         * update their content based on the current widget state. Not all
+         * widgets will respond to messages of this type.
+         *
+         * For widgets with a layout, this message will inform the layout to
+         * update the position and size of its child widgets.
+         */
+        Msg.UpdateRequest = new messaging_1.ConflatableMessage('update-request');
+        /**
+         * A singleton conflatable `'fit-request'` message.
+         *
+         * #### Notes
+         * For widgets with a layout, this message will inform the layout to
+         * recalculate its size constraints to fit the space requirements of
+         * its child widgets, and to update their position and size. Not all
+         * layouts will respond to messages of this type.
+         */
+        Msg.FitRequest = new messaging_1.ConflatableMessage('fit-request');
+        /**
+         * A singleton conflatable `'activate-request'` message.
+         *
+         * #### Notes
+         * This message should be dispatched to a widget when it should
+         * perform the actions necessary to activate the widget, which
+         * may include focusing its node or descendant node.
+         */
+        Msg.ActivateRequest = new messaging_1.ConflatableMessage('activate-request');
+        /**
+         * A singleton conflatable `'close-request'` message.
+         *
+         * #### Notes
+         * This message should be dispatched to a widget when it should close
+         * and remove itself from the widget hierarchy.
+         */
+        Msg.CloseRequest = new messaging_1.ConflatableMessage('close-request');
+    })(Msg = Widget.Msg || (Widget.Msg = {}));
+    /**
+     * A message class for child related messages.
+     */
+    var ChildMessage = (function (_super) {
+        __extends(ChildMessage, _super);
+        /**
+         * Construct a new child message.
+         *
+         * @param type - The message type.
+         *
+         * @param child - The child widget for the message.
+         */
+        function ChildMessage(type, child) {
+            var _this = _super.call(this, type) || this;
+            _this.child = child;
+            return _this;
+        }
+        return ChildMessage;
+    }(messaging_1.Message));
+    Widget.ChildMessage = ChildMessage;
+    /**
+     * A message class for `'resize'` messages.
+     */
+    var ResizeMessage = (function (_super) {
+        __extends(ResizeMessage, _super);
+        /**
+         * Construct a new resize message.
+         *
+         * @param width - The **offset width** of the widget, or `-1` if
+         *   the width is not known.
+         *
+         * @param height - The **offset height** of the widget, or `-1` if
+         *   the height is not known.
+         */
+        function ResizeMessage(width, height) {
+            var _this = _super.call(this, 'resize') || this;
+            _this.width = width;
+            _this.height = height;
+            return _this;
+        }
+        return ResizeMessage;
+    }(messaging_1.Message));
+    Widget.ResizeMessage = ResizeMessage;
+    /**
+     * The namespace for the `ResizeMessage` class statics.
+     */
+    (function (ResizeMessage) {
+        /**
+         * A singleton `'resize'` message with an unknown size.
+         */
+        ResizeMessage.UnknownSize = new ResizeMessage(-1, -1);
+    })(ResizeMessage = Widget.ResizeMessage || (Widget.ResizeMessage = {}));
+    /**
+     * Attach a widget to a host DOM node.
+     *
+     * @param widget - The widget of interest.
+     *
+     * @param host - The DOM node to use as the widget's host.
+     *
+     * @param ref - The child of `host` to use as the reference element.
+     *   If this is provided, the widget will be inserted before this
+     *   node in the host. The default is `null`, which will cause the
+     *   widget to be added as the last child of the host.
+     *
+     * #### Notes
+     * This will throw an error if the widget is not a root widget, if
+     * the widget is already attached, or if the host is not attached
+     * to the DOM.
+     */
+    function attach(widget, host, ref) {
+        if (ref === void 0) { ref = null; }
+        if (widget.parent) {
+            throw new Error('Cannot attach a child widget.');
+        }
+        if (widget.isAttached || document.body.contains(widget.node)) {
+            throw new Error('Widget is already attached.');
+        }
+        if (!document.body.contains(host)) {
+            throw new Error('Host is not attached.');
+        }
+        messaging_1.MessageLoop.sendMessage(widget, Widget.Msg.BeforeAttach);
+        host.insertBefore(widget.node, ref);
+        messaging_1.MessageLoop.sendMessage(widget, Widget.Msg.AfterAttach);
+    }
+    Widget.attach = attach;
+    /**
+     * Detach the widget from its host DOM node.
+     *
+     * @param widget - The widget of interest.
+     *
+     * #### Notes
+     * This will throw an error if the widget is not a root widget,
+     * or if the widget is not attached to the DOM.
+     */
+    function detach(widget) {
+        if (widget.parent) {
+            throw new Error('Cannot detach a child widget.');
+        }
+        if (!widget.isAttached || !document.body.contains(widget.node)) {
+            throw new Error('Widget is not attached.');
+        }
+        messaging_1.MessageLoop.sendMessage(widget, Widget.Msg.BeforeDetach);
+        widget.node.parentNode.removeChild(widget.node);
+        messaging_1.MessageLoop.sendMessage(widget, Widget.Msg.AfterDetach);
+    }
+    Widget.detach = detach;
+})(Widget = exports.Widget || (exports.Widget = {}));
+exports.Widget = Widget;
+/**
+ * The namespace for the module implementation details.
+ */
+var Private;
+(function (Private) {
+    /**
+     * An attached property for the widget title object.
+     */
+    Private.titleProperty = new properties_1.AttachedProperty({
+        name: 'title',
+        create: function (owner) { return new title_1.Title({ owner: owner }); },
+    });
+    /**
+     * Create a DOM node for the given widget options.
+     */
+    function createNode(options) {
+        return options.node || document.createElement('div');
+    }
+    Private.createNode = createNode;
+})(Private || (Private = {}));
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 /* WEBPACK VAR INJECTION */(function(global) {/*!
  * The buffer module from node.js, for the browser.
  *
@@ -5425,972 +6391,6 @@ function isnan (val) {
 }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-/*-----------------------------------------------------------------------------
-| Copyright (c) 2014-2017, PhosphorJS Contributors
-|
-| Distributed under the terms of the BSD 3-Clause License.
-|
-| The full license is in the file LICENSE, distributed with this software.
-|----------------------------------------------------------------------------*/
-var algorithm_1 = __webpack_require__(2);
-var messaging_1 = __webpack_require__(7);
-var properties_1 = __webpack_require__(24);
-var signaling_1 = __webpack_require__(11);
-var title_1 = __webpack_require__(68);
-/**
- * The base class of the Phosphor widget hierarchy.
- *
- * #### Notes
- * This class will typically be subclassed in order to create a useful
- * widget. However, it can be used directly to host externally created
- * content.
- */
-var Widget = (function () {
-    /**
-     * Construct a new widget.
-     *
-     * @param options - The options for initializing the widget.
-     */
-    function Widget(options) {
-        if (options === void 0) { options = {}; }
-        this._flags = 0;
-        this._layout = null;
-        this._parent = null;
-        this._disposed = new signaling_1.Signal(this);
-        this.node = Private.createNode(options);
-        this.addClass('p-Widget');
-    }
-    /**
-     * Dispose of the widget and its descendant widgets.
-     *
-     * #### Notes
-     * It is unsafe to use the widget after it has been disposed.
-     *
-     * All calls made to this method after the first are a no-op.
-     */
-    Widget.prototype.dispose = function () {
-        // Do nothing if the widget is already disposed.
-        if (this.isDisposed) {
-            return;
-        }
-        // Set the disposed flag and emit the disposed signal.
-        this.setFlag(Widget.Flag.IsDisposed);
-        this._disposed.emit(undefined);
-        // Remove or detach the widget if necessary.
-        if (this.parent) {
-            this.parent = null;
-        }
-        else if (this.isAttached) {
-            Widget.detach(this);
-        }
-        // Dispose of the widget layout.
-        if (this._layout) {
-            this._layout.dispose();
-            this._layout = null;
-        }
-        // Clear the extra data associated with the widget.
-        signaling_1.Signal.clearData(this);
-        messaging_1.MessageLoop.clearData(this);
-        properties_1.AttachedProperty.clearData(this);
-    };
-    Object.defineProperty(Widget.prototype, "disposed", {
-        /**
-         * A signal emitted when the widget is disposed.
-         */
-        get: function () {
-            return this._disposed;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Widget.prototype, "isDisposed", {
-        /**
-         * Test whether the widget has been disposed.
-         */
-        get: function () {
-            return this.testFlag(Widget.Flag.IsDisposed);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Widget.prototype, "isAttached", {
-        /**
-         * Test whether the widget's node is attached to the DOM.
-         */
-        get: function () {
-            return this.testFlag(Widget.Flag.IsAttached);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Widget.prototype, "isHidden", {
-        /**
-         * Test whether the widget is explicitly hidden.
-         */
-        get: function () {
-            return this.testFlag(Widget.Flag.IsHidden);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Widget.prototype, "isVisible", {
-        /**
-         * Test whether the widget is visible.
-         *
-         * #### Notes
-         * A widget is visible when it is attached to the DOM, is not
-         * explicitly hidden, and has no explicitly hidden ancestors.
-         */
-        get: function () {
-            return this.testFlag(Widget.Flag.IsVisible);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Widget.prototype, "title", {
-        /**
-         * The title object for the widget.
-         *
-         * #### Notes
-         * The title object is used by some container widgets when displaying
-         * the widget alongside some title, such as a tab panel or side bar.
-         *
-         * Since not all widgets will use the title, it is created on demand.
-         *
-         * The `owner` property of the title is set to this widget.
-         */
-        get: function () {
-            return Private.titleProperty.get(this);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Widget.prototype, "id", {
-        /**
-         * Get the id of the widget's DOM node.
-         */
-        get: function () {
-            return this.node.id;
-        },
-        /**
-         * Set the id of the widget's DOM node.
-         */
-        set: function (value) {
-            this.node.id = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Widget.prototype, "dataset", {
-        /**
-         * The dataset for the widget's DOM node.
-         */
-        get: function () {
-            return this.node.dataset;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Widget.prototype, "parent", {
-        /**
-         * Get the parent of the widget.
-         */
-        get: function () {
-            return this._parent;
-        },
-        /**
-         * Set the parent of the widget.
-         *
-         * #### Notes
-         * Children are typically added to a widget by using a layout, which
-         * means user code will not normally set the parent widget directly.
-         *
-         * The widget will be automatically removed from its old parent.
-         *
-         * This is a no-op if there is no effective parent change.
-         */
-        set: function (value) {
-            if (this._parent === value) {
-                return;
-            }
-            if (value && this.contains(value)) {
-                throw new Error('Invalid parent widget.');
-            }
-            if (this._parent && !this._parent.isDisposed) {
-                var msg = new Widget.ChildMessage('child-removed', this);
-                messaging_1.MessageLoop.sendMessage(this._parent, msg);
-            }
-            this._parent = value;
-            if (this._parent && !this._parent.isDisposed) {
-                var msg = new Widget.ChildMessage('child-added', this);
-                messaging_1.MessageLoop.sendMessage(this._parent, msg);
-            }
-            if (!this.isDisposed) {
-                messaging_1.MessageLoop.sendMessage(this, Widget.Msg.ParentChanged);
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Widget.prototype, "layout", {
-        /**
-         * Get the layout for the widget.
-         */
-        get: function () {
-            return this._layout;
-        },
-        /**
-         * Set the layout for the widget.
-         *
-         * #### Notes
-         * The layout is single-use only. It cannot be changed after the
-         * first assignment.
-         *
-         * The layout is disposed automatically when the widget is disposed.
-         */
-        set: function (value) {
-            if (this._layout === value) {
-                return;
-            }
-            if (this.testFlag(Widget.Flag.DisallowLayout)) {
-                throw new Error('Cannot set widget layout.');
-            }
-            if (this._layout) {
-                throw new Error('Cannot change widget layout.');
-            }
-            if (value.parent) {
-                throw new Error('Cannot change layout parent.');
-            }
-            this._layout = value;
-            value.parent = this;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    /**
-     * Create an iterator over the widget's children.
-     *
-     * @returns A new iterator over the children of the widget.
-     *
-     * #### Notes
-     * The widget must have a populated layout in order to have children.
-     *
-     * If a layout is not installed, the returned iterator will be empty.
-     */
-    Widget.prototype.children = function () {
-        return this._layout ? this._layout.iter() : algorithm_1.empty();
-    };
-    /**
-     * Test whether a widget is a descendant of this widget.
-     *
-     * @param widget - The descendant widget of interest.
-     *
-     * @returns `true` if the widget is a descendant, `false` otherwise.
-     */
-    Widget.prototype.contains = function (widget) {
-        for (var value = widget; value; value = value._parent) {
-            if (value === this) {
-                return true;
-            }
-        }
-        return false;
-    };
-    /**
-     * Test whether the widget's DOM node has the given class name.
-     *
-     * @param name - The class name of interest.
-     *
-     * @returns `true` if the node has the class, `false` otherwise.
-     */
-    Widget.prototype.hasClass = function (name) {
-        return this.node.classList.contains(name);
-    };
-    /**
-     * Add a class name to the widget's DOM node.
-     *
-     * @param name - The class name to add to the node.
-     *
-     * #### Notes
-     * If the class name is already added to the node, this is a no-op.
-     *
-     * The class name must not contain whitespace.
-     */
-    Widget.prototype.addClass = function (name) {
-        this.node.classList.add(name);
-    };
-    /**
-     * Remove a class name from the widget's DOM node.
-     *
-     * @param name - The class name to remove from the node.
-     *
-     * #### Notes
-     * If the class name is not yet added to the node, this is a no-op.
-     *
-     * The class name must not contain whitespace.
-     */
-    Widget.prototype.removeClass = function (name) {
-        this.node.classList.remove(name);
-    };
-    /**
-     * Toggle a class name on the widget's DOM node.
-     *
-     * @param name - The class name to toggle on the node.
-     *
-     * @param force - Whether to force add the class (`true`) or force
-     *   remove the class (`false`). If not provided, the presence of
-     *   the class will be toggled from its current state.
-     *
-     * @returns `true` if the class is now present, `false` otherwise.
-     *
-     * #### Notes
-     * The class name must not contain whitespace.
-     */
-    Widget.prototype.toggleClass = function (name, force) {
-        if (force === true) {
-            this.node.classList.add(name);
-            return true;
-        }
-        if (force === false) {
-            this.node.classList.remove(name);
-            return false;
-        }
-        return this.node.classList.toggle(name);
-    };
-    /**
-     * Post an `'update-request'` message to the widget.
-     *
-     * #### Notes
-     * This is a simple convenience method for posting the message.
-     */
-    Widget.prototype.update = function () {
-        messaging_1.MessageLoop.postMessage(this, Widget.Msg.UpdateRequest);
-    };
-    /**
-     * Post a `'fit-request'` message to the widget.
-     *
-     * #### Notes
-     * This is a simple convenience method for posting the message.
-     */
-    Widget.prototype.fit = function () {
-        messaging_1.MessageLoop.postMessage(this, Widget.Msg.FitRequest);
-    };
-    /**
-     * Post an `'activate-request'` message to the widget.
-     *
-     * #### Notes
-     * This is a simple convenience method for posting the message.
-     */
-    Widget.prototype.activate = function () {
-        messaging_1.MessageLoop.postMessage(this, Widget.Msg.ActivateRequest);
-    };
-    /**
-     * Send a `'close-request'` message to the widget.
-     *
-     * #### Notes
-     * This is a simple convenience method for sending the message.
-     */
-    Widget.prototype.close = function () {
-        messaging_1.MessageLoop.sendMessage(this, Widget.Msg.CloseRequest);
-    };
-    /**
-     * Show the widget and make it visible to its parent widget.
-     *
-     * #### Notes
-     * This causes the [[isHidden]] property to be `false`.
-     *
-     * If the widget is not explicitly hidden, this is a no-op.
-     */
-    Widget.prototype.show = function () {
-        if (!this.testFlag(Widget.Flag.IsHidden)) {
-            return;
-        }
-        if (this.isAttached && (!this.parent || this.parent.isVisible)) {
-            messaging_1.MessageLoop.sendMessage(this, Widget.Msg.BeforeShow);
-        }
-        this.clearFlag(Widget.Flag.IsHidden);
-        this.removeClass('p-mod-hidden');
-        if (this.isAttached && (!this.parent || this.parent.isVisible)) {
-            messaging_1.MessageLoop.sendMessage(this, Widget.Msg.AfterShow);
-        }
-        if (this.parent) {
-            var msg = new Widget.ChildMessage('child-shown', this);
-            messaging_1.MessageLoop.sendMessage(this.parent, msg);
-        }
-    };
-    /**
-     * Hide the widget and make it hidden to its parent widget.
-     *
-     * #### Notes
-     * This causes the [[isHidden]] property to be `true`.
-     *
-     * If the widget is explicitly hidden, this is a no-op.
-     */
-    Widget.prototype.hide = function () {
-        if (this.testFlag(Widget.Flag.IsHidden)) {
-            return;
-        }
-        if (this.isAttached && (!this.parent || this.parent.isVisible)) {
-            messaging_1.MessageLoop.sendMessage(this, Widget.Msg.BeforeHide);
-        }
-        this.setFlag(Widget.Flag.IsHidden);
-        this.addClass('p-mod-hidden');
-        if (this.isAttached && (!this.parent || this.parent.isVisible)) {
-            messaging_1.MessageLoop.sendMessage(this, Widget.Msg.AfterHide);
-        }
-        if (this.parent) {
-            var msg = new Widget.ChildMessage('child-hidden', this);
-            messaging_1.MessageLoop.sendMessage(this.parent, msg);
-        }
-    };
-    /**
-     * Show or hide the widget according to a boolean value.
-     *
-     * @param hidden - `true` to hide the widget, or `false` to show it.
-     *
-     * #### Notes
-     * This is a convenience method for `hide()` and `show()`.
-     */
-    Widget.prototype.setHidden = function (hidden) {
-        if (hidden) {
-            this.hide();
-        }
-        else {
-            this.show();
-        }
-    };
-    /**
-     * Test whether the given widget flag is set.
-     *
-     * #### Notes
-     * This will not typically be called directly by user code.
-     */
-    Widget.prototype.testFlag = function (flag) {
-        return (this._flags & flag) !== 0;
-    };
-    /**
-     * Set the given widget flag.
-     *
-     * #### Notes
-     * This will not typically be called directly by user code.
-     */
-    Widget.prototype.setFlag = function (flag) {
-        this._flags |= flag;
-    };
-    /**
-     * Clear the given widget flag.
-     *
-     * #### Notes
-     * This will not typically be called directly by user code.
-     */
-    Widget.prototype.clearFlag = function (flag) {
-        this._flags &= ~flag;
-    };
-    /**
-     * Process a message sent to the widget.
-     *
-     * @param msg - The message sent to the widget.
-     *
-     * #### Notes
-     * Subclasses may reimplement this method as needed.
-     */
-    Widget.prototype.processMessage = function (msg) {
-        switch (msg.type) {
-            case 'resize':
-                this.notifyLayout(msg);
-                this.onResize(msg);
-                break;
-            case 'update-request':
-                this.notifyLayout(msg);
-                this.onUpdateRequest(msg);
-                break;
-            case 'fit-request':
-                this.notifyLayout(msg);
-                this.onFitRequest(msg);
-                break;
-            case 'before-show':
-                this.notifyLayout(msg);
-                this.onBeforeShow(msg);
-                break;
-            case 'after-show':
-                this.setFlag(Widget.Flag.IsVisible);
-                this.notifyLayout(msg);
-                this.onAfterShow(msg);
-                break;
-            case 'before-hide':
-                this.notifyLayout(msg);
-                this.onBeforeHide(msg);
-                break;
-            case 'after-hide':
-                this.clearFlag(Widget.Flag.IsVisible);
-                this.notifyLayout(msg);
-                this.onAfterHide(msg);
-                break;
-            case 'before-attach':
-                this.notifyLayout(msg);
-                this.onBeforeAttach(msg);
-                break;
-            case 'after-attach':
-                if (!this.isHidden && (!this.parent || this.parent.isVisible)) {
-                    this.setFlag(Widget.Flag.IsVisible);
-                }
-                this.setFlag(Widget.Flag.IsAttached);
-                this.notifyLayout(msg);
-                this.onAfterAttach(msg);
-                break;
-            case 'before-detach':
-                this.notifyLayout(msg);
-                this.onBeforeDetach(msg);
-                break;
-            case 'after-detach':
-                this.clearFlag(Widget.Flag.IsVisible);
-                this.clearFlag(Widget.Flag.IsAttached);
-                this.notifyLayout(msg);
-                this.onAfterDetach(msg);
-                break;
-            case 'activate-request':
-                this.notifyLayout(msg);
-                this.onActivateRequest(msg);
-                break;
-            case 'close-request':
-                this.notifyLayout(msg);
-                this.onCloseRequest(msg);
-                break;
-            case 'child-added':
-                this.notifyLayout(msg);
-                this.onChildAdded(msg);
-                break;
-            case 'child-removed':
-                this.notifyLayout(msg);
-                this.onChildRemoved(msg);
-                break;
-            default:
-                this.notifyLayout(msg);
-                break;
-        }
-    };
-    /**
-     * Invoke the message processing routine of the widget's layout.
-     *
-     * @param msg - The message to dispatch to the layout.
-     *
-     * #### Notes
-     * This is a no-op if the widget does not have a layout.
-     *
-     * This will not typically be called directly by user code.
-     */
-    Widget.prototype.notifyLayout = function (msg) {
-        if (this._layout) {
-            this._layout.processParentMessage(msg);
-        }
-    };
-    /**
-     * A message handler invoked on a `'close-request'` message.
-     *
-     * #### Notes
-     * The default implementation unparents or detaches the widget.
-     */
-    Widget.prototype.onCloseRequest = function (msg) {
-        if (this.parent) {
-            this.parent = null;
-        }
-        else if (this.isAttached) {
-            Widget.detach(this);
-        }
-    };
-    /**
-     * A message handler invoked on a `'resize'` message.
-     *
-     * #### Notes
-     * The default implementation of this handler is a no-op.
-     */
-    Widget.prototype.onResize = function (msg) { };
-    /**
-     * A message handler invoked on an `'update-request'` message.
-     *
-     * #### Notes
-     * The default implementation of this handler is a no-op.
-     */
-    Widget.prototype.onUpdateRequest = function (msg) { };
-    /**
-     * A message handler invoked on a `'fit-request'` message.
-     *
-     * #### Notes
-     * The default implementation of this handler is a no-op.
-     */
-    Widget.prototype.onFitRequest = function (msg) { };
-    /**
-     * A message handler invoked on an `'activate-request'` message.
-     *
-     * #### Notes
-     * The default implementation of this handler is a no-op.
-     */
-    Widget.prototype.onActivateRequest = function (msg) { };
-    /**
-     * A message handler invoked on a `'before-show'` message.
-     *
-     * #### Notes
-     * The default implementation of this handler is a no-op.
-     */
-    Widget.prototype.onBeforeShow = function (msg) { };
-    /**
-     * A message handler invoked on an `'after-show'` message.
-     *
-     * #### Notes
-     * The default implementation of this handler is a no-op.
-     */
-    Widget.prototype.onAfterShow = function (msg) { };
-    /**
-     * A message handler invoked on a `'before-hide'` message.
-     *
-     * #### Notes
-     * The default implementation of this handler is a no-op.
-     */
-    Widget.prototype.onBeforeHide = function (msg) { };
-    /**
-     * A message handler invoked on an `'after-hide'` message.
-     *
-     * #### Notes
-     * The default implementation of this handler is a no-op.
-     */
-    Widget.prototype.onAfterHide = function (msg) { };
-    /**
-     * A message handler invoked on a `'before-attach'` message.
-     *
-     * #### Notes
-     * The default implementation of this handler is a no-op.
-     */
-    Widget.prototype.onBeforeAttach = function (msg) { };
-    /**
-     * A message handler invoked on an `'after-attach'` message.
-     *
-     * #### Notes
-     * The default implementation of this handler is a no-op.
-     */
-    Widget.prototype.onAfterAttach = function (msg) { };
-    /**
-     * A message handler invoked on a `'before-detach'` message.
-     *
-     * #### Notes
-     * The default implementation of this handler is a no-op.
-     */
-    Widget.prototype.onBeforeDetach = function (msg) { };
-    /**
-     * A message handler invoked on an `'after-detach'` message.
-     *
-     * #### Notes
-     * The default implementation of this handler is a no-op.
-     */
-    Widget.prototype.onAfterDetach = function (msg) { };
-    /**
-     * A message handler invoked on a `'child-added'` message.
-     *
-     * #### Notes
-     * The default implementation of this handler is a no-op.
-     */
-    Widget.prototype.onChildAdded = function (msg) { };
-    /**
-     * A message handler invoked on a `'child-removed'` message.
-     *
-     * #### Notes
-     * The default implementation of this handler is a no-op.
-     */
-    Widget.prototype.onChildRemoved = function (msg) { };
-    return Widget;
-}());
-exports.Widget = Widget;
-/**
- * The namespace for the `Widget` class statics.
- */
-(function (Widget) {
-    /**
-     * An enum of widget bit flags.
-     */
-    var Flag;
-    (function (Flag) {
-        /**
-         * The widget has been disposed.
-         */
-        Flag[Flag["IsDisposed"] = 1] = "IsDisposed";
-        /**
-         * The widget is attached to the DOM.
-         */
-        Flag[Flag["IsAttached"] = 2] = "IsAttached";
-        /**
-         * The widget is hidden.
-         */
-        Flag[Flag["IsHidden"] = 4] = "IsHidden";
-        /**
-         * The widget is visible.
-         */
-        Flag[Flag["IsVisible"] = 8] = "IsVisible";
-        /**
-         * A layout cannot be set on the widget.
-         */
-        Flag[Flag["DisallowLayout"] = 16] = "DisallowLayout";
-    })(Flag = Widget.Flag || (Widget.Flag = {}));
-    /**
-     * A collection of stateless messages related to widgets.
-     */
-    var Msg;
-    (function (Msg) {
-        /**
-         * A singleton `'before-show'` message.
-         *
-         * #### Notes
-         * This message is sent to a widget before it becomes visible.
-         *
-         * This message is **not** sent when the widget is being attached.
-         */
-        Msg.BeforeShow = new messaging_1.Message('before-show');
-        /**
-         * A singleton `'after-show'` message.
-         *
-         * #### Notes
-         * This message is sent to a widget after it becomes visible.
-         *
-         * This message is **not** sent when the widget is being attached.
-         */
-        Msg.AfterShow = new messaging_1.Message('after-show');
-        /**
-         * A singleton `'before-hide'` message.
-         *
-         * #### Notes
-         * This message is sent to a widget before it becomes not-visible.
-         *
-         * This message is **not** sent when the widget is being detached.
-         */
-        Msg.BeforeHide = new messaging_1.Message('before-hide');
-        /**
-         * A singleton `'after-hide'` message.
-         *
-         * #### Notes
-         * This message is sent to a widget after it becomes not-visible.
-         *
-         * This message is **not** sent when the widget is being detached.
-         */
-        Msg.AfterHide = new messaging_1.Message('after-hide');
-        /**
-         * A singleton `'before-attach'` message.
-         *
-         * #### Notes
-         * This message is sent to a widget before it is attached.
-         */
-        Msg.BeforeAttach = new messaging_1.Message('before-attach');
-        /**
-         * A singleton `'after-attach'` message.
-         *
-         * #### Notes
-         * This message is sent to a widget after it is attached.
-         */
-        Msg.AfterAttach = new messaging_1.Message('after-attach');
-        /**
-         * A singleton `'before-detach'` message.
-         *
-         * #### Notes
-         * This message is sent to a widget before it is detached.
-         */
-        Msg.BeforeDetach = new messaging_1.Message('before-detach');
-        /**
-         * A singleton `'after-detach'` message.
-         *
-         * #### Notes
-         * This message is sent to a widget after it is detached.
-         */
-        Msg.AfterDetach = new messaging_1.Message('after-detach');
-        /**
-         * A singleton `'parent-changed'` message.
-         *
-         * #### Notes
-         * This message is sent to a widget when its parent has changed.
-         */
-        Msg.ParentChanged = new messaging_1.Message('parent-changed');
-        /**
-         * A singleton conflatable `'update-request'` message.
-         *
-         * #### Notes
-         * This message can be dispatched to supporting widgets in order to
-         * update their content based on the current widget state. Not all
-         * widgets will respond to messages of this type.
-         *
-         * For widgets with a layout, this message will inform the layout to
-         * update the position and size of its child widgets.
-         */
-        Msg.UpdateRequest = new messaging_1.ConflatableMessage('update-request');
-        /**
-         * A singleton conflatable `'fit-request'` message.
-         *
-         * #### Notes
-         * For widgets with a layout, this message will inform the layout to
-         * recalculate its size constraints to fit the space requirements of
-         * its child widgets, and to update their position and size. Not all
-         * layouts will respond to messages of this type.
-         */
-        Msg.FitRequest = new messaging_1.ConflatableMessage('fit-request');
-        /**
-         * A singleton conflatable `'activate-request'` message.
-         *
-         * #### Notes
-         * This message should be dispatched to a widget when it should
-         * perform the actions necessary to activate the widget, which
-         * may include focusing its node or descendant node.
-         */
-        Msg.ActivateRequest = new messaging_1.ConflatableMessage('activate-request');
-        /**
-         * A singleton conflatable `'close-request'` message.
-         *
-         * #### Notes
-         * This message should be dispatched to a widget when it should close
-         * and remove itself from the widget hierarchy.
-         */
-        Msg.CloseRequest = new messaging_1.ConflatableMessage('close-request');
-    })(Msg = Widget.Msg || (Widget.Msg = {}));
-    /**
-     * A message class for child related messages.
-     */
-    var ChildMessage = (function (_super) {
-        __extends(ChildMessage, _super);
-        /**
-         * Construct a new child message.
-         *
-         * @param type - The message type.
-         *
-         * @param child - The child widget for the message.
-         */
-        function ChildMessage(type, child) {
-            var _this = _super.call(this, type) || this;
-            _this.child = child;
-            return _this;
-        }
-        return ChildMessage;
-    }(messaging_1.Message));
-    Widget.ChildMessage = ChildMessage;
-    /**
-     * A message class for `'resize'` messages.
-     */
-    var ResizeMessage = (function (_super) {
-        __extends(ResizeMessage, _super);
-        /**
-         * Construct a new resize message.
-         *
-         * @param width - The **offset width** of the widget, or `-1` if
-         *   the width is not known.
-         *
-         * @param height - The **offset height** of the widget, or `-1` if
-         *   the height is not known.
-         */
-        function ResizeMessage(width, height) {
-            var _this = _super.call(this, 'resize') || this;
-            _this.width = width;
-            _this.height = height;
-            return _this;
-        }
-        return ResizeMessage;
-    }(messaging_1.Message));
-    Widget.ResizeMessage = ResizeMessage;
-    /**
-     * The namespace for the `ResizeMessage` class statics.
-     */
-    (function (ResizeMessage) {
-        /**
-         * A singleton `'resize'` message with an unknown size.
-         */
-        ResizeMessage.UnknownSize = new ResizeMessage(-1, -1);
-    })(ResizeMessage = Widget.ResizeMessage || (Widget.ResizeMessage = {}));
-    /**
-     * Attach a widget to a host DOM node.
-     *
-     * @param widget - The widget of interest.
-     *
-     * @param host - The DOM node to use as the widget's host.
-     *
-     * @param ref - The child of `host` to use as the reference element.
-     *   If this is provided, the widget will be inserted before this
-     *   node in the host. The default is `null`, which will cause the
-     *   widget to be added as the last child of the host.
-     *
-     * #### Notes
-     * This will throw an error if the widget is not a root widget, if
-     * the widget is already attached, or if the host is not attached
-     * to the DOM.
-     */
-    function attach(widget, host, ref) {
-        if (ref === void 0) { ref = null; }
-        if (widget.parent) {
-            throw new Error('Cannot attach a child widget.');
-        }
-        if (widget.isAttached || document.body.contains(widget.node)) {
-            throw new Error('Widget is already attached.');
-        }
-        if (!document.body.contains(host)) {
-            throw new Error('Host is not attached.');
-        }
-        messaging_1.MessageLoop.sendMessage(widget, Widget.Msg.BeforeAttach);
-        host.insertBefore(widget.node, ref);
-        messaging_1.MessageLoop.sendMessage(widget, Widget.Msg.AfterAttach);
-    }
-    Widget.attach = attach;
-    /**
-     * Detach the widget from its host DOM node.
-     *
-     * @param widget - The widget of interest.
-     *
-     * #### Notes
-     * This will throw an error if the widget is not a root widget,
-     * or if the widget is not attached to the DOM.
-     */
-    function detach(widget) {
-        if (widget.parent) {
-            throw new Error('Cannot detach a child widget.');
-        }
-        if (!widget.isAttached || !document.body.contains(widget.node)) {
-            throw new Error('Widget is not attached.');
-        }
-        messaging_1.MessageLoop.sendMessage(widget, Widget.Msg.BeforeDetach);
-        widget.node.parentNode.removeChild(widget.node);
-        messaging_1.MessageLoop.sendMessage(widget, Widget.Msg.AfterDetach);
-    }
-    Widget.detach = detach;
-})(Widget = exports.Widget || (exports.Widget = {}));
-exports.Widget = Widget;
-/**
- * The namespace for the module implementation details.
- */
-var Private;
-(function (Private) {
-    /**
-     * An attached property for the widget title object.
-     */
-    Private.titleProperty = new properties_1.AttachedProperty({
-        name: 'title',
-        create: function (owner) { return new title_1.Title({ owner: owner }); },
-    });
-    /**
-     * Create a DOM node for the given widget options.
-     */
-    function createNode(options) {
-        return options.node || document.createElement('div');
-    }
-    Private.createNode = createNode;
-})(Private || (Private = {}));
-
 
 /***/ }),
 /* 6 */
@@ -8381,7 +8381,7 @@ var domutils_1 = __webpack_require__(6);
 var messaging_1 = __webpack_require__(7);
 var properties_1 = __webpack_require__(24);
 var signaling_1 = __webpack_require__(11);
-var widget_1 = __webpack_require__(5);
+var widget_1 = __webpack_require__(4);
 /**
  * An abstract base class for creating Phosphor layouts.
  *
@@ -9616,6 +9616,14 @@ __export(__webpack_require__(221));
 "use strict";
 /* WEBPACK VAR INJECTION */(function(global, process) {
 
+// limit of Crypto.getRandomValues()
+// https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues
+var MAX_BYTES = 65536
+
+// Node supports requesting up to this number of bytes
+// https://github.com/nodejs/node/blob/master/lib/internal/crypto/random.js#L48
+var MAX_UINT32 = 4294967295
+
 function oldBrowser () {
   throw new Error('Secure random number generation is not supported by this browser.\nUse Chrome, Firefox or Internet Explorer 11')
 }
@@ -9631,18 +9639,22 @@ if (crypto && crypto.getRandomValues) {
 
 function randomBytes (size, cb) {
   // phantomjs needs to throw
-  if (size > 65536) throw new Error('requested too many random bytes')
-  // in case browserify  isn't using the Uint8Array version
-  var rawBytes = new global.Uint8Array(size)
+  if (size > MAX_UINT32) throw new RangeError('requested too many random bytes')
 
-  // This will not work in older browsers.
-  // See https://developer.mozilla.org/en-US/docs/Web/API/window.crypto.getRandomValues
+  var bytes = Buffer.allocUnsafe(size)
+
   if (size > 0) {  // getRandomValues fails on IE if size == 0
-    crypto.getRandomValues(rawBytes)
+    if (size > MAX_BYTES) { // this is the max bytes crypto.getRandomValues
+      // can do at once see https://developer.mozilla.org/en-US/docs/Web/API/window.crypto.getRandomValues
+      for (var generated = 0; generated < size; generated += MAX_BYTES) {
+        // buffer.slice automatically checks if the end is past the end of
+        // the buffer so we don't have to here
+        crypto.getRandomValues(bytes.slice(generated, generated + MAX_BYTES))
+      }
+    } else {
+      crypto.getRandomValues(bytes)
+    }
   }
-
-  // XXX: phantomjs doesn't like a buffer being passed here
-  var bytes = Buffer.from(rawBytes.buffer)
 
   if (typeof cb === 'function') {
     return process.nextTick(function () {
@@ -10111,7 +10123,7 @@ function objectToString(o) {
   return Object.prototype.toString.call(o);
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer))
 
 /***/ }),
 /* 27 */
@@ -10128,7 +10140,7 @@ function objectToString(o) {
   return buffer
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer))
 
 /***/ }),
 /* 28 */
@@ -10825,7 +10837,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var algorithm_1 = __webpack_require__(2);
 var messaging_1 = __webpack_require__(7);
 var layout_1 = __webpack_require__(17);
-var widget_1 = __webpack_require__(5);
+var widget_1 = __webpack_require__(4);
 /**
  * A concrete layout implementation suitable for many use cases.
  *
@@ -11786,7 +11798,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 | The full license is in the file LICENSE, distributed with this software.
 |----------------------------------------------------------------------------*/
 var panellayout_1 = __webpack_require__(34);
-var widget_1 = __webpack_require__(5);
+var widget_1 = __webpack_require__(4);
 /**
  * A simple and convenient panel widget class.
  *
@@ -15029,7 +15041,7 @@ function simpleEnd(buf) {
 
 "use strict";
 
-var Buffer = __webpack_require__(4).Buffer
+var Buffer = __webpack_require__(5).Buffer
 var inherits = __webpack_require__(0)
 var HashBase = __webpack_require__(75)
 
@@ -15316,7 +15328,7 @@ function getr(priv) {
   return r;
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer))
 
 /***/ }),
 /* 61 */
@@ -16291,7 +16303,7 @@ var properties_1 = __webpack_require__(24);
 var boxengine_1 = __webpack_require__(33);
 var layout_1 = __webpack_require__(17);
 var panellayout_1 = __webpack_require__(34);
-var widget_1 = __webpack_require__(5);
+var widget_1 = __webpack_require__(4);
 /**
  * A layout which arranges its widgets in a single row or column.
  */
@@ -17553,7 +17565,7 @@ var messaging_1 = __webpack_require__(7);
 var signaling_1 = __webpack_require__(11);
 var virtualdom_1 = __webpack_require__(47);
 var title_1 = __webpack_require__(68);
-var widget_1 = __webpack_require__(5);
+var widget_1 = __webpack_require__(4);
 /**
  * A widget which displays titles as a single row or column of tabs.
  *
@@ -20971,7 +20983,7 @@ module.exports = function (password, salt, iterations, keylen) {
   }
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer))
 
 /***/ }),
 /* 87 */
@@ -22198,7 +22210,7 @@ function g1_512_lo(xh, xl) {
 
 var inherits = __webpack_require__(0);
 var Reporter = __webpack_require__(30).Reporter;
-var Buffer = __webpack_require__(4).Buffer;
+var Buffer = __webpack_require__(5).Buffer;
 
 function DecoderBuffer(base, options) {
   Reporter.call(this, options);
@@ -22674,7 +22686,7 @@ function derDecodeLen(buf, primitive, fail) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits = __webpack_require__(0);
-var Buffer = __webpack_require__(4).Buffer;
+var Buffer = __webpack_require__(5).Buffer;
 
 var asn1 = __webpack_require__(29);
 var base = asn1.base;
@@ -38402,7 +38414,7 @@ var keyboard_1 = __webpack_require__(70);
 var messaging_1 = __webpack_require__(7);
 var signaling_1 = __webpack_require__(11);
 var virtualdom_1 = __webpack_require__(47);
-var widget_1 = __webpack_require__(5);
+var widget_1 = __webpack_require__(4);
 /**
  * A widget which displays items as a canonical menu.
  */
@@ -39896,7 +39908,7 @@ var domutils_1 = __webpack_require__(6);
 var messaging_1 = __webpack_require__(7);
 var boxengine_1 = __webpack_require__(33);
 var layout_1 = __webpack_require__(17);
-var widget_1 = __webpack_require__(5);
+var widget_1 = __webpack_require__(4);
 /**
  * A layout which provides a flexible docking arrangement.
  *
@@ -41475,7 +41487,7 @@ var properties_1 = __webpack_require__(24);
 var boxengine_1 = __webpack_require__(33);
 var layout_1 = __webpack_require__(17);
 var panellayout_1 = __webpack_require__(34);
-var widget_1 = __webpack_require__(5);
+var widget_1 = __webpack_require__(4);
 /**
  * A layout which arranges its widgets into resizable sections.
  */
@@ -42171,7 +42183,7 @@ var domutils_1 = __webpack_require__(6);
 var messaging_1 = __webpack_require__(7);
 var layout_1 = __webpack_require__(17);
 var panellayout_1 = __webpack_require__(34);
-var widget_1 = __webpack_require__(5);
+var widget_1 = __webpack_require__(4);
 /**
  * A layout where visible widgets are stacked atop one another.
  *
@@ -42536,19 +42548,20 @@ function load_extension() {
 	window.parent.IPython = IPython;
 
 	// If a Geppetto extension is defining a custom behavior to load the kernel we call it
-	IPython.notebook.restart_kernel({ confirm: false }).then(function () {
+	// IPython.notebook.restart_kernel({ confirm: false }).then(function () {
 		
-		//Import the GUI sync to use the Python Controlled Capabilities, logging, etc
-		IPython.notebook.kernel.execute('from jupyter_geppetto import jupyter_geppetto, utils');
+	// 	//Import the GUI sync to use the Python Controlled Capabilities, logging, etc
+	// 	IPython.notebook.kernel.execute('from jupyter_geppetto import jupyter_geppetto, utils');
 
-		// Load the project & activate the experiment
-		var project = { id: 1, name: 'Project', experiments: [{ "id": 1, "name": 'Experiment', "status": 'DESIGN' }] }
-		window.parent.GEPPETTO.Manager.loadProject(project, false);
-		window.parent.GEPPETTO.Manager.loadExperiment(1, [], []);
+	// 	// Load the project & activate the experiment
+	// 	var project = { id: 1, name: 'Project', experiments: [{ "id": 1, "name": 'Experiment', "status": 'DESIGN' }] }
+	// 	window.parent.GEPPETTO.Manager.loadProject(project, false);
+	// 	// window.parent.GEPPETTO.Manager.loadExperiment(1, [], []);
 
-		// Trigger event for the extension (ComponentInitialization) to run custom code
-		window.parent.GEPPETTO.trigger('jupyter_geppetto_extension_ready')
-	});
+	// 	// Trigger event for the extension (ComponentInitialization) to run custom code
+		
+	// });
+	window.parent.GEPPETTO.trigger('jupyter_geppetto_extension_ready')
 }
 
 var load_ipython_extension = function () {
@@ -45713,7 +45726,7 @@ exports.encrypt = function (self, chunk) {
   return xor(chunk, pad)
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer))
 
 /***/ }),
 /* 169 */
@@ -46017,7 +46030,7 @@ function createDiffieHellman (prime, enc, generator, genc) {
 exports.DiffieHellmanGroup = exports.createDiffieHellmanGroup = exports.getDiffieHellman = getDiffieHellman
 exports.createDiffieHellman = exports.DiffieHellman = createDiffieHellman
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer))
 
 /***/ }),
 /* 173 */
@@ -46206,7 +46219,7 @@ function formatReturnValue(bn, enc) {
   }
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer))
 
 /***/ }),
 /* 177 */
@@ -46304,7 +46317,7 @@ module.exports = {
   createVerify: createVerify
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer))
 
 /***/ }),
 /* 178 */
@@ -46456,13 +46469,13 @@ module.exports = sign
 module.exports.getKey = getKey
 module.exports.makeKey = makeKey
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer))
 
 /***/ }),
 /* 179 */
 /***/ (function(module, exports) {
 
-module.exports = {"_args":[["elliptic@^6.0.0","/home/user/nwb-explorer-jupyter/dependencies/org.geppetto.frontend.jupyter/js/node_modules/browserify-sign"]],"_from":"elliptic@>=6.0.0 <7.0.0","_id":"elliptic@6.4.1","_inCache":true,"_installable":true,"_location":"/elliptic","_nodeVersion":"10.5.0","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"},"_npmUser":{"email":"fedor@indutny.com","name":"indutny"},"_npmVersion":"6.3.0","_phantomChildren":{},"_requested":{"name":"elliptic","raw":"elliptic@^6.0.0","rawSpec":"^6.0.0","scope":null,"spec":">=6.0.0 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_shrinkwrap":null,"_spec":"elliptic@^6.0.0","_where":"/home/user/nwb-explorer-jupyter/dependencies/org.geppetto.frontend.jupyter/js/node_modules/browserify-sign","author":{"email":"fedor@indutny.com","name":"Fedor Indutny"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"fileCount":17,"integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","npm-signature":"-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n","shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","unpackedSize":118371},"files":["lib"],"gitHead":"523da1cf71ddcfd607fbdee1858bc2af47f0e700","homepage":"https://github.com/indutny/elliptic","keywords":["Cryptography","EC","Elliptic","curve"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"}
+module.exports = {"_args":[["elliptic@^6.0.0","/home/user/testnwb/dependencies/org.geppetto.frontend.jupyter/js/node_modules/browserify-sign"]],"_from":"elliptic@>=6.0.0 <7.0.0","_id":"elliptic@6.4.1","_inCache":true,"_installable":true,"_location":"/elliptic","_nodeVersion":"10.5.0","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"},"_npmUser":{"email":"fedor@indutny.com","name":"indutny"},"_npmVersion":"6.3.0","_phantomChildren":{},"_requested":{"name":"elliptic","raw":"elliptic@^6.0.0","rawSpec":"^6.0.0","scope":null,"spec":">=6.0.0 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_shrinkwrap":null,"_spec":"elliptic@^6.0.0","_where":"/home/user/testnwb/dependencies/org.geppetto.frontend.jupyter/js/node_modules/browserify-sign","author":{"email":"fedor@indutny.com","name":"Fedor Indutny"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"fileCount":17,"integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","npm-signature":"-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n","shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","unpackedSize":118371},"files":["lib"],"gitHead":"523da1cf71ddcfd607fbdee1858bc2af47f0e700","homepage":"https://github.com/indutny/elliptic","keywords":["Cryptography","EC","Elliptic","curve"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"}
 
 /***/ }),
 /* 180 */
@@ -52044,7 +52057,7 @@ decoders.pem = __webpack_require__(208);
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits = __webpack_require__(0);
-var Buffer = __webpack_require__(4).Buffer;
+var Buffer = __webpack_require__(5).Buffer;
 
 var DERDecoder = __webpack_require__(103);
 
@@ -52237,12 +52250,13 @@ module.exports = {"2.16.840.1.101.3.4.1.1":"aes-128-ecb","2.16.840.1.101.3.4.1.2
 /* 213 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {// adapted from https://github.com/apatil/pemstrip
+// adapted from https://github.com/apatil/pemstrip
 var findProc = /Proc-Type: 4,ENCRYPTED[\n\r]+DEK-Info: AES-((?:128)|(?:192)|(?:256))-CBC,([0-9A-H]+)[\n\r]+([0-9A-z\n\r\+\/\=]+)[\n\r]+/m
-var startRegex = /^-----BEGIN ((?:.* KEY)|CERTIFICATE)-----/m
-var fullRegex = /^-----BEGIN ((?:.* KEY)|CERTIFICATE)-----([0-9A-z\n\r\+\/\=]+)-----END \1-----$/m
+var startRegex = /^-----BEGIN ((?:.*? KEY)|CERTIFICATE)-----/m
+var fullRegex = /^-----BEGIN ((?:.*? KEY)|CERTIFICATE)-----([0-9A-z\n\r\+\/\=]+)-----END \1-----$/m
 var evp = __webpack_require__(38)
 var ciphers = __webpack_require__(58)
+var Buffer = __webpack_require__(1).Buffer
 module.exports = function (okey, password) {
   var key = okey.toString()
   var match = key.match(findProc)
@@ -52252,8 +52266,8 @@ module.exports = function (okey, password) {
     decrypted = new Buffer(match2[2].replace(/[\r\n]/g, ''), 'base64')
   } else {
     var suite = 'aes' + match[1]
-    var iv = new Buffer(match[2], 'hex')
-    var cipherText = new Buffer(match[3].replace(/[\r\n]/g, ''), 'base64')
+    var iv = Buffer.from(match[2], 'hex')
+    var cipherText = Buffer.from(match[3].replace(/[\r\n]/g, ''), 'base64')
     var cipherKey = evp(password, iv.slice(0, 8), parseInt(match[1], 10)).key
     var out = []
     var cipher = ciphers.createDecipheriv(suite, cipherKey, iv)
@@ -52268,7 +52282,6 @@ module.exports = function (okey, password) {
   }
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
 
 /***/ }),
 /* 214 */
@@ -52358,7 +52371,7 @@ function checkValue (b, q) {
 
 module.exports = verify
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer))
 
 /***/ }),
 /* 215 */
@@ -52489,7 +52502,7 @@ function formatReturnValue (bn, enc, len) {
   }
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).Buffer))
 
 /***/ }),
 /* 216 */
@@ -55507,7 +55520,7 @@ __export(__webpack_require__(128));
 __export(__webpack_require__(71));
 __export(__webpack_require__(324));
 __export(__webpack_require__(68));
-__export(__webpack_require__(5));
+__export(__webpack_require__(4));
 
 
 /***/ }),
@@ -59487,7 +59500,7 @@ var coreutils_1 = __webpack_require__(20);
 var commands_1 = __webpack_require__(123);
 var domutils_1 = __webpack_require__(6);
 var virtualdom_1 = __webpack_require__(47);
-var widget_1 = __webpack_require__(5);
+var widget_1 = __webpack_require__(4);
 /**
  * A widget which displays command items as a searchable palette.
  */
@@ -60779,7 +60792,7 @@ var properties_1 = __webpack_require__(24);
 var signaling_1 = __webpack_require__(11);
 var docklayout_1 = __webpack_require__(125);
 var tabbar_1 = __webpack_require__(71);
-var widget_1 = __webpack_require__(5);
+var widget_1 = __webpack_require__(4);
 /**
  * A widget which provides a flexible docking area for widgets.
  */
@@ -62220,7 +62233,7 @@ var messaging_1 = __webpack_require__(7);
 var properties_1 = __webpack_require__(24);
 var boxengine_1 = __webpack_require__(33);
 var layout_1 = __webpack_require__(17);
-var widget_1 = __webpack_require__(5);
+var widget_1 = __webpack_require__(4);
 /**
  * A layout which arranges its widgets in a grid.
  */
@@ -62945,7 +62958,7 @@ var domutils_1 = __webpack_require__(6);
 var keyboard_1 = __webpack_require__(70);
 var messaging_1 = __webpack_require__(7);
 var virtualdom_1 = __webpack_require__(47);
-var widget_1 = __webpack_require__(5);
+var widget_1 = __webpack_require__(4);
 /**
  * A widget which displays menus as a canonical menu bar.
  */
@@ -63720,7 +63733,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var domutils_1 = __webpack_require__(6);
 var dragdrop_1 = __webpack_require__(48);
 var signaling_1 = __webpack_require__(11);
-var widget_1 = __webpack_require__(5);
+var widget_1 = __webpack_require__(4);
 /**
  * A widget which implements a canonical scroll bar.
  */
@@ -64404,7 +64417,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var algorithm_1 = __webpack_require__(2);
 var messaging_1 = __webpack_require__(7);
 var layout_1 = __webpack_require__(17);
-var widget_1 = __webpack_require__(5);
+var widget_1 = __webpack_require__(4);
 /**
  * A concrete layout implementation which holds a single widget.
  *
@@ -64994,7 +65007,7 @@ var signaling_1 = __webpack_require__(11);
 var boxlayout_1 = __webpack_require__(67);
 var stackedpanel_1 = __webpack_require__(128);
 var tabbar_1 = __webpack_require__(71);
-var widget_1 = __webpack_require__(5);
+var widget_1 = __webpack_require__(4);
 /**
  * A widget which combines a `TabBar` and a `StackedPanel`.
  *
