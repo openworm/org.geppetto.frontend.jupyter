@@ -5,7 +5,7 @@ import glob
 import os
 
 # The path of the geppetto client. Relative path is from the application root
-geppetto_webapp_file = 'GEPPETTO.Backend.js'
+geppetto_webapp_file = 'ComponentsInitialization.js'
 
 # The path of the template. It should be relative to the webapp path
 template_path = 'build/geppetto.vm'
@@ -22,4 +22,4 @@ geppetto_servlet_path_name = 'GeppettoServlet'
 
 geppetto_version = "0.4.2" # FIXME the hardcoded version must be changed
 
-debug = True
+debug = False

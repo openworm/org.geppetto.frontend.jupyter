@@ -2,7 +2,7 @@ import logging
 # from jupyter_client import session
 from zmq.utils import jsonapi
 from ipykernel.jsonutil import json_clean
-
+import notebook.notebook.handlers
 
 def convertToJS(content):
     # return session.json_packer(content).decode("utf-8")
