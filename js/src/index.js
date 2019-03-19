@@ -18,21 +18,11 @@ function load_extension() {
     // Make Jupyter (aka IPython) available to Geppetto
     window.parent.IPython = IPython;
 
-    // // If a Geppetto extension is defining a custom behavior to load the kernel we call it
-    IPython.notebook.restart_kernel({confirm: false}).then(function () {
-        IPython.notebook.kernel.execute('from jupyter_geppetto import jupyter_geppetto, utils');
+    // This loads the requirements into the notebook kernel
+    IPython.notebook.kernel.execute('from jupyter_geppetto import jupyter_geppetto, utils');
 
-        // 	//Import the GUI sync to use the Python Controlled Capabilities, logging, etc
-        //
-
-        // 	// // Load the project & activate the experiment
-        // 	// var project = { id: 1, name: 'Project', experiments: [{ "id": 1, "name": 'Experiment', "status": 'DESIGN' }] }
-        // 	// window.parent.GEPPETTO.Manager.loadProject(project, false);
-        // 	// window.parent.GEPPETTO.Manager.loadExperiment(1, [], []);
-
-        // 	// Trigger event for the extension (ComponentInitialization) to run custom code
-        window.parent.GEPPETTO.trigger('jupyter_geppetto_extension_ready');
-    });
+    // This will allow the application to be aware that the notebook kernel is ready
+    window.parent.GEPPETTO.trigger('jupyter_geppetto_extension_ready');
 
 }
 
