@@ -1,8 +1,9 @@
 import logging
+
+from ipykernel.jsonutil import json_clean
 # from jupyter_client import session
 from zmq.utils import jsonapi
-from ipykernel.jsonutil import json_clean
-import notebook.notebook.handlers
+
 
 def convertToJS(content):
     # return session.json_packer(content).decode("utf-8")
@@ -22,7 +23,7 @@ def exception_to_string(exc_info):
 def getJSONError(message, exc_info):
     data = {}
     data['type'] = 'ERROR'
-    data['message'] = message
+    data['websocket'] = message
 
     if isinstance(exc_info, str):
         details = exc_info
@@ -41,7 +42,7 @@ def configure_logging():
         # Configure log
         logger = logging.getLogger()
         fhandler = logging.FileHandler(filename='app.log', mode='a')
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(websocket)s')
         fhandler.setFormatter(formatter)
         logger.addHandler(fhandler)
         logger.setLevel(logging.DEBUG)

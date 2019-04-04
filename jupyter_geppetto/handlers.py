@@ -1,10 +1,12 @@
-from tornado.websocket import WebSocketHandler
+import json
 import logging
+
+import jupyter_geppetto.settings as settings
+from jupyter_geppetto.service import PathService
+from tornado.websocket import WebSocketHandler
+
 from .settings import template_path, home_page
 from .webapi import get
-import json
-from jupyter_geppetto.service import PathService
-import jupyter_geppetto.settings as settings
 
 
 class GeppettoController:
@@ -60,10 +62,10 @@ class GeppettoWebSocketHandler(WebSocketHandler):
     def on_message(self, message):
 
         payload = json.loads(message)
-        assert 'type' in payload, 'Websocket message without type received: {}'.format(payload)
+        assert 'type' in payload, 'Websocket without type received: {}'.format(payload)
 
-        logging.debug('Websocket message received: {}', payload['type'])
-        # TODO only the geppetto_version message is handled by now
+        logging.debug('Websocket websocket received: {}', payload['type'])
+        # TODO only the geppetto_version websocket is handled by now
         if (payload['type'] == 'geppetto_version'):
 
             self.write_message(json.dumps({
