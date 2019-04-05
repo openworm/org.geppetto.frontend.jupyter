@@ -1,8 +1,6 @@
 '''
 Settings for the module. Change right after importing, if needed.
 '''
-import glob
-import os
 
 # The path of the geppetto client. Relative path is from the application root
 geppetto_webapp_file = 'ComponentsInitialization.js'
@@ -20,6 +18,16 @@ home_page = '/geppetto'
 
 geppetto_servlet_path_name = 'GeppettoServlet'
 
-geppetto_version = "0.4.2" # FIXME the hardcoded version must be changed
+geppetto_version = "0.4.2"  # FIXME the hardcoded version must be changed
 
 debug = False
+
+
+class Resources:
+    ERROR_LOADING_PROJECT_MESSAGE = "Invalid project file. Double check the information you have entered and try again."
+
+    ERROR_DOWNLOADING_MODEL = "Format not supported"
+
+    UNSUPPORTED_OPERATION = "This deployment of Geppetto doesn't support this operation. Contact info@geppetto.org for more information."
+
+    VOLATILE_PROJECT = "The operation cannot be executed on a volatile project. If you wish to persist the project press the star icon at the top."

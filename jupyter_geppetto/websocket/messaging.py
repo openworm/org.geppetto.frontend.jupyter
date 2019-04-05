@@ -1,103 +1,107 @@
-# TODO implement DefaultMessageSender
-class DefaultMessageSender(object):
-    """ generated source for class DefaultMessageSender """
-
-    def __init__(self):
-        """ generated source for method __init__ """
-        self.listeners = []
-
-    def shutdown(self):
-        raise NotImplemented()
-
-    def pause(self):
-        raise NotImplemented()
-
-    def resume(self):
-        raise NotImplemented()
-
-    def reset(self):
-        raise NotImplemented()
-
-    def sendMessage(self, requestID, messageType, update):
-        raise NotImplemented()
-
-    def sendFile(self, path):
-        raise NotImplemented()
-
-    def addListener(self, listener):
-        self.listeners.append(listener)
+from .outbound_messages import *
+from ..settings import Resources
 
 
-class DefaultMessageSenderFactory(object):
-    """ generated source for class DefaultMessageSenderFactory """
-    queuingEnabled = False
-    maxQueueSize = 5
-    discardMessagesIfQueueFull = True
-    compressionEnabled = False
-    minMessageLengthForCompression = 20000
-    queuedMessageTypes = None
+class GeppettoTransportMessage:
 
-    def getMessageSender(self, wsOutbound, listener):
-        """ generated source for method getMessageSender """
-        messageSender = DefaultMessageSender()
-        messageSender.addListener(listener)
-        # messageSender.setQueuingEnabled(self.queuingEnabled)
-        # messageSender.setMaxQueueSize(self.maxQueueSize)
-        # messageSender.setDiscardMessagesIfQueueFull(self.discardMessagesIfQueueFull)
-        # messageSender.setCompressionEnabled(self.compressionEnabled)
-        # messageSender.setMinMessageLengthForCompression(self.minMessageLengthForCompression)
-        # messageSender.setQueuedMessageTypes(self.queuedMessageTypes)
-        # messageSender.initialize(wsOutbound)
-        return messageSender
+    def __init__(self, requestID, type_, data):
+        self.requestID = requestID
+        self.type = type_
+        self.data = data
 
-    def isQueuedMessageType(self, messageType):
-        """ generated source for method isQueuedMessageType """
-        return self.queuedMessageTypes != None and self.queuedMessageTypes.contains(messageType)
 
-    def isCompressionEnabled(self):
-        """ generated source for method isCompressionEnabled """
-        return self.compressionEnabled
+class TransportMessageFactory(object):
+    """ generated source for class TransportMessageFactory """
+    EMPTY_STRING = ""
 
-    def setCompressionEnabled(self, compressionEnabled):
-        """ generated source for method setCompressionEnabled """
-        self.compressionEnabled = compressionEnabled
+    #
+    # 	 * Create JSON object with appropriate message for its type
+    # 	 * @param id
+    # 	 *
+    # 	 * @param type - Type of message of requested
+    # 	 * @return
+    #
+    @classmethod
+    def getTransportMessage(cls, requestID, type_, update):
+        """ generated source for method getTransportMessage """
+        messageType = type_
+        payload = {}
+        if type_ == ERROR:
+            payload.update({'message': update})
+        elif type_ == INFO_MESSAGE:
+            payload.update({'message': update})
+        elif type_ == ERROR_LOADING_PROJECT:
+            payload.update({"message": Resources.ERROR_LOADING_PROJECT_MESSAGE})
+        elif type_ == ERROR_DOWNLOADING_MODEL:
+            payload.update({"message": Resources.ERROR_DOWNLOADING_MODEL})
+        elif type_ == ERROR_DOWNLOADING_RESULTS:
+            payload.update({"message": Resources.ERROR_DOWNLOADING_MODEL})
+        elif type_ == READ_URL_PARAMETERS:
+            pass
+        elif type_ == USER_PRIVILEGES:
+            payload.update(
+                {OutboundMessages.USER_PRIVILEGES: update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == PROJECT_LOADED:
+            payload.update({OutboundMessages.PROJECT_LOADED: update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == GEPPETTO_MODEL_LOADED:
+            payload.update(
+                {OutboundMessages.GEPPETTO_MODEL_LOADED: update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == VARIABLE_FETCHED:
+            payload.update(
+                {OutboundMessages.VARIABLE_FETCHED: update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == IMPORT_TYPE_RESOLVED:
+            payload.update(
+                {OutboundMessages.IMPORT_TYPE_RESOLVED: update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == SIMULATION_OVER:
+            payload.update(
+                {OutboundMessages.SIMULATION_OVER: update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == FIRE_SIM_SCRIPTS:
+            payload.update({OutboundMessages.GET_SCRIPTS: update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == EXPERIMENT_RUNNING:
+            payload.update({"update": update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == EXPERIMENT_STATUS:
+            payload.update({"update": update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == DOWNLOAD_MODEL:
+            payload.update({"update": update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == DOWNLOAD_PROJECT:
+            payload.update({"update": update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == GET_EXPERIMENT_STATE:
+            payload.update({"update": update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == DELETE_EXPERIMENT:
+            payload.update({"update": update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == SIMULATION_CONFIGURATION:
+            payload.update({"configuration": update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == CLIENT_ID:
+            payload.update({"clientID": update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == PROJECT_PERSISTED:
+            payload.update({"update": update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == PROJECT_MADE_PUBLIC:
+            payload.update({"update": update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == PROJECT_PROPS_SAVED:
+            payload.update({"update": update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == EXPERIMENT_PROPS_SAVED:
+            payload.update({"update": update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == DROPBOX_LINKED:
+            payload.update({OutboundMessages.DROPBOX_LINKED, update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == DROPBOX_UNLINKED:
+            payload.update(
+                {OutboundMessages.DROPBOX_UNLINKED, update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == RESULTS_UPLOADED:
+            payload.update(
+                {OutboundMessages.RESULTS_UPLOADED, update if (update != None) else cls.EMPTY_STRING})
+        elif type_ == MODEL_UPLOADED:
+            payload.update({OutboundMessages.MODEL_UPLOADED, update if (update != None) else cls.EMPTY_STRING})
+        else:
+            payload.update({type_, update if (update != None) else cls.EMPTY_STRING})
+        return cls.createTransportMessage(requestID, messageType, payload)
 
-    def isQueuingEnabled(self):
-        """ generated source for method isQueuingEnabled """
-        return self.queuingEnabled
-
-    def setQueuingEnabled(self, queuingEnabled):
-        """ generated source for method setQueuingEnabled """
-        self.queuingEnabled = queuingEnabled
-
-    def getMaxQueueSize(self):
-        """ generated source for method getMaxQueueSize """
-        return self.maxQueueSize
-
-    def setMaxQueueSize(self, maxQueueSize):
-        """ generated source for method setMaxQueueSize """
-        self.maxQueueSize = maxQueueSize
-
-    def getDiscardMessagesIfQueueFull(self):
-        """ generated source for method getDiscardMessagesIfQueueFull """
-        return self.discardMessagesIfQueueFull
-
-    def setDiscardMessagesIfQueueFull(self, discardMessagesIfQueueFull):
-        """ generated source for method setDiscardMessagesIfQueueFull """
-        self.discardMessagesIfQueueFull = discardMessagesIfQueueFull
-
-    def getMinMessageLengthForCompression(self):
-        """ generated source for method getMinMessageLengthForCompression """
-        return self.minMessageLengthForCompression
-
-    def setMinMessageLengthForCompression(self, minMessageLengthForCompression):
-        """ generated source for method setMinMessageLengthForCompression """
-        self.minMessageLengthForCompression = minMessageLengthForCompression
-
-    def getQueuedMessageTypes(self):
-        """ generated source for method getQueuedMessageTypes """
-        return self.queuedMessageTypes
-
-    def setQueuedMessageTypes(self, queuedMessageTypes):
-        """ generated source for method setQueuedMessageTypes """
-        self.queuedMessageTypes = queuedMessageTypes
+    #
+    # 	 * Create JSON object with type and parameters
+    # 	 *
+    # 	 * @param type - Type of message
+    # 	 * @param params - list of name-value pairs representing parameter names and values
+    # 	 * @return
+    #
+    @classmethod
+    def createTransportMessage(cls, requestID, type_, data):
+        return GeppettoTransportMessage(requestID=requestID, type_=type_, data=data)

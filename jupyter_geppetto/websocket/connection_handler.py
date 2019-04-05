@@ -4,6 +4,8 @@ from __future__ import print_function
 
 import logging
 
+from jupyter_geppetto import settings
+from pygeppetto.constants import GeppettoErrorCodes
 from pygeppetto.managers.geppetto_manager import GeppettoManager
 from pygeppetto.model.exceptions import GeppettoExecutionException
 from pygeppetto.model.model_serializer import GeppettoSerializer
@@ -12,11 +14,19 @@ from pygeppetto.model.services.data_manager import DataManagerHelper
 from .outbound_messages import OutboundMessages
 
 
+class GeppettoHandlerTypedException(Exception):
+    def __init__(self, msg, msg_type=None, exc=None):
+        Exception.__init__(self, msg)
+        self.payload = msg
+        self.exc = exc
+        self.msg_type = msg_type
+
+
 #
-class ConnectionHandler(object):
+class GeppettoHandler(object):
     """ generated source for class ConnectionHandler """
     simulationServerConfig = None
-    websocketConnection = None
+
     geppettoManager = None
 
     #  the geppetto project active for this connection
@@ -26,10 +36,9 @@ class ConnectionHandler(object):
     # 	 * @param websocketConnection
     # 	 * @param geppettoManager
     # 	 
-    def __init__(self, websocketConnection, geppettoManager):
+    def __init__(self):
         """ generated source for method __init__ """
-        self.websocketConnection = websocketConnection
-        self.geppettoManager = GeppettoManager(geppettoManager)
+        self.geppettoManager = GeppettoManager()  # TODO manage geppettoManager instance
 
     # 
     # 	 * @param requestID
@@ -41,14 +50,14 @@ class ConnectionHandler(object):
         try:
             geppettoProject = dataManager.getGeppettoProjectById(projectId)
             if self.geppettoProject == None:
-                self.websocketConnection.sendMessage(requestID, OutboundMessages.ERROR_LOADING_PROJECT,
+                raise GeppettoHandlerTypedException(OutboundMessages.ERROR_LOADING_PROJECT,
                                                      "Project not found")
             else:
                 self.loadGeppettoProject(requestID, self.geppettoProject, experimentId)
         except Exception as e:
-            self.websocketConnection.sendMessage(requestID, OutboundMessages.ERROR_LOADING_PROJECT, "")
+            raise GeppettoHandlerTypedException(OutboundMessages.ERROR_LOADING_PROJECT, "")
 
-    def loadGeppettoProject(requestID, geppettoProject, experimentId):
+    def loadGeppettoProject(self, requestID, geppettoProject, experimentId):
         raise NotImplemented()
 
     # 
@@ -64,8 +73,7 @@ class ConnectionHandler(object):
         geppettoProject = self.retrieveGeppettoProject(projectId)
         try:
             geppettoModel = self.geppettoManager.resolve_import_type(typePaths, geppettoProject)
-            self.websocketConnection.sendMessage(requestID, OutboundMessages.IMPORT_TYPE_RESOLVED,
-                                                 GeppettoSerializer.serializeToJSON(geppettoModel, True))
+            return GeppettoSerializer.serializeToJSON(geppettoModel, True)
         except IOError as e:
             self.error(e, "Error importing type " + typePaths)
         except GeppettoExecutionException as e:
@@ -76,15 +84,14 @@ class ConnectionHandler(object):
     # 	 * @param projectId
     # 	 * @param experimentId
     # 	 * @param path
-    # 	 
+    #
     def resolveImportValue(self, requestID, projectId, experimentId, path):
         """ generated source for method resolveImportValue """
         geppettoProject = self.retrieveGeppettoProject(projectId)
         experiment = self.retrieveExperiment(experimentId, geppettoProject)
         try:
             geppettoModel = self.geppettoManager.resolve_import_value(path, experiment, geppettoProject)
-            self.websocketConnection.sendMessage(requestID, OutboundMessages.IMPORT_VALUE_RESOLVED,
-                                                 GeppettoSerializer.serializeToJSON(geppettoModel, True))
+            return GeppettoSerializer.serializeToJSON(geppettoModel, True)
         except IOError as e:
             self.error(e, "Error importing value " + path)
         except GeppettoExecutionException as e:
@@ -115,23 +122,20 @@ class ConnectionHandler(object):
         dataManager = DataManagerHelper.getDataManager()
         return dataManager.getGeppettoProjectById(projectId)
 
-    def getGson(self):
-        """ generated source for method getGson """
-        import json
-        return json
 
     # 
     # 	 * @param exception
     # 	 * @param errorMessage
     # 	 
-    def error(self, exception, errorMessage):
+    def error(self, exception: Exception, errorMessage):
         """ generated source for method error """
         exceptionMessage = ""
         if exception != None:
-            exceptionMessage = exception.getMessage() if exception.getCause() == None else exception.__str__()
-        #  Error error = new self.error(GeppettoErrorCodes.EXCEPTION, errorMessage, exceptionMessage, 0);
-        logging.self.error(errorMessage, exception)
-        #  websocketConnection.sendMessage(null, OutboundMessages.ERROR, getGson().toJson(error));
+            exceptionMessage = str(exception)
+        error = Error(GeppettoErrorCodes.EXCEPTION, errorMessage, exceptionMessage, 0)
+        logging.error(errorMessage, exception)
+
+        raise GeppettoHandlerTypedException(OutboundMessages.ERROR, error)
 
     # 
     # 	 * @param requestID
@@ -141,7 +145,7 @@ class ConnectionHandler(object):
     def info(self, requestID, message):
         """ generated source for method info """
         logging.info(message)
-        self.websocketConnection.sendMessage(requestID, OutboundMessages.INFO_MESSAGE, self.getGson().toJson(message))
+        raise GeppettoHandlerTypedException(OutboundMessages.INFO_MESSAGE, message)
 
     #
     # 	 * @param geppettoProject
@@ -150,5 +154,19 @@ class ConnectionHandler(object):
     def setConnectionProject(self, geppettoProject):
         """ generated source for method setConnectionProject """
         if self.geppettoProject != None:
-            self.geppettoManager.closeProject(None, self.geppettoProject)
+            self.geppettoManager.close_project(self.geppettoProject)
         self.geppettoProject = geppettoProject
+
+    def getVersionNumber(self, requestID):
+        return settings.geppetto_version
+
+
+class Error(object):
+    """ generated source for class Error """
+
+    def __init__(self, errorCode, errorMessage, jsonExceptionMsg, id):
+        """ generated source for method __init__ """
+        self.error_code = errorCode.__str__()
+        self.message = errorMessage
+        self.exception = jsonExceptionMsg
+        self.id = id
