@@ -2,6 +2,7 @@
 """ generated source for module ConnectionHandler """
 from __future__ import print_function
 
+import json
 import logging
 
 from jupyter_geppetto import settings
@@ -9,9 +10,9 @@ from pygeppetto.constants import GeppettoErrorCodes
 from pygeppetto.managers.geppetto_manager import GeppettoManager
 from pygeppetto.model.exceptions import GeppettoExecutionException
 from pygeppetto.model.model_serializer import GeppettoSerializer
-from pygeppetto.model.services.data_manager import DataManagerHelper
+from pygeppetto.services.data_manager import DataManagerHelper
 
-from .outbound_messages import OutboundMessages
+from . import outbound_messages as OutboundMessages
 
 
 class GeppettoHandlerTypedException(Exception):
@@ -22,23 +23,58 @@ class GeppettoHandlerTypedException(Exception):
         self.msg_type = msg_type
 
 
-#
-class GeppettoHandler(object):
+# See https://github.com/openworm/org.geppetto.frontend/blob/development/src/main/java/org/geppetto/frontend/controllers/ConnectionHandler.java#L867
+class ConnectionHandler(object):
     """ generated source for class ConnectionHandler """
     simulationServerConfig = None
 
-    geppettoManager = None
+    geppettoManager = GeppettoManager()  # TODO manage geppettoManager instance
 
-    #  the geppetto project active for this connection
-    geppettoProject = None
+    def __init__(self, websocket_connection):
+        self.websocket_connection = websocket_connection
 
-    # 
-    # 	 * @param websocketConnection
-    # 	 * @param geppettoManager
-    # 	 
-    def __init__(self):
-        """ generated source for method __init__ """
-        self.geppettoManager = GeppettoManager()  # TODO manage geppettoManager instance
+    def loadProjectFromUrl(self, requestID, urlString):
+        dataManager = DataManagerHelper.getDataManager()
+
+        geppettoProject = dataManager.getProjectFromJson(urlString)
+
+        if geppettoProject == None:
+            raise GeppettoHandlerTypedException(OutboundMessages.ERROR_LOADING_PROJECT,
+                                                "Project not found")
+        else:
+            return self.loadGeppettoProject(requestID, geppettoProject, -1)
+
+    def loadProjectFromContent(self, requestID, projectContentJSON):
+        dataManager = DataManagerHelper.getDataManager()
+
+        geppettoProject = dataManager.getProjectFromJson(projectContentJSON)
+        self.loadGeppettoProject(requestID, geppettoProject, -1)
+
+    def loadGeppettoProject(self, requestID, geppettoProject, experimentId):
+
+        try:
+            readOnly = geppettoProject.volatile  # TODO implement logic related to user projects which are not readonly
+
+            self.geppettoManager.load_project(geppettoProject)
+            # Here the project is loaded: a runtime project is created with its model
+
+            # TODO handle experiment
+
+            project_message_update = {'persisted': not geppettoProject.volatile,
+                                      'project': json.dumps(geppettoProject),
+                                      'isReadOnly': readOnly
+                                      }
+            self.websocket_connection.send_message(requestID, OutboundMessages.PROJECT_LOADED, project_message_update)
+
+            geppettoModelJSON = GeppettoSerializer.serializeToJSON(
+                self.geppettoManager.get_runtime_project(geppettoProject).geppettoModel, True)
+
+            self.websocket_connection.send_message(requestID, OutboundMessages.GEPPETTO_MODEL_LOADED, geppettoModelJSON)
+        except Exception as e:
+            self.error(e, "Could not load geppetto project")
+
+
+
 
     # 
     # 	 * @param requestID
@@ -51,23 +87,12 @@ class GeppettoHandler(object):
             geppettoProject = dataManager.getGeppettoProjectById(projectId)
             if self.geppettoProject == None:
                 raise GeppettoHandlerTypedException(OutboundMessages.ERROR_LOADING_PROJECT,
-                                                     "Project not found")
+                                                    "Project not found")
             else:
                 self.loadGeppettoProject(requestID, self.geppettoProject, experimentId)
         except Exception as e:
             raise GeppettoHandlerTypedException(OutboundMessages.ERROR_LOADING_PROJECT, "")
 
-    def loadGeppettoProject(self, requestID, geppettoProject, experimentId):
-        raise NotImplemented()
-
-    # 
-    # 	 * @param requestID
-    # 	 * @param projectId
-    # 	 * @param experimentId
-    # 	 * @param dataSourceServiceId
-    # 	 * @param variableId
-    # 	 * @throws GeppettoExecutionException
-    # 	 
     def resolveImportType(self, requestID, projectId, typePaths):
         """ generated source for method resolveImportType """
         geppettoProject = self.retrieveGeppettoProject(projectId)
@@ -79,12 +104,6 @@ class GeppettoHandler(object):
         except GeppettoExecutionException as e:
             self.error(e, "Error importing type " + typePaths)
 
-    #
-    # 	 * @param requestID
-    # 	 * @param projectId
-    # 	 * @param experimentId
-    # 	 * @param path
-    #
     def resolveImportValue(self, requestID, projectId, experimentId, path):
         """ generated source for method resolveImportValue """
         geppettoProject = self.retrieveGeppettoProject(projectId)
@@ -122,8 +141,7 @@ class GeppettoHandler(object):
         dataManager = DataManagerHelper.getDataManager()
         return dataManager.getGeppettoProjectById(projectId)
 
-
-    # 
+    #
     # 	 * @param exception
     # 	 * @param errorMessage
     # 	 

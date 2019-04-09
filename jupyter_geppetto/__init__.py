@@ -1,22 +1,22 @@
-import os.path
 import logging
+import os.path
 
 import tornado.web
-from tornado.web import StaticFileHandler
-from tornado.routing import Matcher
-
-from notebook.utils import url_path_join
-
+from jupyter_geppetto.handlers import GeppettoController
+from jupyter_geppetto.service import PathService
+from jupyter_geppetto.settings import host_pattern, notebook_path, webapp_root_paths, home_page, \
+    geppetto_servlet_path_name
 from jupyter_geppetto.utils import createNotebook
 from jupyter_geppetto.webapi import RouteManager
-from jupyter_geppetto.settings import host_pattern, notebook_path, webapp_root_paths, home_page, geppetto_servlet_path_name
-from jupyter_geppetto.handlers import GeppettoController, GeppettoWebSocketHandler
-from jupyter_geppetto.service import PathService
+from notebook.utils import url_path_join
+from tornado.routing import Matcher
+from tornado.web import StaticFileHandler
 
+from .websocket.websocket_connection import GeppettoWebSocketHandler
 
 
 # @deprecated Backward compatibility: remove when every application stop using
-import jupyter_geppetto.synchronization as jupyter_geppetto
+# import jupyter_geppetto.synchronization as jupyter_geppetto
 
 def _jupyter_server_extension_paths():
     return [{
@@ -96,7 +96,7 @@ class BasePathRecognitionMatcher(Matcher):
         if not base_path or base_path[0] != '/':
             base_path = '/' + base_path
 
-        self.nbapp.log.info('Path found: {}'.format(base_path))
+        self.nbapp.log.debug('Path found: {}'.format(base_path))
         if base_path in self.paths:
             return None  # Skip already added base path
 

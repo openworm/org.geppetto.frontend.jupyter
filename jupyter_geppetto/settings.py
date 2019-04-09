@@ -23,6 +23,11 @@ geppetto_version = "0.4.2"  # FIXME the hardcoded version must be changed
 debug = False
 
 
+class websocket:
+    compression_enabled = False
+    min_message_length_for_compression = 200
+
+
 class Resources:
     ERROR_LOADING_PROJECT_MESSAGE = "Invalid project file. Double check the information you have entered and try again."
 

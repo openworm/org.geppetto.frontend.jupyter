@@ -1,3 +1,5 @@
+import json
+
 from .outbound_messages import *
 from ..settings import Resources
 
@@ -92,8 +94,8 @@ class TransportMessageFactory(object):
         elif type_ == MODEL_UPLOADED:
             payload.update({OutboundMessages.MODEL_UPLOADED, update if (update != None) else cls.EMPTY_STRING})
         else:
-            payload.update({type_, update if (update != None) else cls.EMPTY_STRING})
-        return cls.createTransportMessage(requestID, messageType, payload)
+            payload.update({type_: update if (update != None) else cls.EMPTY_STRING})
+        return cls.createTransportMessage(requestID, messageType, json.dumps(payload))
 
     #
     # 	 * Create JSON object with type and parameters

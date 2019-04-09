@@ -20,8 +20,9 @@ from tornado.websocket import WebSocketHandler
 #
 from . import inbound_messages as InboundMessages
 from . import outbound_messages as OutboundMessages
-from .connection_handler import GeppettoHandler, GeppettoHandlerTypedException
+from .connection_handler import ConnectionHandler, GeppettoHandlerTypedException
 from .messaging import TransportMessageFactory
+from .. import settings
 
 in_out_msg_lookup = {
     InboundMessages.GEPPETTO_VERSION: OutboundMessages.GEPPETTO_VERSION,
@@ -38,48 +39,43 @@ def lookup_return_msg_type(msg_type):
 
 class GeppettoWebSocketHandler(WebSocketHandler):
     connection_id = 0
-    CLIENT_ID = {
-        'clientID': 'Connection1'
-    }
+    CLIENT_ID = 'Connection1'
 
-    PRIVILEGES = {
-        "user_privileges": json.dumps({
-            "userName": "Python User",
-            "loggedIn": True,
-            "hasPersistence": False,
-            "privileges": list(up.value for up in UserPrivileges)
-        })
-
-    }
+    PRIVILEGES = json.dumps({
+        "userName": "Python User",
+        "loggedIn": True,
+        "hasPersistence": False,
+        "privileges": list(up.value for up in UserPrivileges)
+    })
 
     def __init__(self, *args, **kwargs):
         WebSocketHandler.__init__(self, *args, **kwargs)
-        self.geppettoHandler = GeppettoHandler()
+        self.geppettoHandler = ConnectionHandler(self)
 
     def open(self):
         # 1 -> Send the connection
         logging.info('Open websocket')
         self.__class__.connection_id += 1
-        self.send_message(self.connection_id, None, OutboundMessages.CLIENT_ID)
+        self.send_message(None, OutboundMessages.CLIENT_ID, self.CLIENT_ID)
 
         # 2 -> Check user privileges
-        self.send_message(self.PRIVILEGES, None, OutboundMessages.USER_PRIVILEGES)
+        self.send_message(None, OutboundMessages.USER_PRIVILEGES, self.PRIVILEGES)
 
     def on_message(self, message):
 
         payload = json.loads(message)
         assert 'type' in payload, 'Websocket without type received: {}'.format(payload)
 
-        logging.debug('Websocket websocket received: {}', payload['type'])
+        logging.info('Websocket websocket received: {}', payload['type'])
 
         experimentId = -1
         #  de-serialize JSON
         gmsg = payload
-        requestID = gmsg.requestID
+        requestID = gmsg['requestID']
         msg_data = None
         #  switch on messages type
         #  NOTE: each messages handler knows how to interpret the GeppettoMessage data field
-        msg_type = gmsg['type'].upper()
+        msg_type = gmsg['type'].lower()
         try:
             if msg_type == InboundMessages.GEPPETTO_VERSION:
                 msg_data = self.geppettoHandler.getVersionNumber(requestID)
@@ -89,11 +85,17 @@ class GeppettoWebSocketHandler(WebSocketHandler):
                 msg_data = self.geppettoHandler.resolveImportValue(requestID, receivedObject.projectId,
                                                                    receivedObject.experimentId,
                                                                    receivedObject.path)
-            # From here on, implementation is not complete
+
             elif msg_type == InboundMessages.RESOLVE_IMPORT_TYPE:
                 receivedObject = gmsg['data']
                 msg_data = self.geppettoHandler.resolveImportType(requestID, receivedObject.projectId,
                                                                   receivedObject.paths)
+            elif msg_type == InboundMessages.LOAD_PROJECT_FROM_CONTENT:
+                msg_data = self.geppettoHandler.loadProjectFromContent(requestID, gmsg['data'])
+            elif msg_type == InboundMessages.LOAD_PROJECT_FROM_URL:
+                msg_data = self.geppettoHandler.loadProjectFromUrl(requestID, gmsg['data'])
+
+            # TODO From here on, implementation is not complete
             elif msg_type == InboundMessages.USER_PRIVILEGES:
                 msg_data = self.geppettoHandler.checkUserPrivileges(requestID)
             elif msg_type == InboundMessages.NEW_EXPERIMENT:
@@ -108,16 +110,14 @@ class GeppettoWebSocketHandler(WebSocketHandler):
                 projectId = int(parameters.get("projectId"))
                 experimentId = int(parameters.get("experimentId"))
                 msg_data = self.geppettoHandler.cloneExperiment(requestID, projectId, experimentId)
-            elif msg_type == InboundMessages.LOAD_PROJECT_FROM_URL:
-                msg_data = self.geppettoHandler.loadProjectFromURL(requestID, gmsg['data'])
+
             elif msg_type == InboundMessages.LOAD_PROJECT_FROM_ID:
                 parameters = gmsg['data']
                 if parameters.containsKey("experimentId"):
                     experimentId = int(parameters.get("experimentId"))
                 projectId = int(parameters.get("projectId"))
                 msg_data = self.geppettoHandler.loadProjectFromId(requestID, projectId, experimentId)
-            elif msg_type == InboundMessages.LOAD_PROJECT_FROM_CONTENT:
-                msg_data = self.geppettoHandler.loadProjectFromContent(requestID, gmsg['data'])
+
             elif msg_type == InboundMessages.PERSIST_PROJECT:
                 parameters = gmsg['data']
                 projectId = int(parameters.get("projectId"))
@@ -262,38 +262,32 @@ class GeppettoWebSocketHandler(WebSocketHandler):
                 pass
 
         except GeppettoHandlerTypedException as e:
-            self.send_message(e.payload, requestID, e.msg_type)
+            self.send_message(requestID, e.msg_type, e.payload)
         except AttributeError:
             raise Exception('Message type not handled', payload['type'])
 
         if msg_data is not None:
             return_msg_type = lookup_return_msg_type(msg_type)
-            self.send_message(msg_data, requestID, return_msg_type)
+            self.send_message(requestID, return_msg_type, msg_data)
 
-    def send_message(self, msg_data, requestID=None, return_msg_type=''):
+    def send_message(self, requestID, return_msg_type, msg_data):
         msg_data = TransportMessageFactory.getTransportMessage(requestID=requestID, type_=return_msg_type,
-                                                               update=msg_data)
+                                                               update=msg_data).__dict__
         # Here we go straight with compression and direct sending
         # In the Java backend we have a more complex configuration with enqueuing, size-based compression and more
         # See https://github.com/openworm/org.geppetto.frontend/blob/master/src/main/java/org/geppetto/frontend/messaging/DefaultMessageSender.java
-        self.write_message(gzip.compress(json.dumps(msg_data)), binary=True)
+        msg = json.dumps(msg_data)
+        if settings.websocket.compression_enabled and len(msg) > settings.websocket.min_message_length_for_compression:
+            self.write_message(gzip.compress(bytes(msg, 'utf-8')), binary=True)
+        self.write_message(msg)
 
     def on_close(self):
-        self.write_message({
-            'type': 'socket_closed',
-            'data': ''
-        })
-        self.geppettoHandler.closeProject()
+        # self.write_message({
+        #     'type': 'socket_closed',
+        #     'data': ''
+        # })
+        # self.geppettoHandler.closeProject()
         logging.info("Closed Connection ...")
-
-    def onError(self, session, thr):
-        """ generated source for method onError """
-        logging.info("Error Connection ..." + " error: " + thr.getMessage())
-
-    def broadcastSnapshot(self, data, session):
-        """ generated source for method broadcastSnapshot """
-        logging.info("broadcastBinary: " + data)
-        session.getBasicRemote().sendBinary(data)
 
     # NOTE: no other websocket expected for now
 
@@ -310,60 +304,3 @@ class GeppettoWebSocketHandler(WebSocketHandler):
             rqEMF = RunnableQuery(targetVariablePath=dt.targetVariablePath, queryPath=dt.queryPath)
             runnableQueriesEMF.append(rqEMF)
         return runnableQueriesEMF
-
-
-class ReceivedObject(object):
-    """ generated source for class ReceivedObject """
-    projectId = None
-    experimentId = None
-    variables = None
-    watch = bool()
-    modelParameters = None
-    properties = None
-    view = None
-
-
-class GetScript(object):
-    """ generated source for class GetScript """
-    projectId = None
-    scriptURL = None
-
-
-class BatchExperiment(object):
-    """ generated source for class BatchExperiment """
-    projectId = None
-    experiments = None
-
-
-class NewExperiment(object):
-    """ generated source for class NewExperiment """
-    name = None
-    watchedVariables = None
-    modelParameters = None
-    simulatorParameters = None
-    duration = None
-    timeStep = None
-    simulator = None
-    aspectPath = None
-
-
-class GeppettoModelAPIParameters(object):
-    """ generated source for class GeppettoModelAPIParameters """
-    projectId = None
-    experimentId = None
-    dataSourceId = None
-    paths = None
-    path = None
-    variableId = []
-    runnableQueries = None
-
-
-class RunnableQueryDT(object):
-    """ generated source for class RunnableQueryDT """
-    targetVariablePath = None
-    queryPath = None
-
-
-def getSession(self):
-    """ generated source for method getSession """
-    return self.userSession
