@@ -36,7 +36,7 @@ class ConnectionHandler(object):
     def loadProjectFromUrl(self, requestID, urlString):
         dataManager = DataManagerHelper.getDataManager()
 
-        geppettoProject = dataManager.getProjectFromJson(urlString)
+        geppettoProject = dataManager.get_project_from_url(urlString)
 
         if geppettoProject == None:
             raise GeppettoHandlerTypedException(OutboundMessages.ERROR_LOADING_PROJECT,
@@ -58,25 +58,29 @@ class ConnectionHandler(object):
             self.geppettoManager.load_project(geppettoProject)
             # Here the project is loaded: a runtime project is created with its model
 
-            # TODO handle experiment
+            geppettoProject.geppettoModel = {
+                'id': geppettoProject.geppettoModel.id,
+                'type': 'MODEL'
+            }  # There is something odd here: we are  sending the project without the model, although the model is there. It's the same in Java anyway, we are just having a PersistedData placeholder there. Why not serialize the model together with the project?
 
-            project_message_update = {'persisted': not geppettoProject.volatile,
-                                      'project': json.dumps(geppettoProject),
-                                      'isReadOnly': readOnly
-                                      }
+            project_message_update = json.dumps({
+                'persisted': not geppettoProject.volatile,
+                'project': geppettoProject.__dict__,
+                'isReadOnly': readOnly
+            })
             self.websocket_connection.send_message(requestID, OutboundMessages.PROJECT_LOADED, project_message_update)
 
-            geppettoModelJSON = GeppettoSerializer.serializeToJSON(
-                self.geppettoManager.get_runtime_project(geppettoProject).geppettoModel, True)
+            runtime_project = self.geppettoManager.get_runtime_project(geppettoProject)
+            geppettoModelJSON = GeppettoSerializer.serialize(
+                runtime_project.model, True).decode('UTF-8')  # TODO remove when we go back to plain strings
 
             self.websocket_connection.send_message(requestID, OutboundMessages.GEPPETTO_MODEL_LOADED, geppettoModelJSON)
+
+            # TODO handle experiment
         except Exception as e:
             self.error(e, "Could not load geppetto project")
 
-
-
-
-    # 
+    #
     # 	 * @param requestID
     # 	 * @param projectId
     # 	 
