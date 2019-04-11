@@ -81,10 +81,10 @@ class GeppettoWebSocketHandler(WebSocketHandler):
                 msg_data = self.geppettoHandler.getVersionNumber(requestID)
 
             elif msg_type == InboundMessages.RESOLVE_IMPORT_VALUE:
-                receivedObject = gmsg['data']
-                msg_data = self.geppettoHandler.resolveImportValue(requestID, receivedObject.projectId,
-                                                                   receivedObject.experimentId,
-                                                                   receivedObject.path)
+                receivedObject = json.loads(gmsg['data'])
+                msg_data = self.geppettoHandler.resolveImportValue(requestID, receivedObject['projectId'],
+                                                                   receivedObject['experimentId'],
+                                                                   receivedObject['path'])
 
             elif msg_type == InboundMessages.RESOLVE_IMPORT_TYPE:
                 receivedObject = gmsg['data']
@@ -262,9 +262,10 @@ class GeppettoWebSocketHandler(WebSocketHandler):
                 pass
 
         except GeppettoHandlerTypedException as e:
-            self.send_message(requestID, e.msg_type, e.payload)
-        except AttributeError:
-            raise Exception('Message type not handled', payload['type'])
+            self.send_message(requestID, e.msg_type, e.payload.__dict__)
+        except AttributeError as e:
+            logging.error('Message type not handled:' + payload['type'])
+            raise e
 
         if msg_data is not None:
             return_msg_type = lookup_return_msg_type(msg_type)

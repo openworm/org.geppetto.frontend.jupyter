@@ -113,8 +113,8 @@ class ConnectionHandler(object):
         geppettoProject = self.retrieveGeppettoProject(projectId)
         experiment = self.retrieveExperiment(experimentId, geppettoProject)
         try:
-            geppettoModel = self.geppettoManager.resolve_import_value(path, experiment, geppettoProject)
-            return GeppettoSerializer.serializeToJSON(geppettoModel, True)
+            geppettoModel = self.geppettoManager.resolve_import_value(path, geppettoProject, experiment)
+            return GeppettoSerializer.serialize(geppettoModel, True).decode('utf-8')
         except IOError as e:
             self.error(e, "Error importing value " + path)
         except GeppettoExecutionException as e:
