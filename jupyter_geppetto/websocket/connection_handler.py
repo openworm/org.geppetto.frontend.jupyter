@@ -71,10 +71,13 @@ class ConnectionHandler(object):
             self.websocket_connection.send_message(requestID, OutboundMessages.PROJECT_LOADED, project_message_update)
 
             runtime_project = self.geppettoManager.get_runtime_project(geppettoProject)
-            geppettoModelJSON = GeppettoSerializer.serialize(
-                runtime_project.model, True).decode('UTF-8')  # TODO remove when we go back to plain strings
 
+            geppettoModelJSON = GeppettoSerializer.serialize(
+                runtime_project.model, False).decode('UTF-8')
             self.websocket_connection.send_message(requestID, OutboundMessages.GEPPETTO_MODEL_LOADED, geppettoModelJSON)
+
+            GeppettoSerializer.serialize(
+                runtime_project.model, True)  # This is setting synched to true on the model objects
 
             # TODO handle experiment
         except Exception as e:

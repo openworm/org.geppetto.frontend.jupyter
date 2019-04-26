@@ -66,7 +66,7 @@ class GeppettoWebSocketHandler(WebSocketHandler):
         payload = json.loads(message)
         assert 'type' in payload, 'Websocket without type received: {}'.format(payload)
 
-        logging.info('Websocket websocket received: {}', payload['type'])
+        logging.info('Websocket websocket received: {}'.format(payload['type']))
 
         experimentId = -1
         #  de-serialize JSON
