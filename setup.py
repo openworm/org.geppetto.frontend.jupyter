@@ -66,7 +66,7 @@ setuptools.setup(
         'prometheus-client==0.3.1',
         'prompt-toolkit==1.0.15',
         'ptyprocess==0.6.0',
-        # 'pyecore==0.8.7',
+        'pyecore==0.8.7',
         'Pygments==2.2.0',
         'pyparsing==2.2.0',
         'python-dateutil==2.7.3',
@@ -86,6 +86,6 @@ setuptools.setup(
         'webencodings==0.5.1',
         'widgetsnbextension==3.4.1',
         'jupyter==1.0.0',
-        # 'pygeppetto==0.4.2'
+        'pygeppetto==0.4.2'
     ],
 )
