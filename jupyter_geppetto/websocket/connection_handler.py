@@ -28,9 +28,9 @@ class ConnectionHandler(object):
     """ generated source for class ConnectionHandler """
     simulationServerConfig = None
 
-    geppettoManager = GeppettoManager()  # TODO manage geppettoManager instance
-
     def __init__(self, websocket_connection):
+        self.geppettoManager = GeppettoManager()  
+        self.geppettoProject = None
         self.websocket_connection = websocket_connection
 
     def loadProjectFromUrl(self, requestID, urlString):
