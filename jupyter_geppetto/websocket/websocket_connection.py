@@ -91,7 +91,7 @@ class GeppettoWebSocketHandler(WebSocketHandler):
                 msg_data = self.geppettoHandler.resolveImportType(requestID, receivedObject.projectId,
                                                                   receivedObject.paths)
             elif msg_type == InboundMessages.LOAD_PROJECT_FROM_CONTENT:
-                msg_data = self.geppettoHandler.loadProjectFromContent(requestID, gmsg['data'])
+                self.geppettoHandler.loadProjectFromContent(requestID, gmsg['data'])
             elif msg_type == InboundMessages.LOAD_PROJECT_FROM_URL:
                 msg_data = self.geppettoHandler.loadProjectFromUrl(requestID, gmsg['data'])
 
@@ -116,7 +116,7 @@ class GeppettoWebSocketHandler(WebSocketHandler):
                 if parameters.containsKey("experimentId"):
                     experimentId = int(parameters.get("experimentId"))
                 projectId = int(parameters.get("projectId"))
-                msg_data = self.geppettoHandler.loadProjectFromId(requestID, projectId, experimentId)
+                self.geppettoHandler.loadProjectFromId(requestID, projectId, experimentId)
 
             elif msg_type == InboundMessages.PERSIST_PROJECT:
                 parameters = gmsg['data']
@@ -157,10 +157,11 @@ class GeppettoWebSocketHandler(WebSocketHandler):
                     parameters = gmsg['data']
                     url = parameters.get("url")
                     dataSourceName = parameters.get("data_source_name")
+                    # TODO: use self.websocketConnection when it is implemented
                     msg_data = self.geppettoHandler.sendDataSourceResults(requestID, dataSourceName, url,
-                                                                          self.websocketConnection)
+                                                                          'self.websocketConnection')
                 except IOError as e:
-                    self.sendMessage(requestID, OutboundMessages.ERROR_READING_SCRIPT, "")
+                    self.send_message(requestID, OutboundMessages.ERROR_READING_SCRIPT, "")
             elif msg_type == InboundMessages.GET_EXPERIMENT_STATE:
                 receivedObject = gmsg['data']
                 msg_data = self.geppettoHandler.getExperimentState(requestID, receivedObject.experimentId,
@@ -182,9 +183,9 @@ class GeppettoWebSocketHandler(WebSocketHandler):
                                                                         receivedObject.projectId,
                                                                         receivedObject.watch)
                 except GeppettoExecutionException as e:
-                    self.sendMessage(requestID, OutboundMessages.ERROR_SETTING_WATCHED_VARIABLES, "")
+                    self.send_message(requestID, OutboundMessages.ERROR_SETTING_WATCHED_VARIABLES, "")
                 except GeppettoInitializationException as e:
-                    self.sendMessage(requestID, OutboundMessages.ERROR_SETTING_WATCHED_VARIABLES, "")
+                    self.send_message(requestID, OutboundMessages.ERROR_SETTING_WATCHED_VARIABLES, "")
             elif msg_type == InboundMessages.GET_SUPPORTED_OUTPUTS:
                 parameters = gmsg['data']
                 experimentId = int(parameters.get("experimentId"))
@@ -299,7 +300,7 @@ class GeppettoWebSocketHandler(WebSocketHandler):
 
     def convertRunnableQueriesDataTransferModel(self, runnableQueries):
         """ generated source for method convertRunnableQueriesDataTransferModel """
-        runnableQueriesEMF = EList()
+        runnableQueriesEMF = EList('')
         from pygeppetto.model.datasources.datasources import RunnableQuery
         for dt in runnableQueries:
             rqEMF = RunnableQuery(targetVariablePath=dt.targetVariablePath, queryPath=dt.queryPath)
