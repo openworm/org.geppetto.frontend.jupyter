@@ -3,7 +3,7 @@ Settings for the module. Change right after importing, if needed.
 '''
 
 # The path of the geppetto client. Relative path is from the application root
-geppetto_webapp_file = 'ComponentsInitialization.js'
+geppetto_webapp_file = 'GeppettoConfiguration.json'
 
 # The path of the template. It should be relative to the webapp path
 template_path = 'build/geppetto.vm'
