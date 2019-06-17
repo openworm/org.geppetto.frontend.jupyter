@@ -8,11 +8,10 @@ from jupyter_geppetto.settings import host_pattern, notebook_path, webapp_root_p
     geppetto_servlet_path_name
 from jupyter_geppetto.utils import createNotebook
 from jupyter_geppetto.webapi import RouteManager
+from jupyter_geppetto.websocket_connection import TornadoGeppettoWebSocketHandler
 from notebook.utils import url_path_join
 from tornado.routing import Matcher
 from tornado.web import StaticFileHandler
-
-from .websocket.websocket_connection import GeppettoWebSocketHandler
 
 
 # @deprecated Backward compatibility: remove when every application stop using
@@ -129,7 +128,7 @@ def load_jupyter_server_extension(nbapp):
 
         # Just add the wildcard matcher here. Other routes will be added dinamically from within the matcher.
         nbapp.web_app.add_handlers(host_pattern, [(BasePathRecognitionMatcher(nbapp), RetryHandler)])
-        nbapp.web_app.add_handlers(host_pattern, [(GeppettoServletMatcher(), GeppettoWebSocketHandler)])
+        nbapp.web_app.add_handlers(host_pattern, [(GeppettoServletMatcher(), TornadoGeppettoWebSocketHandler)])
         # init_routes(nbapp, '/')
 
         nbapp.log.info("Geppetto Jupyter extension is running!")
