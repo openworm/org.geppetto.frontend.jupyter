@@ -66,29 +66,3 @@ def createNotebook(filename):
     nbf.write(nb0, f, 4)
     f.close()
 
-
-import tornado
-from tornado.routing import Matcher
-from jupyter_geppetto.settings import host_pattern, geppetto_servlet_path_name
-from jupyter_geppetto.websocket_connection import GeppettoMessageHandler
-
-
-class GeppettoServletMatcher(Matcher):
-
-    def match(self, request):
-        if geppetto_servlet_path_name == request.path[-len(geppetto_servlet_path_name):]:
-            return {}
-
-
-class MainHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.write("Hello, world")
-
-
-def start_notebook_server(port=3456):
-    app = tornado.web.Application([
-        (r"/", MainHandler),
-        (host_pattern, [(GeppettoServletMatcher(), GeppettoMessageHandler)])
-    ])
-    app.listen(port)
-    # tornado.ioloop.IOLoop.current().start()

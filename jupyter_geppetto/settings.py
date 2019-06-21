@@ -18,7 +18,6 @@ home_page = '/geppetto'
 
 geppetto_servlet_path_name = 'GeppettoServlet'
 
-geppetto_version = "0.4.2"  # FIXME the hardcoded version must be changed
 
 debug = False
 
