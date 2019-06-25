@@ -1,25 +1,29 @@
-import os.path
-import json
-import codecs
-from notebook.utils import url_path_join
-from notebook.base.handlers import IPythonHandler
-import tornado.websocket
-import tornado.web
-import nbformat as nbf
 import logging
-from nbformat.v4.nbbase import new_notebook
-import pkg_resources
-import traceback
+import os.path
 
+import tornado.web
+from jupyter_geppetto.handlers import GeppettoController
+from jupyter_geppetto.service import PathService
+from jupyter_geppetto.settings import host_pattern, notebook_path, webapp_root_paths, home_page, \
+    geppetto_servlet_path_name
+from jupyter_geppetto.utils import createNotebook
+from jupyter_geppetto.webapi import RouteManager
+from jupyter_geppetto.websocket_connection import TornadoGeppettoWebSocketHandler
+from notebook.utils import url_path_join
+from tornado.routing import Matcher
+from tornado.web import StaticFileHandler
+
+
+# @deprecated Backward compatibility: remove when every application stop using
+import jupyter_geppetto.synchronization as jupyter_geppetto
 
 def _jupyter_server_extension_paths():
-    
     return [{
         "module": "jupyter_geppetto"
     }]
 
+
 def _jupyter_nbextension_paths():
-    
     return [dict(
         section="notebook",
         # the path is relative to the `jupyter_geppetto` directory
@@ -30,87 +34,109 @@ def _jupyter_nbextension_paths():
         require="jupyter_geppetto/index")]
 
 
-class GeppettoHandler(IPythonHandler):
+def _add_routes(nbapp, routes, host_pattern='.*$', base_path='/'):
+    nbapp.log.info('Adding routes starting at base path {}'.format(base_path))
+    for route in routes:
+        nbapp.log.info('Adding http route {}'.format(route.path))
+        route_path = url_path_join(base_path, route.path)
+        nbapp.log.info('Complete route url: {}'.format(route_path))
+        nbapp.web_app.add_handlers(host_pattern, [(route_path, route.handler)])
+        if route_path[-1] != '/':
+            nbapp.web_app.add_handlers(host_pattern, [(route_path + '/', route.handler)])
+        else:
+            nbapp.web_app.add_handlers(host_pattern, [(route_path[0:-1], route.handler)])
+
+
+def _add_static_routes(nbapp, static_paths, host_pattern='.*$', base_path='/'):
+    nbapp.log.info('Adding routes starting at base path {}'.format(base_path))
+    for static_path in static_paths:
+        nbapp.log.info('Adding static http route {} pointing at'.format(static_path))
+        for webapp_root_path in webapp_root_paths:
+            route_path = url_path_join(base_path, webapp_root_path, '(.*)')
+            nbapp.log.info('Complete route url: {}'.format(route_path))
+            nbapp.web_app.add_handlers(host_pattern, [(route_path, StaticFileHandler, {"path": static_path})])
+
+
+def init_routes(nbapp, base_path):
+    web_app = nbapp.web_app
+    config = web_app.settings['config']
+    if 'library' in config:
+        modules = config['library'].split(',')
+        for moduleName in modules:
+            nbapp.log.info('Initializing library module {}'.format(moduleName))
+            module = __import__(moduleName)  # Here the module should add its routes to the RouteManager
+
+    _add_routes(nbapp, RouteManager.routes, host_pattern, base_path)
+    _add_static_routes(nbapp, RouteManager.static, host_pattern, base_path)
+
+class GeppettoServletMatcher(Matcher):
+
+    def match(self, request):
+        if geppetto_servlet_path_name == request.path[-len(geppetto_servlet_path_name):]:
+            return {}
+
+
+class BasePathRecognitionMatcher(Matcher):
+    '''Allows adding routes dynamically starting to the first call to /geppetto.
+    Starts as a catch-all then turns off after all the routes are added.'''
+
+    def __init__(self, nbapp):
+        self.paths = []
+        self.nbapp = nbapp
+
+    def match(self, request):
+        path = request.path
+        self.nbapp.log.debug('Trying to match path: {}'.format(path))
+
+        if home_page not in path:
+            return None  # We activate the path initialization only for the first home call
+
+        base_path = path.split(home_page)[0]
+        if not base_path or base_path[0] != '/':
+            base_path = '/' + base_path
+
+        self.nbapp.log.debug('Path found: {}'.format(base_path))
+        if base_path in self.paths:
+            return None  # Skip already added base path
+
+        self.paths.append(base_path)
+        self.nbapp.log.info('New context path found: {}. Relative routes will be added.'.format(base_path))
+        init_routes(self.nbapp, base_path)
+        return {}
+
+
+class RetryHandler(tornado.web.RequestHandler):
 
     def get(self):
-        try:
-            config = self.application.settings['config']
-            if 'library' in config:
-                # Create initial ipynb if it doesn't exist
-                if not os.path.isfile('notebook.ipynb'):
-                    nb0 = new_notebook(cells=[],
-                                    metadata={'language': 'python',})
-                    f = codecs.open('notebook.ipynb', encoding='utf-8', mode='w')
-                    nbf.write(nb0, f, 4)
-                    f.close()
+        self.redirect(self.request.path)
 
-                template = pkg_resources.resource_filename(config['library'], 'geppetto/src/main/webapp/build/geppetto.vm')
-                self.write(open(template).read())
-            else:
-                self.log.warning('Package to load missing in the url')
-                self.write('Package to load missing in the url')
-        except Exception:
-            self.log.info('Error on Geppetto Server extension')
-            traceback.print_exc()      
-
-class GeppettoProjectsHandler(IPythonHandler):
-
-    def get(self):
-        self.write({})
-
-class WebSocketHandler(tornado.websocket.WebSocketHandler):
-
-    def open(self):
-        # 1 -> Send the connection
-        self.write_message(
-            {"type": "client_id", "data": "{\"clientID\":\"Connection1\"}"})
-        # 2 -> Check user privileges
-        self.write_message(
-            {"type": "user_privileges", "data": "{\"user_privileges\": \"{\\\"userName\\\":\\\"Python User\\\",\\\"loggedIn\\\":true,\\\"hasPersistence\\\":false,\\\"privileges\\\":[\\\"READ_PROJECT\\\",\\\"DOWNLOAD\\\",\\\"DROPBOX_INTEGRATION\\\", \\\"RUN_EXPERIMENT\\\", \\\"WRITE_PROJECT\\\"]}\"}"})
-
-    def on_message(self, message):
-        jsonMessage = json.loads(message)
-        if (jsonMessage['type'] == 'geppetto_version'):
-            # Where do we get the geppetto version from?
-            self.write_message({"requestID": jsonMessage['requestID'], "type": "geppetto_version", "data": "{\"geppetto_version\":\"0.4.1\"}"})
-
-    def on_close(self):
-        pass
 
 def load_jupyter_server_extension(nbapp):
-    
     try:
+        nbapp.log.info("Starting Geppetto Jupyter extension")
+        logging.info = nbapp.log.info
+        logging.debug = nbapp.log.debug
+        if settings.debug:
+            nbapp.log_level = 'DEBUG'
+        RouteManager.initNotebookApp(nbapp)
+
+        if not os.path.exists(notebook_path):
+            nbapp.log.info("Creating notebook {}".format(notebook_path))
+            createNotebook(notebook_path)
+        else:
+            nbapp.log.info("Using notebook {}".format(notebook_path))
+
+        # Just add the wildcard matcher here. Other routes will be added dinamically from within the matcher.
+        nbapp.web_app.add_handlers(host_pattern, [(BasePathRecognitionMatcher(nbapp), RetryHandler)])
+        nbapp.web_app.add_handlers(host_pattern, [(GeppettoServletMatcher(), TornadoGeppettoWebSocketHandler)])
+        # init_routes(nbapp, '/')
+
         nbapp.log.info("Geppetto Jupyter extension is running!")
 
-        web_app = nbapp.web_app
-        config = web_app.settings['config']
-
-        host_pattern = '.*$'
-        route_pattern = url_path_join(web_app.settings['base_url'], '/geppetto')
-        web_app.add_handlers(host_pattern, [(route_pattern, GeppettoHandler)])
-
-        route_pattern_geppetto_projects = url_path_join(
-            web_app.settings['base_url'], '/geppettoprojects')
-        web_app.add_handlers(
-            host_pattern, [(route_pattern_geppetto_projects, GeppettoProjectsHandler)])
-
-        websocket_pattern = url_path_join(
-            web_app.settings['base_url'], '/org.geppetto.frontend/GeppettoServlet')
-        web_app.add_handlers(host_pattern, [(websocket_pattern, WebSocketHandler)])
-
-        if 'library' in config:
-            nbapp.log.info("Geppetto Jupyter extension loading library: " + str(config['library']))
-            template = pkg_resources.resource_filename(config['library'], 'geppetto/src/main/webapp/') # always use slash
-
-            resources_pattern = url_path_join(web_app.settings['base_url'], r"/org.geppetto.frontend/geppetto/(.*)")
-            web_app.add_handlers(host_pattern, [(resources_pattern, tornado.web.StaticFileHandler, {'path': template})])
-
-            resources_pattern2 = url_path_join(web_app.settings['base_url'], r"/geppetto/(.*)")
-            web_app.add_handlers(host_pattern, [(resources_pattern2, tornado.web.StaticFileHandler, {'path': template})])
-        else:
-            nbapp.log.warning('Package to load missing in the url')
-            raise Exception
-    
     except Exception:
-        nbapp.log.info('Error on Geppetto Server extension')
-        traceback.print_exc()
+        nbapp.log.error('Error on Geppetto Server extension')
+        raise
+
+# We're adding here the base routes: or maybe it should be the application to add all the routes it needs
+RouteManager.add_controller(GeppettoController)
+RouteManager.add_web_client(PathService.get_webapp_directory())
