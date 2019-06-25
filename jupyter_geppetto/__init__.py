@@ -15,7 +15,7 @@ from tornado.web import StaticFileHandler
 
 
 # @deprecated Backward compatibility: remove when every application stop using
-# import jupyter_geppetto.synchronization as jupyter_geppetto
+import jupyter_geppetto.synchronization as jupyter_geppetto
 
 def _jupyter_server_extension_paths():
     return [{

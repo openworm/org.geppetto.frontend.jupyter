@@ -19,7 +19,8 @@ function load_extension() {
     window.parent.IPython = IPython;
 
     // This loads the requirements into the notebook kernel
-    IPython.notebook.kernel.execute('from jupyter_geppetto import synchronization, utils');
+    // TODO import synchronization as jupyter_geppetto is deprecated
+    IPython.notebook.kernel.execute('from jupyter_geppetto import synchronization, utils, synchronization as jupyter_geppetto');
 
     // This will allow the application to be aware that the notebook kernel is ready
     window.parent.GEPPETTO.trigger('jupyter_geppetto_extension_ready');
