@@ -1,7 +1,13 @@
 import './jupyter_geppetto';
 import './geppettoJupyter.less';
 
+
 function load_extension() {
+    if(IPython.notebook.kernel == null) {
+        console.warn("Kernel not initialized. Waiting to load Jupyter Geppetto extension");
+        setTimeout(load_extension, 100);
+        return;
+    }
     console.log("Jupyter Geppetto extension loading");
     // Hide the header
     $('#header').hide();
@@ -14,6 +20,7 @@ function load_extension() {
         }
         return true;
     });
+
 
     // Make Jupyter (aka IPython) available to Geppetto
     window.parent.IPython = IPython;
