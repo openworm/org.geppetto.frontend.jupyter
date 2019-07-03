@@ -116,6 +116,8 @@ def load_jupyter_server_extension(nbapp):
         nbapp.log.info("Starting Geppetto Jupyter extension")
         logging.info = nbapp.log.info
         logging.debug = nbapp.log.debug
+        logging.error = nbapp.log.error
+
         if settings.debug:
             nbapp.log_level = 'DEBUG'
         RouteManager.initNotebookApp(nbapp)
