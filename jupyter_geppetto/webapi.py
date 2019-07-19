@@ -66,7 +66,7 @@ class HandlerType(type):
     pass
 
 
-def tornado_action(path, method):
+def tornado_action(method, path, headers={}):
     '''Annotation to build a tornado web handler on a function or method'''
 
     assert method in (getattr(METHODS, m) for m in dir(METHODS)), \
@@ -88,6 +88,9 @@ def tornado_action(path, method):
             logging.debug('Positional arguments: {}'.format(args))
             logging.debug('Keyword arguments: {}'.format(kwargs))
             value = fn(self, *args, **kwargs)
+
+            for hname, hvalue in headers.items():
+                self.set_header(hname, hvalue)
             self.finish(value)
 
         route = Route(path, HandlerType(path, (RequestHandler,), {method: handlerFn}))
@@ -97,18 +100,18 @@ def tornado_action(path, method):
 
 
 @export
-def get(path):
+def get(path, headers={}):
     '''Annotation for get actions.
     Parameters are taken first from the path wildcard pieces (.*), then from the query string. Query string parameters
     must have the same name of decorated function arguments.
     '''
-    return tornado_action(path, METHODS.GET)
+    return tornado_action(METHODS.GET, path, headers)
 
 
 @export
-def post(path):
+def post(path, headers={}):
     '''Annotation for post actions'''
-    return tornado_action(path, METHODS.POST)
+    return tornado_action(METHODS.POST, path, headers)
 
 
 if __name__ == '__main__':
