@@ -2,6 +2,7 @@
 Define decorators to easily define action controllers
 
 '''
+from notebook.base.handlers import IPythonHandler
 from tornado.web import RequestHandler, StaticFileHandler
 import logging
 from jupyter_geppetto import utils
@@ -91,9 +92,10 @@ def tornado_action(method, path, headers={}):
 
             for hname, hvalue in headers.items():
                 self.set_header(hname, hvalue)
-            self.finish(value)
+            if value is not None:
+                self.finish(value)
 
-        route = Route(path, HandlerType(path, (RequestHandler,), {method: handlerFn}))
+        route = Route(path, HandlerType(path, (IPythonHandler,), {method: handlerFn}))
         return route
 
     return real_decorator
