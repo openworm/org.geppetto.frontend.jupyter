@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://dl.dropboxusercontent.com/u/7538688/geppetto%20logo.png?dl=1" alt="Geppetto logo"/>
+  <img src="https://github.com/tarelli/bucket/raw/master/geppetto%20logo.png" alt="Geppetto logo"/>
 </p>
 
 # Geppetto Jupyter Notebook Extension
