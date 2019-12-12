@@ -56,7 +56,7 @@ setuptools.setup(
         'mistune==0.8.3',
         'nbconvert==5.4.0',
         'nbformat==4.4.0',
-        'notebook==5.6.0',
+        'notebook==5.7.8',
         'numpy==1.15.1',
         'ordered-set==3.0.1',
         'pandocfilters==1.4.2',
