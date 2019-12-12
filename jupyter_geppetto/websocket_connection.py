@@ -7,7 +7,7 @@ import json
 import logging
 
 from jupyter_geppetto import settings
-from pyecore.valuecontainer import EList
+from pyecore.ecore import EList
 from pygeppetto.api.message_handler import GeppettoMessageHandler
 from tornado.websocket import WebSocketHandler
 
