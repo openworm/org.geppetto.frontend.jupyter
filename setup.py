@@ -32,7 +32,7 @@ setuptools.setup(
     install_requires=[
         'appnope==0.1.0',
         'backcall==0.1.0',
-        'bleach==2.1.4',
+        'bleach==3.1.4',
         'cycler==0.10.0',
         'decorator==4.3.0',
         'defusedxml==0.5.0',
