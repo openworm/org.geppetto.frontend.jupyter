@@ -9,7 +9,7 @@ data_files.append(('share/jupyter/nbextensions/jupyter_geppetto', glob('jupyter_
 
 setuptools.setup(
     name="jupyter_geppetto",
-    version="1.0.1",
+    version="1.1.0",
     url="https://github.com/openworm/org.geppetto.frontend.jupyter",
     author="The Geppetto Development Team",
     author_email="info@geppetto.org",
@@ -85,7 +85,7 @@ setuptools.setup(
         'wcwidth==0.1.7',
         'webencodings==0.5.1',
         'widgetsnbextension==3.4.1',
-        'jupyter==1.0.0',
-        'pygeppetto>=0.5.0'
+        'jupygter==1.0.0',
+        'pygeppetto>=0.8.0'
     ],
 )
