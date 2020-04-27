@@ -85,7 +85,7 @@ setuptools.setup(
         'wcwidth==0.1.7',
         'webencodings==0.5.1',
         'widgetsnbextension==3.4.1',
-        'jupygter==1.0.0',
+        'jupyter==1.0.0',
         'pygeppetto>=0.8.0'
     ],
 )
