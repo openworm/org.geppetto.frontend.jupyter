@@ -21,7 +21,6 @@ MANAGERS_HANGING_TIME_SECONDS = 60 * 5
 
 class TornadoGeppettoWebSocketHandler(WebSocketHandler, GeppettoMessageHandler):
     hanging_managers = {}
-
     def open(self):
         # 1 -> Send the connection
         logging.info('Open websocket')
@@ -30,7 +29,7 @@ class TornadoGeppettoWebSocketHandler(WebSocketHandler, GeppettoMessageHandler):
 
         # 2 -> Check user privileges
         self.sendPrivileges()
-
+        
     def send_message_data(self, msg_data):
         msg = json.dumps(msg_data)
         if settings.websocket.compression_enabled and len(msg) > settings.websocket.min_message_length_for_compression:
@@ -41,7 +40,7 @@ class TornadoGeppettoWebSocketHandler(WebSocketHandler, GeppettoMessageHandler):
     def handle_message(self, payload):
         msg_type = self.get_message_type(payload)
         if msg_type == InboundMessages.RECONNECT:
-            connection_id = json.loads(payload['connectionID'])
+            connection_id = json.loads(payload['data'])['connectionID']
             self.recover_manager(connection_id)
         super().handle_message(payload)
 
