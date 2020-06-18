@@ -12,7 +12,7 @@ class PathService:
     def get_webapp_directory(cls):
         if not os.path.exists(cls.webapp_directory):
 
-            discovered_paths = glob.glob(os.path.abspath(".") + '/*/' + settings.geppetto_webapp_file)
+            discovered_paths = glob.glob(os.path.abspath(".") + '/**/' + settings.geppetto_webapp_file, recursive=True)
             if discovered_paths:
                 cls.webapp_directory = os.path.dirname(discovered_paths[0])
                 logging.info('Webapp directory discovered: {}'.format(cls.webapp_directory))
