@@ -30,9 +30,9 @@ setuptools.setup(
         'Programming Language :: Python :: 3.7'
     ],
     install_requires=[
-    
-        'widgetsnbextension>=3.4.1',
+        'ipywidgets>=7.4.1',
         'jupyter>=1.0.0',
+        'widgetsnbextension>=3.4.1',
         'pygeppetto>=0.8.0'
     ],
 )
