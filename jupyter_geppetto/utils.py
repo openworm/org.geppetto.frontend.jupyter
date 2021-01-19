@@ -1,4 +1,5 @@
 import logging
+import sys
 
 from ipykernel.jsonutil import json_clean
 # from jupyter_client import session
@@ -47,9 +48,10 @@ def configure_logging():
         # Configure log
         logger = logging.getLogger()
         fhandler = logging.FileHandler(filename='app.log', mode='a')
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s')
+        formatter = logging.Formatter('%(asctime)s|%(name)s|%(levelname)s - %(message)s')
         fhandler.setFormatter(formatter)
         logger.addHandler(fhandler)
+        logger.addHandler(logging.StreamHandler(sys.stdout))
         logger.setLevel(logging.DEBUG)
         logging.debug('Log configured')
     except Exception as exception:
